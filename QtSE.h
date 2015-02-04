@@ -7,10 +7,11 @@
 #include <QTableWidget>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 #include <QMenuBar>
 #include <QWidget>
 #include <QTextEdit>
+#include <QList>
 
 class QtSE : public QMainWindow
 {
@@ -31,6 +32,7 @@ protected:
 		QTabWidget *itemsTab;
 			QTreeWidget *projectTree;
 		QTabWidget *textTab;
+			QList< QTextEdit* > textEdits;
 };
 
 #endif // QTSE_H

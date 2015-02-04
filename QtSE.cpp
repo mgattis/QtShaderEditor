@@ -2,7 +2,6 @@
 
 QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 {
-
 	menuFile = this->menuBar()->addMenu( "File" );
 		actionQuit = menuFile->addAction( "Quit" , this , SLOT(close()) );
 
@@ -23,13 +22,15 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	itemsTab->setTabPosition( QTabWidget::East );
 	itemsTab->setTabsClosable( false );
 
-	QTextEdit *textEdit= new QTextEdit( NULL );
+	QTextEdit *textEdit = new QTextEdit( NULL );
 	textTab = new QTabWidget( NULL );
 	textTab->addTab( textEdit , "File 1" );
 
 	windowSplitter = new QSplitter( NULL );
 	windowSplitter->addWidget( itemsTab );
+	windowSplitter->setStretchFactor( 0 , 1 );
 	windowSplitter->addWidget( textTab );
+	windowSplitter->setStretchFactor( 1 , 4 );
 
 	this->setCentralWidget( windowSplitter );
 	textTab->setFocus();
@@ -37,5 +38,5 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 
 QtSE::~QtSE()
 {
-	//
+	// Nothing to do
 }
