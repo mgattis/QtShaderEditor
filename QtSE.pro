@@ -4,9 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui widgets
 
-TARGET = QtSE
+TARGET = QtShaderEditor
 TEMPLATE = app
 
 
@@ -14,3 +14,6 @@ SOURCES += main.cpp\
         QtSE.cpp
 
 HEADERS  += QtSE.h
+
+DISTFILES += \
+    .gitignore
