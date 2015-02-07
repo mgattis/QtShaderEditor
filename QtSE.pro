@@ -4,16 +4,31 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets
+QT       += core gui widgets opengl
 
 TARGET = QtSE
 TEMPLATE = app
 
+LIBS += -lGLEW -lGLU -lGL
+QMAKE_CXXFLAGS += -msse -msse2 -mfpmath=sse -fpermissive
 
 SOURCES += main.cpp\
-        QtSE.cpp
+        QtSE.cpp \
+    CResourceManager.cpp \
+    CPath.cpp \
+    qtil.cpp \
+    VGLView.cpp \
+    util.cpp \
+    VTabEditor.cpp
 
-HEADERS  += QtSE.h
+HEADERS  += QtSE.h \
+    CResourceManager.h \
+    CPath.h \
+    qtil.h \
+    IFileClass.h \
+    VGLView.h \
+    util.h \
+    VTabEditor.h
 
 DISTFILES += \
     .gitignore

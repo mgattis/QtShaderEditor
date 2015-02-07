@@ -12,6 +12,8 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	projectTree->header()->setStretchLastSection( true );
 	projectTree->header()->setHidden( true );
 
+	viewWidget = new VGLView( NULL );
+
 	QTreeWidgetItem *dummyFB = new QTreeWidgetItem( projectTree , QStringList( "Framebuffer 1" ) );
 	QTreeWidgetItem *dummyModel = new QTreeWidgetItem( dummyFB  , QStringList( "Model 1" ) );
 	QTreeWidgetItem *dummyShader = new QTreeWidgetItem( dummyModel , QStringList( "Shader 1" ) );
@@ -22,18 +24,43 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	itemsTab->setTabPosition( QTabWidget::East );
 	itemsTab->setTabsClosable( false );
 
+	viewSplitter = new QSplitter( NULL );
+	viewSplitter->setOrientation( Qt::Vertical );
+	viewSplitter->addWidget( viewWidget );
+	viewSplitter->setStretchFactor( 0 , 1 );
+	viewSplitter->addWidget( itemsTab );
+	viewSplitter->setStretchFactor( 1 , 4 );
+
+#if 0
+	editorArea = new QMdiArea( NULL );
+
+	QTextEdit *testEdit = new QTextEdit( NULL );
+	editorArea->addSubWindow( testEdit );
+#endif
+
+#if 0
+	QWidget *window = new QWidget( NULL );
+	window->setAttribute( Qt::WA_DeleteOnClose );
+	window->show();
+#endif
+
+#if 1
 	QTextEdit *textEdit = new QTextEdit( NULL );
-	textTab = new QTabWidget( NULL );
-	textTab->addTab( textEdit , "File 1" );
+
+	initialTab = new QTabWidget( NULL );
+	initialTab->setTabsClosable( true );
+	initialTab->setMovable( true );
+	initialTab->addTab( textEdit , "Shader 1" );
+#endif
 
 	windowSplitter = new QSplitter( NULL );
-	windowSplitter->addWidget( itemsTab );
+	windowSplitter->addWidget( viewSplitter );
 	windowSplitter->setStretchFactor( 0 , 1 );
-	windowSplitter->addWidget( textTab );
+	windowSplitter->addWidget( initialTab );
 	windowSplitter->setStretchFactor( 1 , 4 );
 
 	this->setCentralWidget( windowSplitter );
-	textTab->setFocus();
+	initialTab->setFocus();
 }
 
 QtSE::~QtSE()
