@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     qtil.cpp \
     VGLView.cpp \
     util.cpp \
-    VTabEditor.cpp
+    VTabEditor.cpp \
+    CJsonTemplate.cpp
 
 HEADERS  += QtSE.h \
     CResourceManager.h \
@@ -28,7 +29,8 @@ HEADERS  += QtSE.h \
     IFileClass.h \
     VGLView.h \
     util.h \
-    VTabEditor.h
+    VTabEditor.h \
+    CJsonTemplate.h
 
 DISTFILES += \
     .gitignore
