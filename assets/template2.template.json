@@ -1,0 +1,10 @@
+{
+    "stageList": [
+        {
+            "key": "stageName",
+            "type": "string",
+            "indexable": false,
+            "autoInsert": false
+        }
+    ]
+}

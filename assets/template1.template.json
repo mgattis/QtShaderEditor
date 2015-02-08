@@ -1,0 +1,356 @@
+{
+    "stageList": [
+        {
+            "key": "stageName",
+            "value": "stage1.stage",
+            "type": "string",
+            "autoInsert": true
+        },
+        {
+            "key": "stageIndex",
+            "value": 0,
+            "type": "integer",
+            "autoInsert": true
+        }
+    ],
+
+    "defaultCamera": [
+        {
+            "key": "cameraType",
+            "value": "orbitCamera",
+            "type": "string",
+            "autoInsert": true
+        },
+        {
+            "key": "speedMultiplier",
+            "value": 1.0,
+            "type": "float"
+        }
+    ],
+
+    "project": [
+        {
+            "key": "version",
+            "value": "v1.0b",
+            "type": "string",
+            "autoInsert": true
+        },
+        {
+            "key": "projectPath",
+            "value": ".",
+            "type": "string",
+            "autoInsert": true
+        },
+        {
+            "key": "defaultCamera",
+            "type": "defaultCamera",
+            "autoInsert": true
+        },
+        {
+            "key": "stageList",
+            "type": "stageList",
+            "indexable": true,
+            "autoInsert": true
+        }
+    ],
+
+    "dimensions": [
+        {
+            "key": "windowWidth",
+            "value": 1.0,
+            "type": "float",
+            "autoInsert": true
+        },
+        {
+            "key": "windowHeight",
+            "value": 1.0,
+            "type": "float",
+            "autoInsert": true
+        },
+        {
+            "key": "multiplier",
+            "value": 1.0,
+            "type": "float"
+        },
+        {
+            "key": "pixelWidth",
+            "value": 800,
+            "type": "integer"
+        },
+        {
+            "key": "pixelHeight",
+            "value": 600,
+            "type": "integer"
+        }
+    ],
+
+    "generatePerspectiveMatrix": [
+        {
+            "key": "fovy",
+            "value": 70.0,
+            "type": "float",
+            "autoInsert": true
+        },
+        {
+            "key": "aspect",
+            "type": "dimensions",
+            "autoInsert": true
+        },
+        {
+            "key": "zNear",
+            "value": 0.1,
+            "type": "float",
+            "autoInsert": true
+        },
+        {
+            "key": "zFar",
+            "value": 100.0,
+            "type": "float",
+            "autoInsert": true
+        }
+    ],
+
+    "generateOrthogonalMatrix": [
+        {
+            "key": "left",
+            "value": -1.0,
+            "type": "float",
+            "autoInsert": true
+        },
+        {
+            "key": "right",
+            "value": 1.0,
+            "type": "float",
+            "autoInsert": true
+        },
+        {
+            "key": "bottom",
+            "value": -1.0,
+            "type": "float",
+            "autoInsert": true
+        },
+        {
+            "key": "top",
+            "value": 1.0,
+            "type": "float",
+            "autoInsert": true
+        },
+        {
+            "key": "nearVal",
+            "value": -1.0,
+            "type": "float",
+            "autoInsert": true
+        }
+    ],
+
+    "framebufferList": [
+        {
+            "key": "framebufferName",
+            "value": "defaultFramebuffer",
+            "type": "string",
+            "autoInsert": true
+        }
+    ],
+
+    "modelList": [
+        {
+            "key": "modelName",
+            "value": "modelname",
+            "type": "string"
+        }
+    ],
+
+    "textureList": [
+        {
+            "key": "textureName",
+            "value": "texturename",
+            "type": "string"
+        }
+    ],
+
+    "stage": [
+        {
+            "key": "generatePerspectiveMatrix",
+            "type": "generatePerspectiveMatrix",
+            "autoInsert": true
+        },
+        {
+            "key": "generateOrthogonalMatrix",
+            "type": "generateOrthogonalMatrix"
+        },
+        {
+            "key": "framebufferList",
+            "type": "framebufferList",
+            "indexable": true,
+            "autoInsert": true
+        },
+        {
+            "key": "modelList",
+            "type": "modelList",
+            "indexable": true,
+            "autoInsert": true
+        },
+        {
+            "key": "textureList",
+            "type": "textureList",
+            "indexable": true,
+            "autoInsert": true
+        }
+    ],
+
+    "shaderList": [
+        {
+            "key": "shaderName",
+            "value": "shadername",
+            "type": "string",
+            "autoInsert": true
+        }
+    ],
+
+    "framebuffer": [
+        {
+            "key": "colorBuffer",
+            "value": true,
+            "type": "boolean",
+            "autoInsert": true
+        },
+        {
+            "key": "depthBuffer",
+            "value": true,
+            "type": "boolean",
+            "autoInsert": true
+        },
+        {
+            "key": "dimensions",
+            "type": "dimensions",
+            "autoInsert": true
+        },
+        {
+            "key": "uniformName",
+            "value": "defaultframebuffer",
+            "type": "string",
+            "autoInsert": true
+        },
+        {
+            "key": "shaderList",
+            "type": "shaderList",
+            "indexable": true,
+            "autoInsert": true
+        }
+    ],
+
+    "textureParameters": [
+        {
+            "key": "internalFormat",
+            "value": "auto",
+            "type": "string",
+            "autoInsert": true
+        },
+        {
+            "key": "channelType",
+            "value": "auto",
+            "type": "string",
+            "autoInsert": true
+        }
+    ],
+
+    "texture": [
+        {
+            "key": "imageFile",
+            "value": "image.png",
+            "type": "string",
+            "autoInsert": true
+        },
+        {
+            "key": "textureParameters",
+            "type": "textureParameters",
+            "autoInsert": true
+        },
+        {
+            "key": "shaderList",
+            "type": "shaderList",
+            "indexable": true,
+            "autoInsert": true
+        }
+    ],
+
+    "wavefront": [
+        {
+            "key": "objectFile",
+            "value": "model.obj",
+            "type": "string",
+            "autoInsert": true,
+            "isFile": true
+        },
+        {
+            "key": "materialsPath",
+            "value": ".",
+            "type": "string",
+            "autoInsert": true,
+            "isPath": true
+        }
+    ],
+    
+    "model": [
+        {
+            "key": "wavefront",
+            "type": "wavefront",
+            "autoInsert": true
+        },
+        {
+            "key": "shader",
+            "type": "shaderList",
+            "autoInsert": true
+        }
+    ],
+
+    "uniformList": [
+        {
+            "key": "uniformName",
+            "value": "uniformFloat",
+            "type": "string",
+            "autoInsert": true
+        },
+        {
+            "key": "type",
+            "value": "float",
+            "type": "string",
+            "autoInsert": true
+        },
+        {
+            "key": "value",
+            "value": 1.0,
+            "type": "float",
+            "indexable": true,
+            "autoInsert": true
+        },
+        {
+            "key": "normalize",
+            "value": false,
+            "type": "boolean",
+            "autoInsert": true
+        }
+    ],
+
+    "shader": [
+        {
+            "key": "vertexSourceFiles",
+            "value": "shader.vert.glsl",
+            "type": "string",
+            "indexable": true,
+            "autoInsert": true
+        },
+        {
+            "key": "fragmentSourceFiles",
+            "value": "shader.frag.glsl",
+            "type": "string",
+            "indexable": true,
+            "autoInsert": true
+        },
+        {
+            "key": "uniformList",
+            "type": "uniformList",
+            "indexable": true
+        }
+    ]
+}

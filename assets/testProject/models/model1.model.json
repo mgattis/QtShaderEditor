@@ -1,0 +1,13 @@
+{
+    "itemName": "model1.model",
+    "type": "model",
+
+    "wavefront": {
+        "objectFile": "model1.obj",
+        "materialPath": "."
+    },
+
+    "shader": {
+        "shaderName": "shader1.shader"
+    }
+}

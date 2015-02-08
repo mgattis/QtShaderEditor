@@ -1,0 +1,34 @@
+{
+    "itemName": "stage1.stage",
+    "type": "stage",
+
+    "generatePerspectiveMatrix": {
+        "fovy": 80.0,
+        "aspect": {
+            "windowWidth": 1.0,
+            "windowHeight": 1.0,
+            "pixelWidth": 100,
+            "pixelHeight": 200
+        },
+        "zNear": 0.1,
+        "zFar": 400.0
+    },
+
+    "framebufferList": [
+        {
+            "framebufferName": "stage1.stage"
+        }
+    ],
+
+    "modelList": [
+        {
+            "modelName": "model1.model"
+        }
+    ],
+
+    "textureList": [
+        {
+            "textureName": "texture1.texture"
+        }
+    ]
+}

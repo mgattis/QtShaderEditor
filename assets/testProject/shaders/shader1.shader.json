@@ -1,0 +1,25 @@
+{
+    "itemName": "shader1.shader",
+    "type": "shader",
+
+    "vertexSourceFiles": [
+        "shader1.vert.glsl"
+    ],
+
+    "fragmentSourceFiles": [
+        "shader1.frag.glsl"
+    ],
+
+    "uniformList": [
+        {
+            "uniformName": "light1",
+            "type": "vec3",
+            "value": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "normalize": true
+        }
+    ]
+}

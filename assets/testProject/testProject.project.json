@@ -1,0 +1,20 @@
+{
+    "itemName": "testproject.project",
+    "type": "project",
+
+    "version": "v0.1b",
+
+    "projectPath": ".",
+
+    "defaultCamera": {
+        "type": "freeCamera",,
+        "speedMultiplier": 1.0
+    },
+
+    "stageList": [
+        {
+            "stageName": "stage1.stage",
+            "stageIndex": 0
+        }
+    ]
+}
