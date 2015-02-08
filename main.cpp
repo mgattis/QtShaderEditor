@@ -10,10 +10,14 @@
 
 int main( int argc , char *argv[] )
 {
-	CJsonTemplate::get();
+	QJsonObject obj = CJsonTemplate::get()->createTree( "project" , true );
+
+	QJsonDocument doc( obj );
+	QByteArray data = doc.toJson( QJsonDocument::Indented );
+	std::cout << data.data();
+
 	return 0;
 
-return;
 #if 0
 		for( QJsonObject::iterator it = obj.begin() ; it != obj.end() ; it++ )
 		{

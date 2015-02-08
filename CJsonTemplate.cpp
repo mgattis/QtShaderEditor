@@ -33,7 +33,7 @@ void CJsonTemplate::parseDefaults( const QString &path /* = QString() */ )
 		// Top-level structures
 		for( int structIndex = 0 ; structIndex < keys.length() ; structIndex++ )
 		{
-			std::cout << keys.at( structIndex ).toLatin1().data() << std::endl;
+			//std::cout << keys.at( structIndex ).toLatin1().data() << std::endl;
 
 			CJsonStructure *str = new CJsonStructure;
 			structMap.insert( keys.at( structIndex ) , str );
@@ -66,12 +66,12 @@ void CJsonTemplate::parseDefaults( const QString &path /* = QString() */ )
 								data->indexable = keyvalue.value( key ).toString( "false" ) == "true";
 							else if( key == "key" )
 							{
-								data->key = keyvalue.value( key ).toString( "" );
-								std::cout << data->key.toLatin1().data() << " : ";
+								data->key = keyvalue.value( key ).toString();
+								//std::cout << data->key.toLatin1().data() << " : ";
 							}
 							else if( key == "type" )
 							{
-								QString typeValue = keyvalue.value( key ).toString( "" );
+								QString typeValue = keyvalue.value( key ).toString();
 
 								if( typeValue == "boolean" )
 									data->type = CJsonKeyvalueData::boolean;
@@ -82,7 +82,10 @@ void CJsonTemplate::parseDefaults( const QString &path /* = QString() */ )
 								else if( typeValue == "string" )
 									data->type = CJsonKeyvalueData::string;
 								else
+								{
 									data->type = CJsonKeyvalueData::structure;
+									data->value = typeValue;
+								}
 							}
 							else if( key == "value" )
 							{
@@ -91,25 +94,22 @@ void CJsonTemplate::parseDefaults( const QString &path /* = QString() */ )
 								{
 									case CJsonKeyvalueData::boolean:
 										data->value = keyvalue.value( key ).toString( "false" ) == "true";
-										std::cout << data->value.toBool();
+										//std::cout << data->value.toBool();
 										break;
 									case CJsonKeyvalueData::floating:
 										data->value = keyvalue.value( key ).toDouble();
-										std::cout << data->value.toFloat();
+										//std::cout << data->value.toFloat();
 										break;
 									case CJsonKeyvalueData::integer:
 										data->value = keyvalue.value( key ).toInt();
-										std::cout << data->value.toInt();
+										//std::cout << data->value.toInt();
 										break;
 									case CJsonKeyvalueData::string:
-										data->value = keyvalue.value( key ).toString( "false" );
-										std::cout << data->value.toString().toLatin1().data();
+										data->value = keyvalue.value( key ).toString();
 										break;
 									case CJsonKeyvalueData::structure:
-									{
-										std::cout << std::endl;
-										break;
-									}
+										//std::cout << data->value.toString().toLatin1().data();
+										//break;
 									default: {}
 								}
 							}
@@ -117,10 +117,30 @@ void CJsonTemplate::parseDefaults( const QString &path /* = QString() */ )
 							//std::cout << keyz.toLatin1().data() << " : " << valuez.toLatin1().data() << std::endl;
 						}
 
-						std::cout << std::endl;
+						//std::cout << std::endl;
 					}
 				}
 			}
 		}
 	}
+}
+
+QJsonObject CJsonTemplate::createTree( const QString &name , bool gui )
+{
+	QJsonObject obj;
+	QVector< CJsonKeyvalueData* > *keyvalues = (QVector< CJsonKeyvalueData* >*)structMap[ name ];
+
+	for( int index = 0 ; index < keyvalues->length() ; index++ )
+	{
+		CJsonKeyvalueData *data = keyvalues->at( index );
+
+		if( data->type == CJsonKeyvalueData::structure )
+		{
+			obj.insert( keyvalues->at( index )->key , QJsonValue( createTree( keyvalues->at( index )->value.toString() , gui ) ) );
+		}
+		else
+			obj.insert( keyvalues->at( index )->key , QJsonValue::fromVariant( data->value ) );
+	}
+
+	return obj;
 }

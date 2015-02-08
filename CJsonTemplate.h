@@ -49,12 +49,14 @@ private:
 	CJsonTemplate( const QString &path = QString() );
 	~CJsonTemplate();
 
-public:
+protected:
 	QMap< QString , CJsonStructure* > structMap;
 
 protected:
 	void parseDefaults( const QString &path /* = QString() */ );
-	void createTree( const QString &name );
+
+public:
+	QJsonObject createTree( const QString &name , bool gui );
 
 public:
 	static CJsonTemplate* get( void )
