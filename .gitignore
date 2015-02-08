@@ -2,7 +2,7 @@
 
 QtSE
 .directory
-.json
+*.json
 
 # C++ objects and libs
 
