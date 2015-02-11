@@ -41,10 +41,6 @@ void VGLView::setFragmentShader( QGLShader *shader )
 
 void VGLView::initializeGL( void )
 {
-	glEnable( GL_DEPTH_TEST );
-	glClearColor( 0.0 , 0.0 , 0.0, 0.0 );
-	glDepthFunc( GL_LEQUAL );
-
 	connect( &repaintTimer , SIGNAL(timeout()) , this , SLOT(updateGL()) );
 	repaintTimer.setInterval( 33 );
 	repaintTimer.start();
@@ -119,6 +115,10 @@ void VGLView::paintGL( void )
 
 void VGLView::resizeGL( int width , int height )
 {
+	glEnable( GL_DEPTH_TEST );
+	glClearColor( 0.0 , 0.0 , 0.0, 0.0 );
+	glDepthFunc( GL_LEQUAL );
+
 	glViewport( 0 , 0 , (GLint)this->width() , (GLint)this->height() );
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();

@@ -13,6 +13,10 @@
 #include <QTime>
 #include <QTimer>
 
+#ifndef M_PI
+#define M_PI (3.14159265359)
+#endif
+
 #define DEG2RAD (M_PI/180)
 
 class VGLView : public QGLWidget

@@ -29,13 +29,13 @@ struct CJsonKeyvalueData
 
 	CJsonKeyvalueData( void )
 	{
-		autoInsert = guiInsert = indexable = false;
+		guiInsert = indexable = projectInsert = false;
 	}
 
 	QString key;
 	Type type;
 	QVariant value;
-	bool autoInsert , guiInsert , indexable;
+	bool guiInsert , indexable , projectInsert;
 };
 
 struct CJsonStructure

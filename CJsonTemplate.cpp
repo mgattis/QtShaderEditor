@@ -60,15 +60,17 @@ void CJsonTemplate::parseDefaults( const QString &path /* = QString() */ )
 						{
 							QString key = keyvalueKeys.at( keyIndex );
 
-							if( key == "autoInsert" )
-								data->autoInsert = keyvalue.value( key ).toString( "false" ) == "true";
+							if( key == "guiInsert" )
+								data->guiInsert = keyvalue.value( key ).toBool();
 							else if( key == "indexable" )
-								data->indexable = keyvalue.value( key ).toString( "false" ) == "true";
+								data->indexable = keyvalue.value( key ).toBool();
 							else if( key == "key" )
 							{
 								data->key = keyvalue.value( key ).toString();
 								//std::cout << data->key.toLatin1().data() << " : ";
 							}
+							else if( key == "projectInsert" )
+								data->projectInsert = keyvalue.value( key ).toBool();
 							else if( key == "type" )
 							{
 								QString typeValue = keyvalue.value( key ).toString();
@@ -134,12 +136,27 @@ QJsonObject CJsonTemplate::createTree( const QString &name , bool gui )
 	{
 		CJsonKeyvalueData *data = keyvalues->at( index );
 
-		if( data->type == CJsonKeyvalueData::structure )
+		if( gui ? data->guiInsert : data->projectInsert )
 		{
-			obj.insert( keyvalues->at( index )->key , QJsonValue( createTree( keyvalues->at( index )->value.toString() , gui ) ) );
+			if( data->indexable )
+			{
+				QJsonArray array;
+
+				if( data->type == CJsonKeyvalueData::structure )
+					array.insert( 0 , QJsonValue( createTree( keyvalues->at( index )->value.toString() , gui ) ) );
+				else
+					array.insert( 0 , QJsonValue::fromVariant( data->value ) );
+
+				obj.insert( keyvalues->at( index )->key , QJsonValue( array ) );
+			}
+			else
+			{
+				if( data->type == CJsonKeyvalueData::structure )
+					obj.insert( keyvalues->at( index )->key , QJsonValue( createTree( keyvalues->at( index )->value.toString() , gui ) ) );
+				else
+					obj.insert( keyvalues->at( index )->key , QJsonValue::fromVariant( data->value ) );
+			}
 		}
-		else
-			obj.insert( keyvalues->at( index )->key , QJsonValue::fromVariant( data->value ) );
 	}
 
 	return obj;

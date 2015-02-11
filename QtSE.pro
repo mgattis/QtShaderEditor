@@ -9,6 +9,7 @@ QT       += core gui widgets opengl
 TARGET = QtSE
 TEMPLATE = app
 
+CONFIG += debug_and_release
 LIBS += -lGLEW -lGLU -lGL
 QMAKE_CXXFLAGS += -msse -msse2 -mfpmath=sse -fpermissive
 
@@ -20,7 +21,8 @@ SOURCES += main.cpp\
     VGLView.cpp \
     util.cpp \
     VTabEditor.cpp \
-    CJsonTemplate.cpp
+    CJsonTemplate.cpp \
+    VJsonForm.cpp
 
 HEADERS  += QtSE.h \
     CResourceManager.h \
@@ -30,7 +32,8 @@ HEADERS  += QtSE.h \
     VGLView.h \
     util.h \
     VTabEditor.h \
-    CJsonTemplate.h
+    CJsonTemplate.h \
+    VJsonForm.h
 
 DISTFILES += \
     .gitignore
