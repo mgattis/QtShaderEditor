@@ -14,7 +14,7 @@ VGLView::VGLView( QWidget *parent /* = NULL */ )
 
 VGLView::~VGLView()
 {
-
+	//
 }
 
 #if 0

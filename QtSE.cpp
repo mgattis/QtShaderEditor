@@ -49,12 +49,14 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 
 	VJsonForm *form = new VJsonForm( NULL );
 	VJsonForm *form2 = new VJsonForm( NULL );
+	VJsonForm *form3 = new VJsonForm( NULL );
 
-	QTabWidget *initialTab = new QTabWidget( NULL );
+	VDraggableTabWidget *initialTab = new VDraggableTabWidget();
 	initialTab->setTabsClosable( true );
-	initialTab->setMovable( true );
+	//initialTab->setMovable( true );
 	initialTab->addTab( form , "Shader 1" );
 	initialTab->addTab( form2 , "Shader 2" );
+	initialTab->addTab( form3 , "Shader 3" );
 
 	windowSplitter = new QSplitter( NULL );
 	windowSplitter->addWidget( viewSplitter );
@@ -62,9 +64,10 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	windowSplitter->addWidget( initialTab );
 	windowSplitter->setStretchFactor( 1 , 4 );
 
-	splitterMap.insert( initialTab , windowSplitter );
+	//splitterMap.insert( initialTab , windowSplitter );
 	tabMap.insert( form , initialTab );
 	tabMap.insert( form2 , initialTab );
+	tabMap.insert( form3 , initialTab );
 
 	this->setCentralWidget( windowSplitter );
 	form->setFocus();
@@ -73,6 +76,15 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 QtSE::~QtSE()
 {
 	// Nothing to do
+}
+
+void QtSE::moveTabsFromTo( QTabWidget *src , QTabWidget *dst )
+{
+	while( src->count() )
+	{
+		tabMap[ src->widget( 0 ) ] = dst;
+		dst->addTab( src->widget( 0 ) , src->tabText( 0 ) );
+	}
 }
 
 void QtSE::treeContextMenu( QPoint point )
@@ -117,23 +129,38 @@ void QtSE::split( Qt::Orientation orientation )
 {
 	QTabWidget *tabWidget = tabMap.value( this->focusWidget() , NULL );
 
+	/*
+	if( !tabWidget )
+		tabWidget = dynamic_cast< QTabWidget* >( this->focusWidget() );
+
+	if( !tabWidget )
+	{
+		QTabBar *tabBar = dynamic_cast< QTabBar* >( this->focusWidget() );
+		tabWidget = dynamic_cast< QTabWidget* >( tabBar->parentWidget() );
+	}
+	*/
+
 	if( tabWidget && tabWidget->count() > 1 )
 	{
-		QSplitter *tabSplitter = splitterMap.value( tabWidget , NULL );
+		QSplitter *tabSplitter = tabWidget->parentWidget();
 		VJsonForm *form = tabWidget->currentWidget();
 
 		QTabWidget *newTabWidget = new QTabWidget( NULL );
-		newTabWidget->addTab( form , "ey bb" );
-
-		QSplitter *newSplitter = new QSplitter( orientation , NULL );
-		newSplitter->addWidget( tabWidget );
-		newSplitter->addWidget( newTabWidget );
-
-		tabSplitter->addWidget( newSplitter );
-
-		splitterMap[ tabWidget ] = newSplitter;
-		splitterMap[ newTabWidget ] = newSplitter;
+		newTabWidget->setTabsClosable( true );
+		newTabWidget->addTab( form , tabWidget->tabText( tabWidget->currentIndex() ) );
 		tabMap[ form ] = newTabWidget;
+
+		if( tabSplitter != windowSplitter && tabSplitter->orientation() == orientation )
+			tabSplitter->addWidget( newTabWidget );
+		else
+		{
+			QSplitter *newSplitter = new QSplitter( orientation , NULL );
+			newSplitter->addWidget( tabWidget );
+			newSplitter->addWidget( newTabWidget );
+
+			tabSplitter->addWidget( newSplitter );
+		}
+
 		form->setFocus();
 	}
 }
@@ -144,63 +171,30 @@ void QtSE::splitCollapse( void )
 
 	if( tabWidget )
 	{
-		QSplitter *parentSplitter = splitterMap[ tabWidget ];
-		QTabWidget *otherTab = NULL;
+		QSplitter *parentSplitter = (QSplitter*)tabWidget->parentWidget();
 
-		// We have an active editor. Find the other tab widget owned by the splitter
-		for( QMap< QTabWidget* , QSplitter* >::iterator it = splitterMap.begin() ; it != splitterMap.end() ; it++ )
-		{
-			if( it.value() == parentSplitter && it.key() != tabWidget )
-			{
-				otherTab = it.key();
-				break;
-			}
-		}
+		// Don't close top splitter
+		if( parentSplitter == windowSplitter )
+			return;
 
-		if( otherTab )
-		{
-			// We have the other tab. Add the current tabs to this one
-			while( tabWidget->currentWidget() )
-			{
-				//std::cout << (int)tabMap.value( tabWidget->currentWidget() , NULL ) << std::endl;
-				tabMap[ tabWidget->currentWidget() ] = otherTab;
-				otherTab->addTab( tabWidget->currentWidget() , "lol" );
-			}
-
-			delete tabWidget;
-			tabWidget = NULL;
-		}
-
-		return;
-
-		/*
-		for( int index = 0 ; index < splitterMap.size() ; index++ )
-		{
-			VJsonForm *form = dynamic_cast< VJsonForm* >( list.at( index ) );
-
-			if( form )
-				formList.append( form );
-
-			std::cout << (int)form << std::endl;
-		}
-		*/
-#if 0
-		QSplitter *tabSplitter = splitterMap.value( tabWidget , NULL );
 		VJsonForm *form = tabWidget->currentWidget();
 
-		QTabWidget *newTabWidget = new QTabWidget( NULL );
-		newTabWidget->addTab( tabWidget->currentWidget() , "ey bb" );
+		if( parentSplitter->count() > 2 )
+		{
+			int targetIndex = !parentSplitter->indexOf( tabWidget );
+			moveTabsFromTo( tabWidget , parentSplitter->widget( targetIndex ) );
+			delete tabWidget;
+		}
+		else if( parentSplitter->count() == 2 )
+		{
+			QTabWidget *otherTab = parentSplitter->widget( !parentSplitter->indexOf( tabWidget ) );
+			moveTabsFromTo( tabWidget , otherTab );
+			delete tabWidget;
+			( (QSplitter*)( parentSplitter->parentWidget() ) )->addWidget( otherTab );
+			delete parentSplitter;
+		}
 
-		QSplitter *newSplitter = new QSplitter( orientation , NULL );
-		newSplitter->addWidget( tabWidget );
-		newSplitter->addWidget( newTabWidget );
-
-		tabSplitter->addWidget( newSplitter );
-
-		splitterMap[ tabWidget ] = newSplitter;
-		splitterMap[ newTabWidget ] = newSplitter;
-		tabMap[ form ] = newTabWidget;
-#endif
+		form->setFocus();
 	}
 }
 
@@ -210,7 +204,6 @@ void QtSE::addStage( void )
 }
 
 void QtSE::addFramebuffer( void )
-
 {
 	//
 }

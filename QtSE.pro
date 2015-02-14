@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     util.cpp \
     VTabEditor.cpp \
     CJsonTemplate.cpp \
-    VJsonForm.cpp
+    VJsonForm.cpp \
+    VDraggableTabBar.cpp
 
 HEADERS  += QtSE.h \
     CResourceManager.h \
@@ -33,7 +34,8 @@ HEADERS  += QtSE.h \
     util.h \
     VTabEditor.h \
     CJsonTemplate.h \
-    VJsonForm.h
+    VJsonForm.h \
+    VDraggableTabBar.h
 
 DISTFILES += \
     .gitignore

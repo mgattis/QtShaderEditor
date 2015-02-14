@@ -1,6 +1,7 @@
 #ifndef QTSE_H
 #define QTSE_H
 
+#include "VDraggableTabBar.h"
 #include "VGLView.h"
 #include "VJsonForm.h"
 #include "VTabEditor.h"
@@ -76,8 +77,11 @@ protected:
 			QTabWidget *itemsTab;
 				QTreeWidget *projectTree;
 		//QMdiArea *mdiArea;
-		QMap< QTabWidget* , QSplitter* > splitterMap;
+		//QMap< QTabWidget* , QSplitter* > splitterMap;
 		QMap< VJsonForm* , QTabWidget* > tabMap;
+
+protected:
+	void moveTabsFromTo( QTabWidget *src , QTabWidget *dst );
 
 protected slots:
 	void treeContextMenu( QPoint point );

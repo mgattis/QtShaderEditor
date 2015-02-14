@@ -2,7 +2,10 @@
 #define VJSONFORM_H
 
 #include "CJsonTemplate.h"
+#include "qtil.h"
 
+#include <QAction>
+#include <QMenu>
 #include <QTreeWidget>
 #include <QWidget>
 
@@ -18,9 +21,11 @@ protected:
 	void generateValue( QTreeWidgetItem *parent , const QString &name , QJsonValue &value , bool useParent = false );
 	void generateChildren( QTreeWidgetItem *parent , QJsonObject &object );
 
-signals:
-
 public slots:
+	void showContextMenu( QPoint point );
+
+	void addArrayItem( void );
+	void removeArrayItem( void );
 };
 
 #endif // VJSONFORM_H

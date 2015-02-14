@@ -161,3 +161,55 @@ QJsonObject CJsonTemplate::createTree( const QString &name , bool gui )
 
 	return obj;
 }
+
+void CJsonTemplate::createTree( const QString &name , QTreeWidgetItem *parent )
+{
+	QVector< CJsonKeyvalueData* > *keyvalues = (QVector< CJsonKeyvalueData* >*)structMap[ name ];
+
+	for( int index = 0 ; index < keyvalues->length() ; index++ )
+	{
+		const CJsonKeyvalueData *data = keyvalues->at( index );
+		std::cout << data->key.toLatin1().data() << std::endl;
+
+		//if( data->guiInsert )
+		{
+			if( data->indexable )
+			{
+				if( data->type == CJsonKeyvalueData::structure )
+				{
+					VJsonFormItem *array = new VJsonFormItem( parent , data->type , true , data->value );
+					array->setText( 0 , data->key );
+					array->setText( 1 , "ARRAY" );
+
+					VJsonFormItem *item = new VJsonFormItem( array , data->type , false , data->value );
+					item->setText( 0 , "[0]" );
+					item->setText( 1 , data->getValueName() );
+
+					createTree( data->value.toString() , item );
+				}
+				else
+				{
+					VJsonFormItem *array = new VJsonFormItem( parent , data->type , true , data->value );
+					array->setText( 0 , data->key );
+					array->setText( 1 , "ARRAY" );
+
+					VJsonFormItem *item = new VJsonFormItem( array , data->type , false , data->value );
+					item->setText( 0 , "[0]" );
+					item->setText( 1 , data->getValueName().toUpper() );
+					item->setData( 2 , Qt::DisplayRole , data->value );
+				}
+			}
+			else
+			{
+				VJsonFormItem *item = new VJsonFormItem( parent , data->type , false , data->value );
+				item->setText( 0 , data->key );
+				item->setText( 1 , data->getValueName().toUpper() );
+
+				if( data->type == CJsonKeyvalueData::structure )
+					createTree( data->value.toString() , item );
+				else
+					item->setData( 2 , Qt::DisplayRole , data->value );
+			}
+		}
+	}
+}

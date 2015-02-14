@@ -489,3 +489,15 @@ QString UTIL_extensionForFileDialogFilter( const QString &filter )
 
 	return extension;
 }
+
+void UTIL_expandTreeItems( QTreeWidget *tree , QTreeWidgetItem *item )
+{
+	if( tree && item )
+	{
+		tree->expandItem( item );
+
+		// Expand children as well
+		for( int index = 0 ; index < item->childCount() ; index++ )
+			UTIL_expandTreeItems( tree , item->child( index ) );
+	}
+}

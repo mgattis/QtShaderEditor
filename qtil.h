@@ -18,6 +18,8 @@
 #include <QIcon>
 #include <QString>
 #include <QTemporaryFile>
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
 #include <QVector>
 #include <QWidget>
 
@@ -129,6 +131,9 @@ bool UTIL_writeBytes( const QByteArray &data , QIODevice &device , unsigned int 
 QString UTIL_groupDigits( quint64 number );
 
 QString UTIL_extensionForFileDialogFilter( const QString &filter );
+
+// QTreeWidget can't expand all children of a specific item alone
+void UTIL_expandTreeItems( QTreeWidget *tree , QTreeWidgetItem *item );
 
 
 
