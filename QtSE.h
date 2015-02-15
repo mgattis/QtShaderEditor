@@ -78,10 +78,11 @@ protected:
 				QTreeWidget *projectTree;
 		//QMdiArea *mdiArea;
 		//QMap< QTabWidget* , QSplitter* > splitterMap;
-		QMap< VJsonForm* , QTabWidget* > tabMap;
+		QMap< VJsonForm* , VDraggableTabWidget* > tabMap;
 
 protected:
 	void moveTabsFromTo( QTabWidget *src , QTabWidget *dst );
+	VDraggableTabWidget* getFirstTabWidget( QSplitter *splitter );
 
 protected slots:
 	void treeContextMenu( QPoint point );
@@ -89,6 +90,9 @@ protected slots:
 	inline void splitHorizontally( void ) { split( Qt::Vertical ); }
 	inline void splitVertically( void ) { split( Qt::Horizontal ); }
 	void splitCollapse( void );
+
+	void tabWidgetAdded( QWidget *widget );
+	void tabWidgetDestroyed( QObject *object );
 
 	void addStage( void );
 	void addFramebuffer( void );
