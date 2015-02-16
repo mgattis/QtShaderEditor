@@ -56,6 +56,7 @@ protected:
 signals:
 	void widgetAdded( QWidget *widget );
 	void widgetRemoved( QWidget *widget );
+	void tabCountChanged( int count );
 
 protected slots:
 	void dragEnterEvent( QDragEnterEvent *event );

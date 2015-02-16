@@ -12,10 +12,13 @@ CJsonTemplate::~CJsonTemplate()
 
 void CJsonTemplate::parseDefaults( const QString &path /* = QString() */ )
 {
-	if( path.isNull() )
-		path = "assets/template1.template.json";
+	QFile file;
 
-	QFile file( path );
+	if( path.isNull() )
+		file.setFileName( "assets/template1.template.json" );
+	else
+		file.setFileName( path );
+
 	file.open( QIODevice::ReadOnly );
 
 	QByteArray data = file.readAll();
@@ -127,7 +130,7 @@ void CJsonTemplate::parseDefaults( const QString &path /* = QString() */ )
 	}
 }
 
-QJsonObject CJsonTemplate::createTree( const QString &name , bool gui )
+QJsonObject CJsonTemplate::createTree( const QString &name , bool gui ) const
 {
 	QJsonObject obj;
 	QVector< CJsonKeyvalueData* > *keyvalues = (QVector< CJsonKeyvalueData* >*)structMap[ name ];
@@ -162,7 +165,7 @@ QJsonObject CJsonTemplate::createTree( const QString &name , bool gui )
 	return obj;
 }
 
-void CJsonTemplate::createTree( const QString &name , QTreeWidgetItem *parent )
+void CJsonTemplate::createTree( const QString &name , QTreeWidgetItem *parent ) const
 {
 	QVector< CJsonKeyvalueData* > *keyvalues = (QVector< CJsonKeyvalueData* >*)structMap[ name ];
 

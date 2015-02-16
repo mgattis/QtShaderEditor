@@ -35,7 +35,7 @@ struct CJsonKeyvalueData
 		guiInsert = indexable = projectInsert = false;
 	}
 
-	QString getValueName( void )
+	QString getValueName( void ) const
 	{
 		switch( type )
 		{
@@ -115,8 +115,8 @@ protected:
 	void parseDefaults( const QString &path /* = QString() */ );
 
 public:
-	QJsonObject createTree( const QString &name , bool gui );
-	void createTree( const QString &name , QTreeWidgetItem *parent );
+	QJsonObject createTree( const QString &name , bool gui ) const;
+	void createTree( const QString &name , QTreeWidgetItem *parent ) const;
 
 public:
 	static CJsonTemplate* get( void )

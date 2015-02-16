@@ -11,7 +11,10 @@ TEMPLATE = app
 
 CONFIG += debug_and_release
 LIBS += -lGLEW -lGLU -lGL
-QMAKE_CXXFLAGS += -msse -msse2 -mfpmath=sse -fpermissive
+QMAKE_CXXFLAGS += -msse -msse2 -mfpmath=sse -fpermissive -ggdb
+
+# Warnings
+QMAKE_CXXFLAGS += -Wno-unused-variable -Wno-unused-parameter -Wno-sign-compare
 
 SOURCES += main.cpp\
         QtSE.cpp \

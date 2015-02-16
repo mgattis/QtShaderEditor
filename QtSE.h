@@ -47,8 +47,9 @@ public:
 		{
 			partType = type;
 		}
+
 	public:
-		inline Type getPartType( void ) { return partType; }
+		inline Type getPartType( void ) const { return partType; }
 		inline void setPartType( Type type ) { partType = type; }
 
 	protected:
@@ -76,13 +77,13 @@ protected:
 			VGLView *viewWidget;
 			QTabWidget *itemsTab;
 				QTreeWidget *projectTree;
-		//QMdiArea *mdiArea;
-		//QMap< QTabWidget* , QSplitter* > splitterMap;
 		QMap< VJsonForm* , VDraggableTabWidget* > tabMap;
 
 protected:
-	void moveTabsFromTo( QTabWidget *src , QTabWidget *dst );
-	VDraggableTabWidget* getFirstTabWidget( QSplitter *splitter );
+	VJsonForm* makeVJsonForm( void );
+	VDraggableTabWidget* makeVDraggableTabWidget( void );
+
+	VDraggableTabWidget* getFirstTabWidget( QSplitter *splitter ) const;
 
 protected slots:
 	void treeContextMenu( QPoint point );
@@ -91,8 +92,11 @@ protected slots:
 	inline void splitVertically( void ) { split( Qt::Horizontal ); }
 	void splitCollapse( void );
 
-	void tabWidgetAdded( QWidget *widget );
-	void tabWidgetDestroyed( QObject *object );
+	void tabWidgetTabAdded( QWidget *widget );
+	void tabWidgetTabDestroyed( QObject *object );
+	void tabWidgetCountChanged( int count );
+	void removeTabWidgetFromLayout( QObject *tabWidget ) { removeTabWidgetFromLayout( dynamic_cast< VDraggableTabWidget* >( tabWidget ) ); }
+	void removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget );
 
 	void addStage( void );
 	void addFramebuffer( void );

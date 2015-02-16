@@ -17,7 +17,7 @@ VDraggableTabBar::~VDraggableTabBar()
 #if 1
 void VDraggableTabBar::mousePressEvent( QMouseEvent *event )
 {
-	if( event && this->count() > 1 )
+	if( event )
 	{
 		if( event->button() == Qt::LeftButton )
 		{
@@ -31,7 +31,7 @@ void VDraggableTabBar::mousePressEvent( QMouseEvent *event )
 
 void VDraggableTabBar::mouseMoveEvent( QMouseEvent *event )
 {
-	if( event && this->count() > 1 )
+	if( event )
 	{
 		if( event->buttons() & Qt::LeftButton && ( event->pos() - dragStartPos ).manhattanLength() >= QApplication::startDragDistance() )
 		{
@@ -60,7 +60,12 @@ void VDraggableTabBar::mouseMoveEvent( QMouseEvent *event )
 						target->addTab( parentTabWidget->currentWidget() , parentTabWidget->tabText( parentTabWidget->currentIndex() ) );
 				}
 				else
+				{
 					std::cout << "!dropAction" << std::endl;
+					int currentIndex = parentTabWidget->currentIndex();
+					parentTabWidget->setCurrentIndex( -1 );
+					parentTabWidget->setCurrentIndex( currentIndex );
+				}
 
 				parentTabWidget->setAcceptDrops( true );
 			}
@@ -138,6 +143,7 @@ void VDraggableTabWidget::tabInserted( int index )
 
 	std::cout << QString( "%1 inserted into %2" ).arg( (int)this->widget( index ) ).arg( (int)this ).toLatin1().data() << std::endl;
 	emit widgetAdded( this->widget( index ) );
+	emit tabCountChanged( this->count() );
 }
 
 void VDraggableTabWidget::tabRemoved( int index )
@@ -145,8 +151,10 @@ void VDraggableTabWidget::tabRemoved( int index )
 	this->setMovable( this->count() > 1 );
 	QTabWidget::tabRemoved( index );
 
-	//std::cout << "removed" << std::endl;
+	std::cout << QString( "window removed from %1" ).arg( (int)this ).toLatin1().data() << std::endl;
 	//emit widgetRemoved( this->widget( index ) );
+
+	emit tabCountChanged( this->count() );
 }
 
 void VDraggableTabWidget::dragEnterEvent( QDragEnterEvent *event )
