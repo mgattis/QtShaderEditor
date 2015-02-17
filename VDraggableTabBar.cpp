@@ -141,7 +141,7 @@ void VDraggableTabWidget::tabInserted( int index )
 	this->setMovable( this->count() > 1 );
 	QTabWidget::tabInserted( index );
 
-	std::cout << QString( "%1 inserted into %2" ).arg( (int)this->widget( index ) ).arg( (int)this ).toLatin1().data() << std::endl;
+	std::cout << QString( "%1 \"%2\" inserted into %3" ).arg( (int)this->widget( index ) ).arg( this->tabText( index ).toLatin1().data() ).arg( (int)this ).toLatin1().data() << std::endl;
 	emit widgetAdded( this->widget( index ) );
 	emit tabCountChanged( this->count() );
 }

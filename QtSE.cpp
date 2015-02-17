@@ -43,11 +43,17 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	VJsonForm *form = makeVJsonForm();
 	VJsonForm *form2 = makeVJsonForm();
 	VJsonForm *form3 = makeVJsonForm();
+	VJsonForm *form4 = makeVJsonForm();
+	VJsonForm *form5 = makeVJsonForm();
+	VJsonForm *form6 = makeVJsonForm();
 
 	VDraggableTabWidget *initialTab = makeVDraggableTabWidget();
 	initialTab->addTab( form , "Shader 1" );
 	initialTab->addTab( form2 , "Shader 2" );
 	initialTab->addTab( form3 , "Shader 3" );
+	initialTab->addTab( form4 , "Shader 4" );
+	initialTab->addTab( form5 , "Shader 5" );
+	initialTab->addTab( form6 , "Shader 6" );
 
 	windowSplitter = new QSplitter( NULL );
 	windowSplitter->addWidget( viewSplitter );
@@ -107,7 +113,7 @@ VDraggableTabWidget* QtSE::getFirstTabWidget( QSplitter *splitter ) const
 
 void QtSE::removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget )
 {
-	//std::cout << QString( "removeTabWidgetFromLayout( %1 )" ).arg( (int)tabWidget ).toLatin1().data() << std::endl;
+	std::cout << QString( "removeTabWidgetFromLayout( %1 )" ).arg( (int)tabWidget ).toLatin1().data() << std::endl;
 
 	if( tabWidget )
 	{
@@ -132,6 +138,8 @@ void QtSE::removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget )
 			while( tabWidget->count() )
 				otherTabWidget->addTab( tabWidget->widget( 0 ) , tabWidget->tabText( 0 ) );
 
+			std::cout << QString( "parentSplitter->count() == %1" ).arg( parentSplitter->count() ).toLatin1().data() << std::endl;
+
 			if( parentSplitter->count() == 2 )
 			{
 				QSplitter *parentParentSplitter = (QSplitter*)( parentSplitter->parentWidget() );
@@ -141,7 +149,8 @@ void QtSE::removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget )
 				{
 					// windowSplitter should contain all the tab widgets in a single, child splitter
 					// It may have other splits for different components
-					if( parentParentSplitter != windowSplitter && parentSplitter->orientation() == parentParentSplitter->orientation() )
+					//if( parentParentSplitter != windowSplitter && parentSplitter->orientation() == parentParentSplitter->orientation() )
+					if( parentParentSplitter != windowSplitter && otherSplitter->orientation() == parentParentSplitter->orientation() )
 					{
 						// Add all of the other splitter's widgets to the splitter above that
 						while( otherSplitter->count() )

@@ -95,7 +95,8 @@ protected slots:
 	void tabWidgetTabAdded( QWidget *widget );
 	void tabWidgetTabDestroyed( QObject *object );
 	void tabWidgetCountChanged( int count );
-	void removeTabWidgetFromLayout( QObject *tabWidget ) { removeTabWidgetFromLayout( dynamic_cast< VDraggableTabWidget* >( tabWidget ) ); }
+	//void removeTabWidgetFromLayout( QObject *tabWidget ) { removeTabWidgetFromLayout( dynamic_cast< VDraggableTabWidget* >( tabWidget ) ); }
+	void removeTabWidgetFromLayout( QObject *tabWidget ) { removeTabWidgetFromLayout( (VDraggableTabWidget*)tabWidget ); }
 	void removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget );
 
 	void addStage( void );
