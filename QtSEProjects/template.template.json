@@ -1,0 +1,319 @@
+{
+    "defaultCamera": [
+        {
+            "key": "cameraType",
+            "value": "orbitCamera",
+            "type": "string",
+            "guiInsert": true,
+            "projectInsert": true
+        },
+        {
+            "key": "speedMultiplier",
+            "value": 1.0,
+            "type": "float"
+        }
+    ],
+
+    "project": [
+        {
+            "key": "version",
+            "value": "v1.0b",
+            "type": "string",
+            "guiInsert": true
+        },
+        {
+            "key": "projectPath",
+            "value": ".",
+            "type": "string",
+            "guiInsert": true
+        },
+        {
+            "key": "defaultCamera",
+            "type": "defaultCamera",
+            "guiInsert": true
+        },
+        {
+            "key": "stageList",
+            "type": "string",
+            "indexable": true,
+            "guiInsert": true
+        }
+    ],
+
+    "dimensions": [
+        {
+            "key": "windowWidth",
+            "value": 1.0,
+            "type": "float",
+            "guiInsert": true,
+            "projectInsert": true
+        },
+        {
+            "key": "windowHeight",
+            "value": 1.0,
+            "type": "float",
+            "guiInsert": true,
+            "projectInsert": true
+        },
+        {
+            "key": "multiplier",
+            "value": 1.0,
+            "type": "float"
+        },
+        {
+            "key": "pixelWidth",
+            "value": 800,
+            "type": "integer"
+        },
+        {
+            "key": "pixelHeight",
+            "value": 600,
+            "type": "integer"
+        }
+    ],
+
+    "generatePerspectiveMatrix": [
+        {
+            "key": "fovy",
+            "value": 70.0,
+            "type": "float",
+            "guiInsert": true
+        },
+        {
+            "key": "aspect",
+            "type": "dimensions",
+            "guiInsert": true
+        },
+        {
+            "key": "zNear",
+            "value": 0.1,
+            "type": "float",
+            "guiInsert": true
+        },
+        {
+            "key": "zFar",
+            "value": 100.0,
+            "type": "float",
+            "guiInsert": true
+        }
+    ],
+
+    "generateOrthogonalMatrix": [
+        {
+            "key": "left",
+            "value": -1.0,
+            "type": "float",
+            "guiInsert": true
+        },
+        {
+            "key": "right",
+            "value": 1.0,
+            "type": "float",
+            "guiInsert": true
+        },
+        {
+            "key": "bottom",
+            "value": -1.0,
+            "type": "float",
+            "guiInsert": true
+        },
+        {
+            "key": "top",
+            "value": 1.0,
+            "type": "float",
+            "guiInsert": true
+        },
+        {
+            "key": "nearVal",
+            "value": -1.0,
+            "type": "float",
+            "guiInsert": true
+        }
+    ],
+
+    "stage": [
+        {
+            "key": "generatePerspectiveMatrix",
+            "type": "generatePerspectiveMatrix",
+            "guiInsert": true,
+            "projectInsert": true
+        },
+        {
+            "key": "generateOrthogonalMatrix",
+            "type": "generateOrthogonalMatrix"
+        },
+        {
+            "key": "framebufferList",
+            "value": "framebuffer_name",
+            "type": "string",
+            "indexable": true,
+            "guiInsert": true
+        },
+        {
+            "key": "modelList",
+            "value": "model_name",
+            "type": "string",
+            "indexable": true,
+            "guiInsert": true
+        },
+        {
+            "key": "textureList",
+            "value": "texture_name",
+            "type": "string",
+            "indexable": true,
+            "guiInsert": true
+        }
+    ],
+
+    "framebuffer": [
+        {
+            "key": "colorBuffer",
+            "value": true,
+            "type": "boolean",
+            "guiInsert": true
+        },
+        {
+            "key": "depthBuffer",
+            "value": true,
+            "type": "boolean",
+            "guiInsert": true
+        },
+        {
+            "key": "dimensions",
+            "type": "dimensions",
+            "guiInsert": true
+        },
+        {
+            "key": "uniformName",
+            "value": "defaultframebuffer",
+            "type": "string",
+            "guiInsert": true
+        },
+        {
+            "key": "shaderList",
+            "value": "shader_name",
+            "type": "string",
+            "indexable": true,
+            "guiInsert": true
+        }
+    ],
+
+    "textureParameters": [
+        {
+            "key": "internalFormat",
+            "value": "auto",
+            "type": "string",
+            "guiInsert": true
+        },
+        {
+            "key": "channelType",
+            "value": "auto",
+            "type": "string",
+            "guiInsert": true
+        }
+    ],
+
+    "texture": [
+        {
+            "key": "imageFile",
+            "value": "image.png",
+            "type": "string",
+            "isFile": true,
+            "guiInsert": true
+        },
+        {
+            "key": "textureParameters",
+            "type": "textureParameters",
+            "guiInsert": true
+        },
+        {
+            "key": "shaderList",
+            "value": "shader_name",
+            "type": "string",
+            "indexable": true,
+            "guiInsert": true
+        }
+    ],
+
+    "wavefront": [
+        {
+            "key": "objectFile",
+            "value": "model.obj",
+            "type": "string",
+            "isFile": true,
+            "guiInsert": true
+        },
+        {
+            "key": "materialsPath",
+            "value": ".",
+            "type": "string",
+            "isPath": true,
+            "guiInsert": true
+        }
+    ],
+    
+    "model": [
+        {
+            "key": "wavefront",
+            "type": "wavefront",
+            "guiInsert": true
+        },
+        {
+            "key": "shader",
+            "value": "shader_name",
+            "type": "string",
+            "guiInsert": true
+        }
+    ],
+
+    "uniformList": [
+        {
+            "key": "uniformName",
+            "value": "uniformFloat",
+            "type": "string",
+            "guiInsert": true
+        },
+        {
+            "key": "type",
+            "value": "float",
+            "type": "string",
+            "guiInsert": true
+        },
+        {
+            "key": "value",
+            "value": 1.0,
+            "type": "float",
+            "indexable": true,
+            "guiInsert": true
+        },
+        {
+            "key": "normalize",
+            "value": false,
+            "type": "boolean",
+            "guiInsert": true
+        }
+    ],
+
+    "shader": [
+        {
+            "key": "vertexSourceFiles",
+            "value": "shader.vert.glsl",
+            "type": "string",
+            "indexable": true,
+            "guiInsert": true
+        },
+        {
+            "key": "fragmentSourceFiles",
+            "value": "shader.frag.glsl",
+            "type": "string",
+            "indexable": true,
+            "guiInsert": true
+        },
+        {
+            "key": "uniformList",
+            "type": "uniformList",
+            "indexable": true,
+            "guiInsert": true
+        }
+    ]
+}
