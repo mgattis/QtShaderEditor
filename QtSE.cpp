@@ -3,6 +3,8 @@
 QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 {
 	menuFile = this->menuBar()->addMenu( "File" );
+		actionSave = menuFile->addAction( "Save" , this , SLOT(save()) , QKeySequence( Qt::CTRL | Qt::Key_S ) );
+		menuFile->addSeparator();
 		actionQuit = menuFile->addAction( "Quit" , this , SLOT(close()) );
 
 	menuView = this->menuBar()->addMenu( "View" );
@@ -21,11 +23,17 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 
 	viewWidget = new VGLView( NULL );
 
-	CProjectTreeItem *dummyStage = new CProjectTreeItem( CProjectTreeItem::stage , projectTree , QStringList( "Stage 1" ) );
-	CProjectTreeItem *dummyFB = new CProjectTreeItem( CProjectTreeItem::framebuffer , dummyStage , QStringList( "Framebuffer 1" ) );
-	CProjectTreeItem *dummyShader = new CProjectTreeItem( CProjectTreeItem::shader , dummyFB , QStringList( "Shader 1" ) );
-	CProjectTreeItem *dummyModel = new CProjectTreeItem( CProjectTreeItem::model , dummyShader  , QStringList( "Model 1" ) );
-	CProjectTreeItem *dummyTexture = new CProjectTreeItem( CProjectTreeItem::texture , dummyModel  , QStringList( "Texture 1" ) );
+	CProjectTreeItem *dummyProject = new CProjectTreeItem( CProjectTreeItem::invalid , projectTree , QStringList( "testProject" ) );
+	CProjectTreeItem *dummyStage = new CProjectTreeItem( CProjectTreeItem::stage , dummyProject , QStringList( "Stages" ) );
+	CProjectTreeItem *dummyStage1 = new CProjectTreeItem( CProjectTreeItem::invalid , dummyStage , QStringList( "Stage 1" ) );
+	CProjectTreeItem *dummyFB = new CProjectTreeItem( CProjectTreeItem::framebuffer , dummyProject , QStringList( "Framebuffers" ) );
+	CProjectTreeItem *dummyFB1 = new CProjectTreeItem( CProjectTreeItem::invalid , dummyFB , QStringList( "Framebuffer 1" ) );
+	CProjectTreeItem *dummyShader = new CProjectTreeItem( CProjectTreeItem::shader , dummyProject , QStringList( "Shaders" ) );
+	CProjectTreeItem *dummyShader1 = new CProjectTreeItem( CProjectTreeItem::invalid , dummyShader , QStringList( "Shader 1" ) );
+	CProjectTreeItem *dummyModel = new CProjectTreeItem( CProjectTreeItem::model , dummyProject  , QStringList( "Models" ) );
+	CProjectTreeItem *dummyModel1 = new CProjectTreeItem( CProjectTreeItem::invalid , dummyModel  , QStringList( "Model 1" ) );
+	CProjectTreeItem *dummyTexture = new CProjectTreeItem( CProjectTreeItem::texture , dummyProject  , QStringList( "Textures" ) );
+	CProjectTreeItem *dummyTexture1 = new CProjectTreeItem( CProjectTreeItem::invalid , dummyTexture  , QStringList( "Texture 1" ) );
 	projectTree->expandAll();
 
 	itemsTab = new QTabWidget( NULL );
@@ -164,42 +172,54 @@ void QtSE::removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget )
 	}
 }
 
+void QtSE::save( void )
+{
+	QWidget *focus = this->focusWidget();
+
+	if( focus )
+	{
+		VJsonForm *jsonForm = dynamic_cast< VJsonForm* >( focus );
+
+		if( jsonForm )
+		{
+			jsonForm->save();
+		}
+	}
+}
+
 void QtSE::treeContextMenu( QPoint point )
 {
 	CProjectTreeItem *item = (CProjectTreeItem*)projectTree->itemAt( point );
-	QMenu *menu = new QMenu();
-	menu->setAttribute( Qt::WA_DeleteOnClose , true );
 
 	if( item )
 	{
+		QMenu *menu = new QMenu();
+		menu->setAttribute( Qt::WA_DeleteOnClose , true );
+
 		switch( item->getPartType() )
 		{
 			case CProjectTreeItem::stage:
-				menu->addAction( "Add Framebuffer" , this , SLOT(addFramebuffer()) );
+				menu->addAction( "Add Stage" , this , SLOT(addStage()) );
 				break;
 			case CProjectTreeItem::framebuffer:
-				menu->addAction( "Add Shader" , this , SLOT(addShader()) );
+				menu->addAction( "Add Framebuffer" , this , SLOT(addFramebuffer()) );
 				break;
 			case CProjectTreeItem::shader:
-				menu->addAction( "Add Model" , this , SLOT(addModel()) );
-				menu->addAction( "Add Texture" , this , SLOT(addTexture()) );
+				menu->addAction( "Add Shader" , this , SLOT(addShader()) );
 				break;
 			case CProjectTreeItem::texture:
-				//menu->addAction( "Add Stage" );
-				return;
-				break;
-			case CProjectTreeItem::model:
 				menu->addAction( "Add Texture" , this , SLOT(addTexture()) );
 				break;
-			default: {}
+			case CProjectTreeItem::model:
+				menu->addAction( "Add Model" , this , SLOT(addModel()) );
+				break;
+			default:
+				delete menu;
+				return;
 		}
-	}
-	else
-	{
-		menu->addAction( "Add Stage" , this , SLOT(addStage()) );
-	}
 
-	menu->popup( QCursor::pos() , NULL );
+		menu->popup( QCursor::pos() , NULL );
+	}
 }
 
 void QtSE::split( Qt::Orientation orientation )

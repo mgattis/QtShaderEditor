@@ -30,7 +30,8 @@ public:
 	public:
 		enum Type
 		{
-			stage = 0,
+			invalid = 0,
+			stage,
 			framebuffer,
 			shader,
 			texture,
@@ -62,6 +63,7 @@ public:
 
 protected:
 	QMenu *menuFile;
+		QAction *actionSave;
 		QAction *actionQuit;
 
 	QMenu *menuView;
@@ -85,7 +87,11 @@ protected:
 
 	VDraggableTabWidget* getFirstTabWidget( QSplitter *splitter ) const;
 
+	void addArrayToSave( QJsonArray &array , const VJsonFormItem *item );
+
 protected slots:
+	void save( void );
+
 	void treeContextMenu( QPoint point );
 	void split( Qt::Orientation orientation );
 	inline void splitHorizontally( void ) { split( Qt::Vertical ); }

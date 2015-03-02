@@ -5,7 +5,11 @@ QtSE
 .ycm_extra_conf.py
 .ycm_extra.conf.pyc
 cppcheck.sh
+
+# Dirs
+
 QtSEProjects
+resources
 
 # C++ objects and libs
 

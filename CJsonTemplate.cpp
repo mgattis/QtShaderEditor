@@ -1,5 +1,85 @@
 #include "CJsonTemplate.h"
 
+void VJsonFormItem::toArray( QJsonArray &array ) const
+{
+	for( int index = 0 ; index < this->childCount() ; index++ )
+	{
+		VJsonFormItem *child = (VJsonFormItem*)this->child( index );
+
+		/*if( item->isArray )
+		{
+			QJsonArray array;
+			addArrayToSave( array , item->child( index ) );
+			array.append( QJsonValue( array ) );
+		}
+		else*/ switch( child->type )
+		{
+			case CJsonKeyvalueData::structure:
+			{
+				QJsonObject obj;
+				child->toStructure( obj );
+				array.append( QJsonValue( obj ) );
+
+				break;
+			}
+			case CJsonKeyvalueData::boolean:
+				array.append( QJsonValue( (bool)child->text( 2 ).toInt() ) );
+				break;
+			case CJsonKeyvalueData::integer:
+				array.append( QJsonValue( child->text( 2 ).toInt() ) );
+				break;
+			case CJsonKeyvalueData::floating:
+				array.append( QJsonValue( child->text( 2 ).toFloat() ) );
+				break;
+			case CJsonKeyvalueData::string:
+				array.append( QJsonValue( child->text( 2 ).toLatin1().data() ) );
+				break;
+			default: {}
+		}
+	}
+}
+
+void VJsonFormItem::toStructure( QJsonObject &obj ) const
+{
+	for( int index = 0 ; index < this->childCount() ; index++ )
+	{
+		VJsonFormItem *child = (VJsonFormItem*)this->child( index );
+		child->toObject( obj );
+	}
+}
+
+void VJsonFormItem::toObject( QJsonObject &obj ) const
+{
+	if( isArray )
+	{
+		QJsonArray array;
+		toArray( array );
+		obj.insert( this->text( 0 ) , QJsonValue( array ) );
+	}
+	else switch( this->type )
+	{
+		case CJsonKeyvalueData::structure:
+		{
+			QJsonObject childObj;
+			this->toStructure( childObj );
+			obj.insert( this->text( 0 ) , QJsonValue( childObj ) );
+		}
+		case CJsonKeyvalueData::boolean:
+			obj.insert( this->text( 0 ) , QJsonValue( (bool)this->text( 2 ).toInt() ) );
+			break;
+		case CJsonKeyvalueData::integer:
+			obj.insert( this->text( 0 ) , QJsonValue( this->text( 2 ).toInt() ) );
+			break;
+		case CJsonKeyvalueData::floating:
+			obj.insert( this->text( 0 ) , QJsonValue( this->text( 2 ).toFloat() ) );
+			break;
+		case CJsonKeyvalueData::string:
+			obj.insert( this->text( 0 ) , QJsonValue( this->text( 2 ).toLatin1().data() ) );
+			break;
+		default: {}
+	}
+}
+
 CJsonTemplate::CJsonTemplate( const QString &path /* = QString() */ )
 {
 	parseDefaults( path );

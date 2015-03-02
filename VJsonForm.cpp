@@ -82,6 +82,27 @@ void VJsonForm::generateChildren( QTreeWidgetItem *parent , QJsonObject &object 
 	}
 }
 
+QJsonObject VJsonForm::toObject( void )
+{
+	//
+}
+
+void VJsonForm::save( void )
+{
+	QJsonObject obj;
+
+	const QTreeWidgetItem *rootItem = this->invisibleRootItem();
+
+	for( int index = 0 ; index < rootItem->childCount() ; index++ )
+	{
+		VJsonFormItem *item = (VJsonFormItem*)rootItem->child( index );
+		item->toObject( obj );
+	}
+
+	QJsonDocument doc( obj );
+	std::cout << doc.toJson().data() << std::endl;
+}
+
 void VJsonForm::showContextMenu( QPoint point )
 {
 	VJsonFormItem *item = (VJsonFormItem*)this->itemAt( point );

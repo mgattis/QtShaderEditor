@@ -21,7 +21,11 @@ protected:
 	void generateValue( QTreeWidgetItem *parent , const QString &name , QJsonValue &value , bool useParent = false );
 	void generateChildren( QTreeWidgetItem *parent , QJsonObject &object );
 
+public:
+	QJsonObject toObject( void );
+
 public slots:
+	void save( void );
 	void showContextMenu( QPoint point );
 
 	void addArrayItem( void );

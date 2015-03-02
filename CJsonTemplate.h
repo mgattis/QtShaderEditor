@@ -91,6 +91,13 @@ public:
 		this->defaultValue = defaultValue;
 	}
 
+protected:
+	void toArray( QJsonArray &array ) const;
+	void toStructure( QJsonObject &obj ) const;
+
+public:
+	void toObject( QJsonObject &obj ) const;
+
 public:
 	CJsonKeyvalueData::Type type;
 	bool isArray;
