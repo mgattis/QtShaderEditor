@@ -89,6 +89,9 @@ public:
 		this->type = type;
 		this->isArray = isArray;
 		this->defaultValue = defaultValue;
+		this->lastValue = defaultValue;
+
+		setFlags( this->flags() | Qt::ItemIsEditable );
 	}
 
 protected:
@@ -101,7 +104,7 @@ public:
 public:
 	CJsonKeyvalueData::Type type;
 	bool isArray;
-	QVariant defaultValue;
+	QVariant defaultValue , lastValue;
 };
 
 struct CJsonStructure

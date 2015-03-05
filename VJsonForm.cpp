@@ -4,6 +4,7 @@ VJsonForm::VJsonForm( QWidget *parent /* = NULL */ ) : QTreeWidget( parent )
 {
 	this->setColumnCount( 2 );
 	this->setHeaderLabels( QStringList( "Key" ) << "Type" << "Value" );
+	this->setEditTriggers( QAbstractItemView::NoEditTriggers );
 
 	CJsonTemplate::get()->createTree( "shader" , this->invisibleRootItem() );
 	//QJsonObject obj = CJsonTemplate::get()->createTree( "shader" , true );
@@ -11,6 +12,7 @@ VJsonForm::VJsonForm( QWidget *parent /* = NULL */ ) : QTreeWidget( parent )
 
 	this->setContextMenuPolicy( Qt::CustomContextMenu );
 	connect( this , SIGNAL(customContextMenuRequested(QPoint)) , this , SLOT(showContextMenu(QPoint)) );
+	connect( this , SIGNAL(itemClicked(QTreeWidgetItem*,int)) , this , SLOT(editTreeItem(QTreeWidgetItem*,int)) );
 
 	this->expandAll();
 	this->resizeColumnToContents( 0 );
@@ -84,11 +86,6 @@ void VJsonForm::generateChildren( QTreeWidgetItem *parent , QJsonObject &object 
 
 QJsonObject VJsonForm::toObject( void )
 {
-	//
-}
-
-void VJsonForm::save( void )
-{
 	QJsonObject obj;
 
 	const QTreeWidgetItem *rootItem = this->invisibleRootItem();
@@ -98,6 +95,13 @@ void VJsonForm::save( void )
 		VJsonFormItem *item = (VJsonFormItem*)rootItem->child( index );
 		item->toObject( obj );
 	}
+
+	return obj;
+}
+
+void VJsonForm::save( void )
+{
+	QJsonObject obj = toObject();
 
 	QJsonDocument doc( obj );
 	std::cout << doc.toJson().data() << std::endl;
@@ -167,5 +171,77 @@ void VJsonForm::removeArrayItem( void )
 
 		for( int index = 0 ; index < parent->childCount() ; index++ )
 			parent->child( index )->setText( 0 , QString( "[%1]" ).arg( index ) );
+	}
+}
+
+void VJsonForm::editTreeItem( QTreeWidgetItem *item , int column )
+{
+	if( item && column == 2 )
+	{
+		VJsonFormItem *formItem = (VJsonFormItem*)item;
+
+		if( !formItem->isArray && !formItem->type == CJsonKeyvalueData::structure )
+			this->editItem( item , 2 );
+	}
+}
+
+void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
+{
+	VJsonFormItem *formItem = (VJsonFormItem*)item;
+
+	if( formItem )
+	{
+		bool ok = false;
+		switch( formItem->type )
+		{
+			case CJsonKeyvalueData::structure:
+				formItem->setText( column , formItem->defaultValue.toString() );
+				break;
+			case CJsonKeyvalueData::boolean:
+			{
+				bool value = formItem->text( column ).toInt( &ok );
+
+				if( ok )
+				{
+					formItem->setText( column , value ? "true" : "false" );
+					formItem->lastValue = value;
+				}
+				else
+					formItem->setText( column , formItem->lastValue.toBool() ? "true" : "false" );
+
+				break;
+			}
+			case CJsonKeyvalueData::integer:
+			{
+				int value = formItem->text( column ).toInt( &ok );
+
+				if( ok )
+				{
+					formItem->setText( column , QString::number( value ) );
+					formItem->lastValue = value;
+				}
+				else
+					formItem->setText( column , formItem->lastValue.toInt() );
+
+				break;
+			}
+			case CJsonKeyvalueData::floating:
+			{
+				int value = formItem->text( column ).toFloat( &ok );
+
+				if( ok )
+				{
+					formItem->setText( column , QString::number( value ) );
+					formItem->lastValue = value;
+				}
+				else
+					formItem->setText( column , QString::number( formItem->lastValue.toFloat() ) );
+				break;
+			}
+			case CJsonKeyvalueData::string:
+				formItem->lastValue = formItem->text( column );
+				break;
+			default: {}
+		}
 	}
 }

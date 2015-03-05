@@ -30,6 +30,9 @@ public slots:
 
 	void addArrayItem( void );
 	void removeArrayItem( void );
+
+	void editTreeItem( QTreeWidgetItem *item , int column );
+	void itemTextChanged( QTreeWidgetItem *item , int column );
 };
 
 #endif // VJSONFORM_H
