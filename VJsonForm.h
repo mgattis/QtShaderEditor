@@ -24,6 +24,13 @@ protected:
 public:
 	QJsonObject toObject( void );
 
+protected:
+	bool isModified;
+
+signals:
+	void modified( void );
+	void unmodified( void );
+
 public slots:
 	void save( void );
 	void showContextMenu( QPoint point );
@@ -33,6 +40,9 @@ public slots:
 
 	void editTreeItem( QTreeWidgetItem *item , int column );
 	void itemTextChanged( QTreeWidgetItem *item , int column );
+
+	void setModified( void );
+	void setUnmodified( void );
 };
 
 #endif // VJSONFORM_H

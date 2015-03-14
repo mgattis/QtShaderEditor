@@ -1,12 +1,19 @@
 #ifndef QTSE_H
 #define QTSE_H
 
+#include "CPath.h"
 #include "VDraggableTabBar.h"
 #include "VGLView.h"
 #include "VJsonForm.h"
 #include "VTabEditor.h"
 
 #include <QAction>
+#include <QDir>
+#include <QDirIterator>
+#include <QFileDialog>
+#include <QInputDialog>
+
+#include <QStack>
 #include <QSplitter>
 #include <QHeaderView>
 #include <QTableWidget>
@@ -31,6 +38,7 @@ public:
 		enum Type
 		{
 			invalid = 0,
+			dir,
 			stage,
 			framebuffer,
 			shader,
@@ -53,6 +61,16 @@ public:
 		inline Type getPartType( void ) const { return partType; }
 		inline void setPartType( Type type ) { partType = type; }
 
+		inline bool isDir( void ) const { return partType == dir; }
+		inline bool isStage( void ) const { return partType == stage; }
+		inline bool isFramebuffer( void ) const { return partType == framebuffer; }
+		inline bool isShader( void ) const { return partType == shader; }
+		inline bool isTexture( void ) const { return partType == texture; }
+		inline bool isModel( void ) const { return partType == model; }
+
+		void getRelativePath( QString &relativePath ) const;
+		QString getFullPath( const QString &basePath ) const;
+		
 	protected:
 		Type partType;
 	};
@@ -63,6 +81,7 @@ public:
 
 protected:
 	QMenu *menuFile;
+		QAction *actionLoad;
 		QAction *actionSave;
 		QAction *actionQuit;
 
@@ -79,7 +98,15 @@ protected:
 			VGLView *viewWidget;
 			QTabWidget *itemsTab;
 				QTreeWidget *projectTree;
+				QTreeWidget *fsProjectTree;
 		QMap< VJsonForm* , VDraggableTabWidget* > tabMap;
+
+protected:
+	CPath projectPath;
+	CProjectTreeItem *activeProjectItem;
+
+	VDraggableTabWidget *activeTabWidget;
+	VJsonForm *activeForm;
 
 protected:
 	VJsonForm* makeVJsonForm( void );
@@ -90,9 +117,19 @@ protected:
 	void addArrayToSave( QJsonArray &array , const VJsonFormItem *item );
 
 protected slots:
+	void open( void );
 	void save( void );
 
-	void treeContextMenu( QPoint point );
+	void focusChanged( QWidget *previous , QWidget *current );
+
+	// Managed widget slots
+	
+	void projectTreeContextMenu( QPoint point );
+	void fsProjectTreeContextMenu( QPoint point );
+	void itemsTabTreeContextMenu( QPoint point );
+
+	void fsProjectTreeItemDoubleClicked( QTreeWidgetItem *item , int column );
+
 	void split( Qt::Orientation orientation );
 	inline void splitHorizontally( void ) { split( Qt::Vertical ); }
 	inline void splitVertically( void ) { split( Qt::Horizontal ); }
@@ -101,15 +138,29 @@ protected slots:
 	void tabWidgetTabAdded( QWidget *widget );
 	void tabWidgetTabDestroyed( QObject *object );
 	void tabWidgetCountChanged( int count );
+	void tabCloseRequested( int index );
 	//void removeTabWidgetFromLayout( QObject *tabWidget ) { removeTabWidgetFromLayout( dynamic_cast< VDraggableTabWidget* >( tabWidget ) ); }
 	void removeTabWidgetFromLayout( QObject *tabWidget ) { removeTabWidgetFromLayout( (VDraggableTabWidget*)tabWidget ); }
 	void removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget );
 
+	void formModified( void );
+	void formUnmodified( void );
+
+	void fsRefresh( void );
+
+	// Managed file slots
+
+	void loadProject( const QString &path = QString() );
+	void generateProjectTree( const QString &path , QTreeWidgetItem *dirItem );
+
+	void addFolder( void );
 	void addStage( void );
 	void addFramebuffer( void );
 	void addShader( void );
 	void addModel( void );
 	void addTexture( void );
+	void deleteItem( void );
+	bool deleteItem( CProjectTreeItem *curItem /* = NULL */ );
 };
 
 #endif // QTSE_H

@@ -135,6 +135,9 @@ QString UTIL_extensionForFileDialogFilter( const QString &filter );
 // QTreeWidget can't expand all children of a specific item alone
 void UTIL_expandTreeItems( QTreeWidget *tree , QTreeWidgetItem *item );
 
+// Taken from:
+// https://qt.gitorious.org/qt-creator/qt-creator/source/4df7656394bc63088f67a0bae8733f400671d1b6%3asrc/libs/utils/filenamevalidatinglineedit.cpp
+bool UTIL_validateFileName( const QString &path , bool allowDirectories );
 
 
 #ifndef UTIL_REMOVEDUPLICATESQLIST_H

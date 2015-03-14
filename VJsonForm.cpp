@@ -2,6 +2,8 @@
 
 VJsonForm::VJsonForm( QWidget *parent /* = NULL */ ) : QTreeWidget( parent )
 {
+	isModified = false;
+
 	this->setColumnCount( 2 );
 	this->setHeaderLabels( QStringList( "Key" ) << "Type" << "Value" );
 	this->setEditTriggers( QAbstractItemView::NoEditTriggers );
@@ -13,6 +15,7 @@ VJsonForm::VJsonForm( QWidget *parent /* = NULL */ ) : QTreeWidget( parent )
 	this->setContextMenuPolicy( Qt::CustomContextMenu );
 	connect( this , SIGNAL(customContextMenuRequested(QPoint)) , this , SLOT(showContextMenu(QPoint)) );
 	connect( this , SIGNAL(itemClicked(QTreeWidgetItem*,int)) , this , SLOT(editTreeItem(QTreeWidgetItem*,int)) );
+	connect( this , SIGNAL(itemChanged(QTreeWidgetItem*,int)) , this , SLOT(itemTextChanged(QTreeWidgetItem*,int)) );
 
 	this->expandAll();
 	this->resizeColumnToContents( 0 );
@@ -105,6 +108,8 @@ void VJsonForm::save( void )
 
 	QJsonDocument doc( obj );
 	std::cout << doc.toJson().data() << std::endl;
+
+	setUnmodified();
 }
 
 void VJsonForm::showContextMenu( QPoint point )
@@ -201,10 +206,25 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 			{
 				bool value = formItem->text( column ).toInt( &ok );
 
+				if( !ok )
+				{
+					if( !formItem->text( 2 ).compare( "true" , Qt::CaseInsensitive ) )
+					{
+						value = true;
+						ok = true;
+					}
+					else if( !formItem->text( 2 ).compare( "false" , Qt::CaseInsensitive ) )
+					{
+						value = false;
+						ok = true;
+					}
+				}
+
 				if( ok )
 				{
 					formItem->setText( column , value ? "true" : "false" );
 					formItem->lastValue = value;
+					setModified();
 				}
 				else
 					formItem->setText( column , formItem->lastValue.toBool() ? "true" : "false" );
@@ -219,6 +239,7 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 				{
 					formItem->setText( column , QString::number( value ) );
 					formItem->lastValue = value;
+					setModified();
 				}
 				else
 					formItem->setText( column , formItem->lastValue.toInt() );
@@ -233,15 +254,31 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 				{
 					formItem->setText( column , QString::number( value ) );
 					formItem->lastValue = value;
+					setModified();
 				}
 				else
 					formItem->setText( column , QString::number( formItem->lastValue.toFloat() ) );
 				break;
 			}
 			case CJsonKeyvalueData::string:
+				//if( formItem->lastValue.formItem->text( column ) )
 				formItem->lastValue = formItem->text( column );
+				setModified();
 				break;
 			default: {}
 		}
 	}
+}
+
+void VJsonForm::setModified( void )
+{
+	printf( "mod\n" );
+	isModified = true;
+	emit modified();
+}
+
+void VJsonForm::setUnmodified( void )
+{
+	isModified = false;
+	emit unmodified();
 }

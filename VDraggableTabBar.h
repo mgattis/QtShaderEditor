@@ -58,6 +58,13 @@ signals:
 	void widgetRemoved( QWidget *widget );
 	void tabCountChanged( int count );
 
+public slots:
+	void setTabModified( int index );
+	void setTabModified( QWidget *widget ) { setTabModified( this->indexOf( widget ) ); }
+
+	void setTabUnmodified( int index );
+	void setTabUnmodified( QWidget *widget ) { setTabUnmodified( this->indexOf( widget ) ); }
+
 protected slots:
 	void dragEnterEvent( QDragEnterEvent *event );
 	void dragMoveEvent( QDragMoveEvent *event );

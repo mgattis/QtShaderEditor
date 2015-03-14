@@ -501,3 +501,66 @@ void UTIL_expandTreeItems( QTreeWidget *tree , QTreeWidgetItem *item )
 			UTIL_expandTreeItems( tree , item->child( index ) );
 	}
 }
+
+//#define SLASHES "/\\"
+
+bool UTIL_validateFileName( const QString &path , bool allowDirectories )
+{
+#ifdef WIN32
+	static const char notAllowedCharsSubDir[]   = "\/?:*<>|";
+#else
+	//static const char notAllowedCharsSubDir[]   = ",^@=+{}[]~!?:&*\"|#%<>$\"'();`' ";
+	static const char notAllowedCharsSubDir[]   = "";
+	//static const char notAllowedCharsNoSubDir[] = ",^@={}[]~!?:&*\"|#%<>$\"'();`' " SLASHES;
+	static const char notAllowedCharsNoSubDir[] = "/";
+	//static const char *notAllowedSubStrings[] = {".."};
+	//static const char *notAllowedSubStrings[] = {".."};
+#endif
+
+	if( path.isEmpty() || !path.compare( "/" , Qt::CaseInsensitive ) )
+		return false;
+
+	// Characters
+	const char *notAllowedChars = allowDirectories ? notAllowedCharsSubDir : notAllowedCharsNoSubDir;
+
+	do
+	{
+		if( path.contains( QLatin1Char( *notAllowedChars ) , Qt::CaseInsensitive ) )
+			return false;
+
+		notAllowedChars++;
+	}
+	while( *notAllowedChars );
+
+	/*
+	for( const char *c = notAllowedChars ; *c ; c++ )
+		if( path.contains( QLatin1Char(*c) , Qt::CaseInsensitive ) )
+			return false;
+	*/
+
+#if 0
+	// Substrings
+	const int notAllowedSubStringCount = sizeof( notAllowedSubStrings ) / sizeof( const char* );
+
+	for( int s = 0 ; s < notAllowedSubStringCount ; s++ )
+	{
+		const QLatin1String notAllowedSubString( notAllowedSubStrings[ s ] );
+
+		if( name.contains( notAllowedSubString ) )
+			return false;
+	}
+#endif
+
+#if 0
+	// Windows devices
+	bool matchesWinDevice = windowsDeviceNoSubDirPattern().exactMatch(name);
+
+	if( !matchesWinDevice && allowDirectories )
+		matchesWinDevice = windowsDeviceSubDirPattern().exactMatch(name);
+
+	if( matchesWinDevice )
+		return false;
+#endif
+
+	return true;
+}

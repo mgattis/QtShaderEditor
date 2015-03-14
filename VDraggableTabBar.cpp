@@ -202,3 +202,33 @@ void VDraggableTabWidget::dropEvent( QDropEvent *event )
 	else
 		event->ignore();
 }
+
+void VDraggableTabWidget::setTabModified( int index )
+{
+	if( index >= 0 )
+	{
+		QString title = this->tabText( index );
+
+		if( !title.endsWith( '*' , Qt::CaseInsensitive ) )
+		{
+			title.append( '*' );
+
+			this->setTabText( index , title );
+		}
+	}
+}
+
+void VDraggableTabWidget::setTabUnmodified( int index )
+{
+	if( index >= 0 )
+	{
+		QString title = this->tabText( index );
+
+		if( !title.endsWith( '*' , Qt::CaseInsensitive ) )
+		{
+			title.chop( 1 );
+
+			this->setTabText( index , title );
+		}
+	}
+}
