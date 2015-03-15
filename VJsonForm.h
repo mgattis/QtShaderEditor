@@ -18,14 +18,18 @@ public:
 	~VJsonForm();
 
 protected:
+	//void closeEvent( QCloseEvent *event );
+
+protected:
 	void generateValue( QTreeWidgetItem *parent , const QString &name , QJsonValue &value , bool useParent = false );
 	void generateChildren( QTreeWidgetItem *parent , QJsonObject &object );
 
 public:
 	QJsonObject toObject( void );
+	inline bool isModified( void ) const { return contentModified; }
 
 protected:
-	bool isModified;
+	bool contentModified;
 
 signals:
 	void modified( void );

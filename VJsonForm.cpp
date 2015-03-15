@@ -2,7 +2,7 @@
 
 VJsonForm::VJsonForm( QWidget *parent /* = NULL */ ) : QTreeWidget( parent )
 {
-	isModified = false;
+	contentModified = false;
 
 	this->setColumnCount( 2 );
 	this->setHeaderLabels( QStringList( "Key" ) << "Type" << "Value" );
@@ -273,12 +273,12 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 void VJsonForm::setModified( void )
 {
 	printf( "mod\n" );
-	isModified = true;
+	contentModified = true;
 	emit modified();
 }
 
 void VJsonForm::setUnmodified( void )
 {
-	isModified = false;
+	contentModified = false;
 	emit unmodified();
 }

@@ -6,6 +6,7 @@
 #include "VGLView.h"
 #include "VJsonForm.h"
 #include "VTabEditor.h"
+#include "VTabWidgetArea.h"
 
 #include <QAction>
 #include <QDir>
@@ -100,6 +101,7 @@ protected:
 				QTreeWidget *projectTree;
 				QTreeWidget *fsProjectTree;
 		QMap< VJsonForm* , VDraggableTabWidget* > tabMap;
+		VTabWidgetArea *tabArea;
 
 protected:
 	CPath projectPath;
@@ -109,10 +111,10 @@ protected:
 	VJsonForm *activeForm;
 
 protected:
-	VJsonForm* makeVJsonForm( void );
-	VDraggableTabWidget* makeVDraggableTabWidget( void );
+	//VJsonForm* makeVJsonForm( void );
+	//VDraggableTabWidget* makeVDraggableTabWidget( void );
 
-	VDraggableTabWidget* getFirstTabWidget( QSplitter *splitter ) const;
+	//VDraggableTabWidget* getFirstTabWidget( QSplitter *splitter ) const;
 
 	void addArrayToSave( QJsonArray &array , const VJsonFormItem *item );
 
@@ -130,18 +132,18 @@ protected slots:
 
 	void fsProjectTreeItemDoubleClicked( QTreeWidgetItem *item , int column );
 
-	void split( Qt::Orientation orientation );
-	inline void splitHorizontally( void ) { split( Qt::Vertical ); }
-	inline void splitVertically( void ) { split( Qt::Horizontal ); }
-	void splitCollapse( void );
+	inline void split( Qt::Orientation orientation ) { tabArea->split( orientation ); }
+	inline void splitHorizontally( void ) { tabArea->split( Qt::Vertical ); }
+	inline void splitVertically( void ) { tabArea->split( Qt::Horizontal ); }
+	inline void splitCollapse( void ) { tabArea->splitCollapse(); }
 
-	void tabWidgetTabAdded( QWidget *widget );
-	void tabWidgetTabDestroyed( QObject *object );
-	void tabWidgetCountChanged( int count );
-	void tabCloseRequested( int index );
+	//void tabWidgetTabAdded( QWidget *widget );
+	//void tabWidgetTabDestroyed( QObject *object );
+	//void tabWidgetCountChanged( int count );
+	//void tabCloseRequested( int index );
 	//void removeTabWidgetFromLayout( QObject *tabWidget ) { removeTabWidgetFromLayout( dynamic_cast< VDraggableTabWidget* >( tabWidget ) ); }
-	void removeTabWidgetFromLayout( QObject *tabWidget ) { removeTabWidgetFromLayout( (VDraggableTabWidget*)tabWidget ); }
-	void removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget );
+	//void removeTabWidgetFromLayout( QObject *tabWidget ) { removeTabWidgetFromLayout( (VDraggableTabWidget*)tabWidget ); }
+	//void removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget );
 
 	void formModified( void );
 	void formUnmodified( void );

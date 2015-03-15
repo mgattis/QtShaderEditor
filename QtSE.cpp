@@ -84,23 +84,26 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	viewSplitter->addWidget( itemsTab );
 	viewSplitter->setStretchFactor( 1 , 4 );
 
-	VDraggableTabWidget *initialTab = makeVDraggableTabWidget();
+	//VDraggableTabWidget *initialTab = makeVDraggableTabWidget();
 
 	// Make some test stuff
-	for( int index = 0 ; index < 3 ; index++ )
-		initialTab->addTab( makeVJsonForm() , QString( "Shader %1" ).arg( index + 1 ) );
+	//for( int index = 0 ; index < 3 ; index++ )
+		//initialTab->addTab( makeVJsonForm() , QString( "Shader %1" ).arg( index + 1 ) );
+
+	tabArea = new VTabWidgetArea();
 
 	windowSplitter = new QSplitter( NULL );
 	windowSplitter->addWidget( viewSplitter );
 	windowSplitter->setStretchFactor( 0 , 1 );
-	windowSplitter->addWidget( initialTab );
+	//windowSplitter->addWidget( initialTab );
+	windowSplitter->addWidget( tabArea );
 	windowSplitter->setStretchFactor( 1 , 4 );
 
 	this->setCentralWidget( windowSplitter );
-	initialTab->widget( 0 )->setFocus();
+	//initialTab->widget( 0 )->setFocus();
 
 	// Test
-	open();
+	//open();
 }
 
 QtSE::~QtSE()
@@ -108,6 +111,7 @@ QtSE::~QtSE()
 	// Nothing to do
 }
 
+#if 0
 VJsonForm* QtSE::makeVJsonForm( void )
 {
 	VJsonForm *form = new VJsonForm( NULL );
@@ -213,6 +217,7 @@ void QtSE::removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget )
 		}
 	}
 }
+#endif
 
 void QtSE::open( void )
 {
@@ -237,7 +242,7 @@ void QtSE::save( void )
 
 void QtSE::focusChanged( QWidget *previous , QWidget *current )
 {
-	std::cout << (int)previous << " -> " << (int)current << std::endl;
+	//std::cout << (int)previous << " -> " << (int)current << std::endl;
 
 	if( current )
 	{
@@ -245,7 +250,7 @@ void QtSE::focusChanged( QWidget *previous , QWidget *current )
 
 		if( tabWidget )
 		{
-			std::cout << "VDraggableTabWidget*" << std::endl;
+			//std::cout << "VDraggableTabWidget*" << std::endl;
 			activeTabWidget = tabWidget;
 		}
 
@@ -253,7 +258,7 @@ void QtSE::focusChanged( QWidget *previous , QWidget *current )
 
 		if( jsonForm )
 		{
-			std::cout << "VJsonForm*" << std::endl;
+			//std::cout << "VJsonForm*" << std::endl;
 			activeForm = jsonForm;
 			activeTabWidget = tabMap.value( activeForm , NULL );
 		}
@@ -374,12 +379,13 @@ void QtSE::fsProjectTreeItemDoubleClicked( QTreeWidgetItem *item , int column )
 
 		if( activeTabWidget )
 		{
-			VJsonForm *form = makeVJsonForm();
-			activeTabWidget->addTab( form , "test" );
+			//VJsonForm *form = makeVJsonForm();
+			//activeTabWidget->addTab( form , "test" );
 		}
 	}
 }
 
+#if 0
 void QtSE::split( Qt::Orientation orientation )
 {
 	QTabWidget *tabWidget = tabMap.value( this->focusWidget() , NULL );
@@ -460,7 +466,7 @@ void QtSE::tabCloseRequested( int index )
 	{
 		VJsonForm *form = dynamic_cast< VJsonForm* >( widget->widget( index ) );
 
-		if( widget->tabText( index ).endsWith( '*' , Qt::CaseInsensitive ) )
+		if( form->isModified() )
 		{
 			switch( QMessageBox::question( this , this->windowTitle() , "Save changes?" , QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel , QMessageBox::Cancel ) )
 			{
@@ -476,6 +482,7 @@ void QtSE::tabCloseRequested( int index )
 		form->deleteLater();
 	}
 }
+#endif
 
 void QtSE::formModified( void )
 {

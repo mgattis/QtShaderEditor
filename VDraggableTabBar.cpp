@@ -21,7 +21,7 @@ void VDraggableTabBar::mousePressEvent( QMouseEvent *event )
 	{
 		if( event->button() == Qt::LeftButton )
 		{
-			std::cout << "bar press" << std::endl;
+			//std::cout << "bar press" << std::endl;
 
 			dragStartPos = event->pos();
 			QTabBar::mousePressEvent( event );
@@ -79,7 +79,7 @@ void VDraggableTabBar::mouseReleaseEvent( QMouseEvent *event )
 {
 	if( event )
 	{
-		std::cout << "bar release" << std::endl;
+		//std::cout << "bar release" << std::endl;
 
 		QTabBar::mouseReleaseEvent( event );
 	}
@@ -155,6 +155,9 @@ void VDraggableTabWidget::tabRemoved( int index )
 	//emit widgetRemoved( this->widget( index ) );
 
 	emit tabCountChanged( this->count() );
+
+	//if( !this->count() )
+		//emit destructionRequested();
 }
 
 void VDraggableTabWidget::dragEnterEvent( QDragEnterEvent *event )

@@ -58,6 +58,8 @@ signals:
 	void widgetRemoved( QWidget *widget );
 	void tabCountChanged( int count );
 
+	void destructionRequested( void );
+
 public slots:
 	void setTabModified( int index );
 	void setTabModified( QWidget *widget ) { setTabModified( this->indexOf( widget ) ); }
