@@ -73,6 +73,8 @@ protected slots:
 	void dragLeaveEvent( QDragLeaveEvent *event );
 
 	void dropEvent( QDropEvent *event );
+
+	inline void tabClose( int index ) { this->widget( index )->close(); }
 };
 
 #endif // VDRAGGABLETABBAR_H

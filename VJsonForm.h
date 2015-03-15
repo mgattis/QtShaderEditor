@@ -5,6 +5,7 @@
 #include "qtil.h"
 
 #include <QAction>
+#include <QCloseEvent>
 #include <QMenu>
 #include <QTreeWidget>
 #include <QWidget>
@@ -18,18 +19,14 @@ public:
 	~VJsonForm();
 
 protected:
-	//void closeEvent( QCloseEvent *event );
+	void closeEvent( QCloseEvent *event );
+
+public:
+	QJsonObject toObject( void );
 
 protected:
 	void generateValue( QTreeWidgetItem *parent , const QString &name , QJsonValue &value , bool useParent = false );
 	void generateChildren( QTreeWidgetItem *parent , QJsonObject &object );
-
-public:
-	QJsonObject toObject( void );
-	inline bool isModified( void ) const { return contentModified; }
-
-protected:
-	bool contentModified;
 
 signals:
 	void modified( void );

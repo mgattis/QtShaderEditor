@@ -2,8 +2,6 @@
 
 VJsonForm::VJsonForm( QWidget *parent /* = NULL */ ) : QTreeWidget( parent )
 {
-	contentModified = false;
-
 	this->setColumnCount( 2 );
 	this->setHeaderLabels( QStringList( "Key" ) << "Type" << "Value" );
 	this->setEditTriggers( QAbstractItemView::NoEditTriggers );
@@ -24,6 +22,25 @@ VJsonForm::VJsonForm( QWidget *parent /* = NULL */ ) : QTreeWidget( parent )
 VJsonForm::~VJsonForm()
 {
 	//
+}
+
+void VJsonForm::closeEvent( QCloseEvent *event )
+{
+	if( this->isWindowModified() )
+	{
+		switch( QMessageBox::question( this , this->windowTitle() , "Save changes?" , QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel , QMessageBox::Cancel ) )
+		{
+			case QMessageBox::Yes:
+				save();
+			case QMessageBox::No:
+				break;
+			default:
+				event->ignore();
+				return;
+		}
+	}
+
+	event->accept();
 }
 
 void VJsonForm::generateValue( QTreeWidgetItem *parent , const QString &name , QJsonValue &value , bool useParent )
@@ -272,13 +289,12 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 
 void VJsonForm::setModified( void )
 {
-	printf( "mod\n" );
-	contentModified = true;
+	setWindowModified( true );
 	emit modified();
 }
 
 void VJsonForm::setUnmodified( void )
 {
-	contentModified = false;
+	setWindowModified( false );
 	emit unmodified();
 }

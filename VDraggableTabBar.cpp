@@ -133,7 +133,7 @@ VDraggableTabWidget::VDraggableTabWidget( void )
 
 VDraggableTabWidget::~VDraggableTabWidget()
 {
-	// Nothing to do
+	connect( this , SIGNAL(tabCloseRequested(int)) , this , SLOT(tabClose(int)) );
 }
 
 void VDraggableTabWidget::tabInserted( int index )

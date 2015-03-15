@@ -4,7 +4,7 @@ VTabWidgetArea::VTabWidgetArea()
 {
 	VDraggableTabWidget *initialTab = makeVDraggableTabWidget();
 
-	for( int index = 0 ; index < 3 ; index++ )
+	for( int index = 0 ; index < 6 ; index++ )
 	{
 		initialTab->addTab( makeVJsonForm() , QString( "Test %1" ).arg( index + 1 ) );
 		tabMap[ initialTab->widget( index ) ] = initialTab;
@@ -15,7 +15,25 @@ VTabWidgetArea::VTabWidgetArea()
 
 VTabWidgetArea::~VTabWidgetArea()
 {
+	//
+}
 
+VDraggableTabWidget* VTabWidgetArea::getActiveTabWidget( void )
+{
+	if( !activeTabWidget )
+	{
+		activeTabWidget = tabMap.value( this->focusWidget() , NULL );
+
+		if( !activeTabWidget )
+		{
+			activeTabWidget = dynamic_cast< VDraggableTabWidget* >( this->focusWidget() );
+
+			if( !activeTabWidget )
+				activeTabWidget = getFirstTabWidget( this ); // This should never fail
+		}
+	}
+
+	return activeTabWidget;
 }
 
 VJsonForm* VTabWidgetArea::makeVJsonForm( void )
@@ -34,6 +52,9 @@ VDraggableTabWidget* VTabWidgetArea::makeVDraggableTabWidget( void )
 	connect( newTabWidget , SIGNAL(widgetAdded(QWidget*)) , this , SLOT(tabWidgetTabAdded(QWidget*)) );
 	connect( newTabWidget , SIGNAL(tabCountChanged(int)) , this , SLOT(tabWidgetCountChanged(int)) );
 	connect( newTabWidget , SIGNAL(destroyed(QObject*)) , this , SLOT(removeTabWidgetFromLayout(QObject*)) );
+	//connect( newTabWidget , SIGNAL(currentChanged(int)) , this , SLOT(tabWidgetCurrentChanged(int)) );
+	connect( newTabWidget , SIGNAL(tabBarClicked(int)) , this , SLOT(tabWidgetCurrentChanged(int)) );
+
 	//connect( newTabWidget , SIGNAL(tabCloseRequested(int)) , this , SLOT(tabCloseRequested(int)) );
 	//connect( newTabWidget , SIGNAL(destructionRequested()) , this , SLOT(tabCloseRequested(int)) );
 
@@ -67,14 +88,14 @@ void VTabWidgetArea::split( Qt::Orientation orientation )
 {
 	std::cout << QString( "void VTabWidgetArea::split( %1 )" ).arg( (int)orientation ).toLatin1().data() << std::endl;
 
-	QTabWidget *tabWidget = tabMap.value( this->focusWidget() , NULL );
-	std::cout << QString( "%1 maps to %2" ).arg( (int)this->focusWidget() ).arg( (int)tabWidget ).toLatin1().data() << std::endl;
+	VDraggableTabWidget *tabWidget = getActiveTabWidget();
+
+	//std::cout << QString( "%1 maps to %2" ).arg( (int)this->focusWidget() ).arg( (int)tabWidget ).toLatin1().data() << std::endl;
 
 	if( tabWidget && tabWidget->count() > 1 )
 	{
 		QSplitter *tabSplitter = tabWidget->parentWidget();
 		QWidget *widget = tabWidget->currentWidget();
-		//int index = tabWidget->currentIndex();
 
 		// Make a new tab widget
 		VDraggableTabWidget *newTabWidget = makeVDraggableTabWidget();
@@ -90,23 +111,19 @@ void VTabWidgetArea::split( Qt::Orientation orientation )
 			tabSplitter->addWidget( newTabWidget );
 		else
 		{
+			int index = tabSplitter->indexOf( tabWidget );
+
 			QSplitter *newSplitter = new QSplitter( orientation , NULL );
 			newSplitter->addWidget( tabWidget );
 			newSplitter->addWidget( newTabWidget );
 
-			//tabSplitter->insertWidget( index , newSplitter );
-			tabSplitter->addWidget( newSplitter );
+			// This needs to be last otherwise the proportions get messy
+			tabSplitter->insertWidget( index , newSplitter );
 		}
 
-		widget->setFocus();
+		//widget->setFocus();
+		activeTabWidget = newTabWidget;
 	}
-}
-
-void VTabWidgetArea::splitCollapse( void )
-{
-	QTabWidget *tabWidget = tabMap.value( this->focusWidget() , NULL );
-
-	removeTabWidgetFromLayout( tabWidget );
 }
 
 void VTabWidgetArea::tabWidgetTabAdded( QWidget *widget )
@@ -129,10 +146,7 @@ void VTabWidgetArea::tabWidgetTabDestroyed( QObject *object )
 	QWidget *widget = dynamic_cast< QWidget* >( object );
 
 	if( widget )
-	{
-		//std::cout << QString( "%1 removed" ).arg( (int)widget ).toLatin1().data() << std::endl;
 		tabMap.remove( widget );
-	}
 }
 
 void VTabWidgetArea::tabWidgetCountChanged( int count )
@@ -151,6 +165,21 @@ void VTabWidgetArea::tabWidgetCountChanged( int count )
 	}
 }
 
+void VTabWidgetArea::tabWidgetCurrentChanged( int index )
+{
+	std::cout << QString( "void VTabWidgetArea::tabWidgetCurrentChanged( %1 )" ).arg( index ).toLatin1().data() << std::endl;
+	VDraggableTabWidget *caller = dynamic_cast< VDraggableTabWidget* >( QObject::sender() );
+
+	if( caller )
+	{
+		activeTabWidget = caller;
+
+		//if( index >= 0 && index < caller->count() )
+			//caller->widget( index )->setFocus();
+	}
+}
+
+#if 0
 void VTabWidgetArea::tabCloseRequested( int index )
 {
 	std::cout << QString( "void VTabWidgetArea::tabCloseRequested( %1 )" ).arg( index ).toLatin1().data() << std::endl;
@@ -177,6 +206,7 @@ void VTabWidgetArea::tabCloseRequested( int index )
 		form->deleteLater();
 	}
 }
+#endif
 
 void VTabWidgetArea::removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget )
 {
@@ -192,8 +222,10 @@ void VTabWidgetArea::removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget )
 		{
 			QWidget *currentChildWidget = tabWidget->currentWidget();
 			// Get the thing on the other side of this split. We don't know what it is
-			VDraggableTabWidget* otherTabWidget = dynamic_cast< VDraggableTabWidget* >( parentSplitter->widget( !parentSplitter->indexOf( tabWidget ) ) );
-			QSplitter *otherSplitter = dynamic_cast< QSplitter* >( parentSplitter->widget( !parentSplitter->indexOf( tabWidget ) ) );
+			int targetIndex = parentSplitter->indexOf( tabWidget ) - 1;
+			targetIndex = targetIndex < 0 ? 1 : targetIndex;
+			VDraggableTabWidget* otherTabWidget = dynamic_cast< VDraggableTabWidget* >( parentSplitter->widget( targetIndex ) );
+			QSplitter *otherSplitter = dynamic_cast< QSplitter* >( parentSplitter->widget( targetIndex ) );
 
 			// If the other thing is a splitter, get the first tab widget of it
 			if( !otherTabWidget && otherSplitter )
@@ -214,95 +246,28 @@ void VTabWidgetArea::removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget )
 			if( parentSplitter->count() == 2 && parentSplitter != this )
 			{
 				QSplitter *parentParentSplitter = (QSplitter*)( parentSplitter->parentWidget() );
+				int index = parentParentSplitter->indexOf( parentSplitter );
 
 				// Add the other widget to the parent layout
 				if( otherSplitter )
 				{
-					// windowSplitter should contain all the tab widgets in a single, child splitter
-					// It may have other splits for different components
-					//if( parentParentSplitter != windowSplitter && parentSplitter->orientation() == parentParentSplitter->orientation() )
-					if( parentParentSplitter != this && otherSplitter->orientation() == parentParentSplitter->orientation() )
-					{
-						// Add all of the other splitter's widgets to the splitter above that
-						while( otherSplitter->count() )
-							parentParentSplitter->addWidget( otherSplitter->widget( 0 ) );
-					}
-					else
-						parentParentSplitter->addWidget( otherSplitter );
+					// Add all of the other splitter's widgets to the splitter above that
+					while( otherSplitter->count() )
+						parentParentSplitter->insertWidget( index , otherSplitter->widget( otherSplitter->count() - 1 ) );
+
+					otherSplitter->deleteLater();
 				}
 				else
-					parentParentSplitter->addWidget( otherTabWidget );
+					parentParentSplitter->insertWidget( index , otherTabWidget );
 
 				parentSplitter->deleteLater();
 			}
-			else // Multiple splits. Simply remove one
-				tabWidget->deleteLater();
+			//else // Multiple splits or this. Simply remove one
+
+			tabWidget->deleteLater();
 
 			if( currentChildWidget )
 				currentChildWidget->setFocus();
 		}
 	}
-
-#if 0
-	std::cout << QString( "removeTabWidgetFromLayout( %1 )" ).arg( (int)tabWidget ).toLatin1().data() << std::endl;
-
-	if( tabWidget )
-	{
-		QSplitter *parentSplitter = dynamic_cast< QSplitter* >( tabWidget->parentWidget() );
-
-		// Don't close top splitter
-		if( !parentSplitter || ( parentSplitter == this && parentSplitter->count() == 1 ) )
-			return;
-
-		QWidget *childWidget = tabWidget->currentWidget();
-		// Get the thing on the other side of this split. We don't know what it is
-		VDraggableTabWidget* otherTabWidget = dynamic_cast< VDraggableTabWidget* >( parentSplitter->widget( !parentSplitter->indexOf( tabWidget ) ) );
-		QSplitter *otherSplitter = dynamic_cast< QSplitter* >( parentSplitter->widget( !parentSplitter->indexOf( tabWidget ) ) );
-
-		// TODO: What if otherTabWidget is tabWidget?
-		if( !otherTabWidget && otherSplitter )
-			otherTabWidget = getFirstTabWidget( otherSplitter );
-
-		if( otherTabWidget && parentSplitter->count() > 1 )
-		{
-			tabWidget->disconnect(); // Stop indirect recursion
-
-			// Move remaining tabs from this tab to the next one
-			while( tabWidget->count() )
-				otherTabWidget->addTab( tabWidget->widget( 0 ) , tabWidget->tabText( 0 ) );
-
-			//std::cout << QString( "parentSplitter->count() == %1" ).arg( parentSplitter->count() ).toLatin1().data() << std::endl;
-
-			if( parentSplitter->count() == 2 )
-			{
-				QSplitter *parentParentSplitter = (QSplitter*)( parentSplitter->parentWidget() );
-
-				// Add the other widget to the parent layout
-				if( otherSplitter )
-				{
-					// windowSplitter should contain all the tab widgets in a single, child splitter
-					// It may have other splits for different components
-					//if( parentParentSplitter != windowSplitter && parentSplitter->orientation() == parentParentSplitter->orientation() )
-					if( parentParentSplitter != windowSplitter && otherSplitter->orientation() == parentParentSplitter->orientation() )
-					{
-						// Add all of the other splitter's widgets to the splitter above that
-						while( otherSplitter->count() )
-							parentParentSplitter->addWidget( otherSplitter->widget( 0 ) );
-					}
-					else
-						parentParentSplitter->addWidget( otherSplitter );
-				}
-				else
-					parentParentSplitter->addWidget( otherTabWidget );
-
-				parentSplitter->deleteLater();
-			}
-			else // Multiple splits. Simply remove one
-				tabWidget->deleteLater();
-
-			if( childWidget )
-				childWidget->setFocus();
-		}
-	}
-#endif
 }
