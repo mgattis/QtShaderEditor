@@ -21,10 +21,8 @@ QString QtSE::CProjectTreeItem::getFullPath( const QString &basePath ) const
 QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 {
 	activeProjectItem = NULL;
-	activeTabWidget = NULL;
-	activeForm = NULL;
 
-	connect( qApp , SIGNAL(focusChanged(QWidget*,QWidget*)) , this , SLOT(focusChanged(QWidget*,QWidget*)) );
+	//connect( qApp , SIGNAL(focusChanged(QWidget*,QWidget*)) , this , SLOT(focusChanged(QWidget*,QWidget*)) );
 
 	menuFile = this->menuBar()->addMenu( "File" );
 		actionSave = menuFile->addAction( "Open" , this , SLOT(open()) , QKeySequence( Qt::CTRL | Qt::Key_O ) );
@@ -84,18 +82,15 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	viewSplitter->addWidget( itemsTab );
 	viewSplitter->setStretchFactor( 1 , 4 );
 
-	//VDraggableTabWidget *initialTab = makeVDraggableTabWidget();
+	tabArea = new VTabWidgetArea();
 
 	// Make some test stuff
-	//for( int index = 0 ; index < 3 ; index++ )
-		//initialTab->addTab( makeVJsonForm() , QString( "Shader %1" ).arg( index + 1 ) );
-
-	tabArea = new VTabWidgetArea();
+	for( int index = 0 ; index < 3 ; index++ )
+		tabArea->addWidgetToArea( makeVJsonForm() , QString( "Shader %1" ).arg( index + 1 ) );
 
 	windowSplitter = new QSplitter( NULL );
 	windowSplitter->addWidget( viewSplitter );
 	windowSplitter->setStretchFactor( 0 , 1 );
-	//windowSplitter->addWidget( initialTab );
 	windowSplitter->addWidget( tabArea );
 	windowSplitter->setStretchFactor( 1 , 4 );
 
@@ -109,6 +104,14 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 QtSE::~QtSE()
 {
 	// Nothing to do
+}
+
+VJsonForm* QtSE::makeVJsonForm( void )
+{
+	VJsonForm *form = new VJsonForm( NULL );
+	form->setAttribute( Qt::WA_DeleteOnClose );
+
+	return form;
 }
 
 void QtSE::open( void )
@@ -132,6 +135,7 @@ void QtSE::save( void )
 	}
 }
 
+#if 0
 void QtSE::focusChanged( QWidget *previous , QWidget *current )
 {
 	//std::cout << (int)previous << " -> " << (int)current << std::endl;
@@ -156,6 +160,7 @@ void QtSE::focusChanged( QWidget *previous , QWidget *current )
 		}
 	}
 }
+#endif
 
 void QtSE::projectTreeContextMenu( QPoint point )
 {
@@ -269,37 +274,9 @@ void QtSE::fsProjectTreeItemDoubleClicked( QTreeWidgetItem *item , int column )
 	{
 		//QString filePath = projectItem->getFullPath( projectPath.getPath( true ) );
 
-		if( activeTabWidget )
-		{
-			//VJsonForm *form = makeVJsonForm();
-			//activeTabWidget->addTab( form , "test" );
-		}
-	}
-}
-
-void QtSE::formModified( void )
-{
-	VJsonForm *form = QObject::sender();
-
-	if( form )
-	{
-		VDraggableTabWidget *widget = tabMap.value( form , NULL );
-
-		if( widget )
-			widget->setTabModified( form );
-	}
-}
-
-void QtSE::formUnmodified( void )
-{
-	VJsonForm *form = QObject::sender();
-
-	if( form )
-	{
-		VDraggableTabWidget *widget = tabMap.value( form , NULL );
-
-		if( widget )
-			widget->setTabUnmodified( form );
+		VJsonForm *form = makeVJsonForm();
+		form->setWindowTitle( item->text( 0 ) );
+		tabArea->addWidgetToArea( form , form->windowTitle() );
 	}
 }
 

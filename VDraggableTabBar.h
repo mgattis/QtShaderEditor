@@ -58,8 +58,6 @@ signals:
 	void widgetRemoved( QWidget *widget );
 	void tabCountChanged( int count );
 
-	void destructionRequested( void );
-
 public slots:
 	void setTabModified( int index );
 	void setTabModified( QWidget *widget ) { setTabModified( this->indexOf( widget ) ); }
@@ -74,7 +72,7 @@ protected slots:
 
 	void dropEvent( QDropEvent *event );
 
-	inline void tabClose( int index ) { this->widget( index )->close(); }
+	void tabClose( int index );
 };
 
 #endif // VDRAGGABLETABBAR_H

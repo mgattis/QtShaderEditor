@@ -129,11 +129,13 @@ VDraggableTabWidget::VDraggableTabWidget( void )
 	VDraggableTabBar *tabBar = new VDraggableTabBar( this );
 	tabBar->setSizePolicy( QSizePolicy::Ignored , tabBar->sizePolicy().verticalPolicy() );
 	this->setTabBar( tabBar );
+
+	connect( this , SIGNAL(tabCloseRequested(int)) , this , SLOT(tabClose(int)) );
 }
 
 VDraggableTabWidget::~VDraggableTabWidget()
 {
-	connect( this , SIGNAL(tabCloseRequested(int)) , this , SLOT(tabClose(int)) );
+	// Nothing to do
 }
 
 void VDraggableTabWidget::tabInserted( int index )
@@ -234,4 +236,10 @@ void VDraggableTabWidget::setTabUnmodified( int index )
 			this->setTabText( index , title );
 		}
 	}
+}
+
+void VDraggableTabWidget::tabClose( int index )
+{
+	std::cout << "close " << index << std::endl;
+	this->widget( index )->close();
 }

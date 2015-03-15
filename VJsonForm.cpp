@@ -289,12 +289,26 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 
 void VJsonForm::setModified( void )
 {
+	std::cout << QString( "void VJsonForm::setModified()" ).toLatin1().data() << std::endl;
+
+	if( !this->windowTitle().endsWith( "*" ) )
+		this->setWindowTitle( this->windowTitle().append( "*" ) );
+
 	setWindowModified( true );
 	emit modified();
 }
 
 void VJsonForm::setUnmodified( void )
 {
+	std::cout << QString( "void VJsonForm::setUnmodified()" ).toLatin1().data() << std::endl;
+
+	if( this->windowTitle().endsWith( "*" ) )
+	{
+		QString title = this->windowTitle();
+		title.chop( 1 );
+		this->setWindowTitle( title );
+	}
+
 	setWindowModified( false );
 	emit unmodified();
 }

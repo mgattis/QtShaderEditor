@@ -27,7 +27,6 @@ SOURCES += main.cpp\
     qtil.cpp \
     VGLView.cpp \
     util.cpp \
-    VTabEditor.cpp \
     CJsonTemplate.cpp \
     VJsonForm.cpp \
 	VDraggableTabBar.cpp \
@@ -43,7 +42,6 @@ HEADERS  += QtSE.h \
     IFileClass.h \
     VGLView.h \
     util.h \
-    VTabEditor.h \
     CJsonTemplate.h \
     VJsonForm.h \
 	VDraggableTabBar.h \

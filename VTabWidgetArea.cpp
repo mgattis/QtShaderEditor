@@ -4,11 +4,12 @@ VTabWidgetArea::VTabWidgetArea()
 {
 	VDraggableTabWidget *initialTab = makeVDraggableTabWidget();
 
+	/*
 	for( int index = 0 ; index < 6 ; index++ )
 	{
 		initialTab->addTab( makeVJsonForm() , QString( "Test %1" ).arg( index + 1 ) );
 		tabMap[ initialTab->widget( index ) ] = initialTab;
-	}
+	}*/
 
 	this->addWidget( initialTab );
 }
@@ -16,6 +17,14 @@ VTabWidgetArea::VTabWidgetArea()
 VTabWidgetArea::~VTabWidgetArea()
 {
 	//
+}
+
+void VTabWidgetArea::addWidgetToArea( QWidget *widget , const QString &title , VDraggableTabWidget *tabWidget )
+{
+	widget->setAttribute( Qt::WA_DeleteOnClose );
+	tabWidget->setCurrentIndex( tabWidget->addTab( widget , title ) );
+
+	connect( widget , SIGNAL(windowTitleChanged(QString)) , this , SLOT(subWidgetTitleChanged(QString)) );
 }
 
 VDraggableTabWidget* VTabWidgetArea::getActiveTabWidget( void )
@@ -29,21 +38,11 @@ VDraggableTabWidget* VTabWidgetArea::getActiveTabWidget( void )
 			activeTabWidget = dynamic_cast< VDraggableTabWidget* >( this->focusWidget() );
 
 			if( !activeTabWidget )
-				activeTabWidget = getFirstTabWidget( this ); // This should never fail
+				activeTabWidget = getFirstTabWidget( this ); // This should never return NULL
 		}
 	}
 
 	return activeTabWidget;
-}
-
-VJsonForm* VTabWidgetArea::makeVJsonForm( void )
-{
-	VJsonForm *form = new VJsonForm( NULL );
-	//connect( form , SIGNAL(destroyed(QObject*)) , this , SLOT(tabWidgetTabDestroyed(QObject*)) );
-	//connect( form , SIGNAL(modified()) , this , SLOT(formModified()) );
-	//connect( form , SIGNAL(unmodified()) , this , SLOT(formUnmodified()) );
-
-	return form;
 }
 
 VDraggableTabWidget* VTabWidgetArea::makeVDraggableTabWidget( void )
@@ -268,6 +267,23 @@ void VTabWidgetArea::removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget )
 
 			if( currentChildWidget )
 				currentChildWidget->setFocus();
+		}
+	}
+}
+
+void VTabWidgetArea::subWidgetTitleChanged( const QString &title )
+{
+	std::cout << QString( "void VTabWidgetArea::subWidgetTitleChanged( %1 )" ).arg( title ).toLatin1().data() << std::endl;
+
+	QWidget *caller = dynamic_cast< QWidget* >( QObject::sender() );
+
+	if( caller )
+	{
+		VDraggableTabWidget *tabWidget = tabMap.value( caller , NULL );
+
+		if( tabWidget )
+		{
+			tabWidget->setTabText( tabWidget->indexOf( caller ) , title );
 		}
 	}
 }

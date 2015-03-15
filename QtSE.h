@@ -5,7 +5,6 @@
 #include "VDraggableTabBar.h"
 #include "VGLView.h"
 #include "VJsonForm.h"
-#include "VTabEditor.h"
 #include "VTabWidgetArea.h"
 
 #include <QAction>
@@ -104,17 +103,12 @@ protected:
 		VTabWidgetArea *tabArea;
 
 protected:
-	CPath projectPath;
 	CProjectTreeItem *activeProjectItem;
 
-	VDraggableTabWidget *activeTabWidget;
-	VJsonForm *activeForm;
+	CPath projectPath;
 
 protected:
-	//VJsonForm* makeVJsonForm( void );
-	//VDraggableTabWidget* makeVDraggableTabWidget( void );
-
-	//VDraggableTabWidget* getFirstTabWidget( QSplitter *splitter ) const;
+	VJsonForm* makeVJsonForm( void );
 
 	void addArrayToSave( QJsonArray &array , const VJsonFormItem *item );
 
@@ -122,7 +116,7 @@ protected slots:
 	void open( void );
 	void save( void );
 
-	void focusChanged( QWidget *previous , QWidget *current );
+	//void focusChanged( QWidget *previous , QWidget *current );
 
 	// Managed widget slots
 	
@@ -144,9 +138,6 @@ protected slots:
 	//void removeTabWidgetFromLayout( QObject *tabWidget ) { removeTabWidgetFromLayout( dynamic_cast< VDraggableTabWidget* >( tabWidget ) ); }
 	//void removeTabWidgetFromLayout( QObject *tabWidget ) { removeTabWidgetFromLayout( (VDraggableTabWidget*)tabWidget ); }
 	//void removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget );
-
-	void formModified( void );
-	void formUnmodified( void );
 
 	void fsRefresh( void );
 

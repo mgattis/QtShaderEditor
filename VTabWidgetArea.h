@@ -18,17 +18,15 @@ public:
 
 public:
 	void addWidgetToArea( QWidget *widget , const QString &title ) { addWidgetToArea( widget , title , getActiveTabWidget() ); }
-	void addWidgetToArea( QWidget *widget , const QString &title , VDraggableTabWidget *tabWidget ) { tabWidget->addTab( widget , title ); }
+	void addWidgetToArea( QWidget *widget , const QString &title , VDraggableTabWidget *tabWidget );
 	VDraggableTabWidget* getActiveTabWidget( void );
 
 protected:
-	VJsonForm* VTabWidgetArea::makeVJsonForm( void );
 	VDraggableTabWidget* VTabWidgetArea::makeVDraggableTabWidget( void );
 	VDraggableTabWidget* getFirstTabWidget( QSplitter *splitter ) const;
 
 protected:
 	VDraggableTabWidget *activeTabWidget;
-	//QWidget *activeWidget;
 	QMap< QWidget* , VDraggableTabWidget* > tabMap;
 
 public slots:
@@ -42,11 +40,14 @@ protected slots:
 	void tabWidgetTabDestroyed( QObject *object );
 	void tabWidgetCountChanged( int count );
 	void tabWidgetCurrentChanged( int index );
+
 	//void tabCloseRequested( int index );
 	// NOTE: dynamic_cast will fail if the pointer is invalid
 	//void removeTabWidgetFromLayout( QObject *tabWidget ) { removeTabWidgetFromLayout( dynamic_cast< VDraggableTabWidget* >( tabWidget ) ); }
 	void removeTabWidgetFromLayout( QObject *tabWidget ) { removeTabWidgetFromLayout( (VDraggableTabWidget*)tabWidget ); }
 	void removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget );
+
+	void subWidgetTitleChanged( const QString &title );
 };
 
 #endif // VTABWIDGETAREA_H
