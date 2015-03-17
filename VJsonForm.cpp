@@ -6,9 +6,13 @@ VJsonForm::VJsonForm( QWidget *parent /* = NULL */ ) : QTreeWidget( parent )
 	this->setHeaderLabels( QStringList( "Key" ) << "Type" << "Value" );
 	this->setEditTriggers( QAbstractItemView::NoEditTriggers );
 
-	CJsonTemplate::get()->createTree( "shader" , this->invisibleRootItem() );
+	//CJsonTemplate::get()->createTree( "shader" , this->invisibleRootItem() );
+
 	//QJsonObject obj = CJsonTemplate::get()->createTree( "shader" , true );
 	//generateChildren( this->invisibleRootItem() , obj );
+
+	QJsonObject obj = CJsonTemplate::get()->loadUserJson( "/home/terrenteller/Projects/QtShaderEditor/assets/testProject/shaders/shader2.shader.json" );
+	CJsonTemplate::get()->createTree( "shader" , obj , this->invisibleRootItem() );
 
 	this->setContextMenuPolicy( Qt::CustomContextMenu );
 	connect( this , SIGNAL(customContextMenuRequested(QPoint)) , this , SLOT(showContextMenu(QPoint)) );
@@ -140,7 +144,7 @@ void VJsonForm::showContextMenu( QPoint point )
 
 		if( item->isArray )
 			menu->addAction( "Add" , this , SLOT(addArrayItem()) );
-		else if( item->text( 0 )[ 0 ] == '[' )
+		else if( item->parent()->text( 1 ) == "ARRAY" ) // Safe because we don't use the invisible root
 			menu->addAction( "Delete" , this , SLOT(removeArrayItem()) );
 		else
 		{
@@ -211,9 +215,14 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 {
 	VJsonFormItem *formItem = (VJsonFormItem*)item;
 
-	if( formItem )
+	// WARNING: Column is important here. This methods gets called even on programmatic
+	// changes. Beware infinite loops on corrupted data. If initial values must be
+	// garbage, set the data on the item before adding it to the tree
+
+	if( formItem && column == 2 )
 	{
 		bool ok = false;
+
 		switch( formItem->type )
 		{
 			case CJsonKeyvalueData::structure:
@@ -235,6 +244,8 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 						value = false;
 						ok = true;
 					}
+
+					// Don't default to one or the other. Use the last accepted value
 				}
 
 				if( ok )
@@ -289,18 +300,20 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 
 void VJsonForm::setModified( void )
 {
-	std::cout << QString( "void VJsonForm::setModified()" ).toLatin1().data() << std::endl;
+	//std::cout << QString( "void VJsonForm::setModified()" ).toLatin1().data() << std::endl;
 
 	if( !this->windowTitle().endsWith( "*" ) )
 		this->setWindowTitle( this->windowTitle().append( "*" ) );
 
-	setWindowModified( true );
+	if( !isWindowModified() )
+		setWindowModified( true );
+
 	emit modified();
 }
 
 void VJsonForm::setUnmodified( void )
 {
-	std::cout << QString( "void VJsonForm::setUnmodified()" ).toLatin1().data() << std::endl;
+	//std::cout << QString( "void VJsonForm::setUnmodified()" ).toLatin1().data() << std::endl;
 
 	if( this->windowTitle().endsWith( "*" ) )
 	{
@@ -309,6 +322,8 @@ void VJsonForm::setUnmodified( void )
 		this->setWindowTitle( title );
 	}
 
-	setWindowModified( false );
+	if( isWindowModified() )
+		setWindowModified( false );
+
 	emit unmodified();
 }

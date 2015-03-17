@@ -1,7 +1,7 @@
 #ifndef CJSONTEMPLATE_H
 #define CJSONTEMPLATE_H
 
-//#include "VJsonForm.h"
+#include "VJsonForm.h"
 
 #include <iostream>
 
@@ -35,25 +35,7 @@ struct CJsonKeyvalueData
 		guiInsert = indexable = projectInsert = false;
 	}
 
-	QString getValueName( void ) const
-	{
-		switch( type )
-		{
-			case structure:
-				return value.toString();
-			case boolean:
-				return "bool";
-			case integer:
-				return "int";
-			case floating:
-				return "float";
-			case string:
-				return "string";
-			default: {}
-		}
-
-		return "unknown";
-	}
+	inline QString getValueName( void ) const { return type == structure ? value.toString() : getValueName( type ); }
 
 	QString key;
 	Type type;
@@ -84,15 +66,7 @@ struct CJsonKeyvalueData
 class VJsonFormItem : public QTreeWidgetItem
 {
 public:
-	VJsonFormItem( QTreeWidgetItem *parent , CJsonKeyvalueData::Type type , bool isArray , const QVariant &defaultValue ) : QTreeWidgetItem( parent )
-	{
-		this->type = type;
-		this->isArray = isArray;
-		this->defaultValue = defaultValue;
-		this->lastValue = defaultValue;
-
-		setFlags( this->flags() | Qt::ItemIsEditable );
-	}
+	VJsonFormItem( QTreeWidgetItem *parent , CJsonKeyvalueData::Type type , bool isArray , const QVariant &defaultValue );
 
 protected:
 	void toArray( QJsonArray &array ) const;
@@ -124,9 +98,15 @@ protected:
 protected:
 	void parseDefaults( const QString &path /* = QString() */ );
 
+	void validate( QJsonArray &arr, const QJsonArray &ref );
+	void validate( QJsonObject &obj , const QJsonObject &ref );
+
 public:
 	QJsonObject createTree( const QString &name , bool gui ) const;
 	void createTree( const QString &name , QTreeWidgetItem *parent ) const;
+	void createTree( const QString &name , const QJsonObject &obj , QTreeWidgetItem *parent ) const;
+
+	QJsonObject loadUserJson( const QString &path ) const;
 
 public:
 	static CJsonTemplate* get( void )

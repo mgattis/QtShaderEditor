@@ -116,6 +116,8 @@ protected slots:
 	void open( void );
 	void save( void );
 
+	void about( void );
+
 	//void focusChanged( QWidget *previous , QWidget *current );
 
 	// Managed widget slots

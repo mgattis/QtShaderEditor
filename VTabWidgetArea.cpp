@@ -173,6 +173,7 @@ void VTabWidgetArea::tabWidgetCurrentChanged( int index )
 	{
 		activeTabWidget = caller;
 
+		// This can cause segfaults
 		//if( index >= 0 && index < caller->count() )
 			//caller->widget( index )->setFocus();
 	}

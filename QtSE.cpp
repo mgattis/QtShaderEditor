@@ -36,7 +36,7 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 		actionSplitCollapse = menuView->addAction( "Collapse" , this , SLOT(splitCollapse()) );
 
 	menuHelp = this->menuBar()->addMenu( "Help" );
-		actionAbout = menuHelp->addAction( "About" , this , SLOT(close()) );
+		actionAbout = menuHelp->addAction( "About" , this , SLOT(about()) );
 
 	projectTree = new QTreeWidget( NULL );
 	projectTree->header()->setStretchLastSection( true );
@@ -86,7 +86,11 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 
 	// Make some test stuff
 	for( int index = 0 ; index < 3 ; index++ )
-		tabArea->addWidgetToArea( makeVJsonForm() , QString( "Shader %1" ).arg( index + 1 ) );
+	{
+		VJsonForm *form = makeVJsonForm();
+		form->setWindowTitle( QString( "Shader %1" ).arg( index + 1 ) );
+		tabArea->addWidgetToArea( makeVJsonForm() , form->windowTitle() );
+	}
 
 	windowSplitter = new QSplitter( NULL );
 	windowSplitter->addWidget( viewSplitter );
@@ -161,6 +165,11 @@ void QtSE::focusChanged( QWidget *previous , QWidget *current )
 	}
 }
 #endif
+
+void QtSE::about( void )
+{
+	CJsonTemplate::get()->loadUserJson( "/home/terrenteller/Projects/QtShaderEditor/assets/testProject/shaders/shader2.shader.json" );
+}
 
 void QtSE::projectTreeContextMenu( QPoint point )
 {

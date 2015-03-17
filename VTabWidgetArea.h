@@ -19,6 +19,8 @@ public:
 public:
 	void addWidgetToArea( QWidget *widget , const QString &title ) { addWidgetToArea( widget , title , getActiveTabWidget() ); }
 	void addWidgetToArea( QWidget *widget , const QString &title , VDraggableTabWidget *tabWidget );
+
+	inline QWidget* getActiveWidget( void ) { return getActiveTabWidget() ? activeTabWidget->currentWidget() : NULL; }
 	VDraggableTabWidget* getActiveTabWidget( void );
 
 protected:
