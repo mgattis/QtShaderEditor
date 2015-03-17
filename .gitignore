@@ -1,15 +1,19 @@
-# Executable & Crap
+# Files
 
 QtSE
 .directory
 .ycm_extra_conf.py
 .ycm_extra.conf.pyc
+qt.cfg
 cppcheck.sh
 PoppyDebugTools.h
 
 # Dirs
 
+assets
+debug
 QtSEProjects
+release
 resources
 
 # C++ objects and libs
@@ -31,6 +35,7 @@ resources
 *.pro.user
 *.pro.user.*
 *.moc
+*.obj
 moc_*.cpp
 qrc_*.cpp
 ui_*.h
