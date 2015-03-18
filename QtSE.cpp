@@ -168,7 +168,7 @@ void QtSE::focusChanged( QWidget *previous , QWidget *current )
 
 void QtSE::about( void )
 {
-	CJsonTemplate::get()->loadUserJson( "/home/terrenteller/Projects/QtShaderEditor/assets/testProject/shaders/shader2.shader.json" );
+	//CJsonTemplate::get()->loadUserJson( "/home/terrenteller/Projects/QtShaderEditor/assets/testProject/shaders/shader2.shader.json" );
 }
 
 void QtSE::projectTreeContextMenu( QPoint point )
@@ -281,11 +281,18 @@ void QtSE::fsProjectTreeItemDoubleClicked( QTreeWidgetItem *item , int column )
 
 	if( projectItem && !projectItem->isDir() )
 	{
-		//QString filePath = projectItem->getFullPath( projectPath.getPath( true ) );
+		QString type , filePath = projectItem->getFullPath( projectPath.getPath( true ) );
 
-		VJsonForm *form = makeVJsonForm();
-		form->setWindowTitle( item->text( 0 ) );
-		tabArea->addWidgetToArea( form , form->windowTitle() );
+		QJsonObject obj = CJsonTemplate::get()->loadUserJson( filePath , type );
+
+		if( !type.isEmpty() )
+		{
+			VJsonForm *form = makeVJsonForm();
+			CJsonTemplate::get()->createTree( type , obj , form->invisibleRootItem() );
+			UTIL_expandTreeItems( form , form->invisibleRootItem() );
+			form->setWindowTitle( item->text( 0 ) );
+			tabArea->addWidgetToArea( form , form->windowTitle() );
+		}
 	}
 }
 

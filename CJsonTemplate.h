@@ -98,6 +98,7 @@ protected:
 protected:
 	void parseDefaults( const QString &path /* = QString() */ );
 
+	//void validate( QJsonArray &cmp, const QJsonValue::Type type );
 	void validate( QJsonArray &arr, const QJsonArray &ref );
 	void validate( QJsonObject &obj , const QJsonObject &ref );
 
@@ -106,7 +107,7 @@ public:
 	void createTree( const QString &name , QTreeWidgetItem *parent ) const;
 	void createTree( const QString &name , const QJsonObject &obj , QTreeWidgetItem *parent ) const;
 
-	QJsonObject loadUserJson( const QString &path ) const;
+	QJsonObject loadUserJson( const QString &path , QString &type ) const;
 
 public:
 	static CJsonTemplate* get( void )

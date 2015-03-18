@@ -11,8 +11,8 @@ VJsonForm::VJsonForm( QWidget *parent /* = NULL */ ) : QTreeWidget( parent )
 	//QJsonObject obj = CJsonTemplate::get()->createTree( "shader" , true );
 	//generateChildren( this->invisibleRootItem() , obj );
 
-	QJsonObject obj = CJsonTemplate::get()->loadUserJson( "/home/terrenteller/Projects/QtShaderEditor/assets/testProject/shaders/shader2.shader.json" );
-	CJsonTemplate::get()->createTree( "shader" , obj , this->invisibleRootItem() );
+	//QJsonObject obj = CJsonTemplate::get()->loadUserJson( "/home/terrenteller/Projects/QtShaderEditor/assets/testProject/shaders/shader2.shader.json" );
+	//CJsonTemplate::get()->createTree( "shader" , obj , this->invisibleRootItem() );
 
 	this->setContextMenuPolicy( Qt::CustomContextMenu );
 	connect( this , SIGNAL(customContextMenuRequested(QPoint)) , this , SLOT(showContextMenu(QPoint)) );
@@ -144,7 +144,7 @@ void VJsonForm::showContextMenu( QPoint point )
 
 		if( item->isArray )
 			menu->addAction( "Add" , this , SLOT(addArrayItem()) );
-		else if( item->parent()->text( 1 ) == "ARRAY" ) // Safe because we don't use the invisible root
+		else if( item->parent() && item->parent()->text( 1 ) == "ARRAY" )
 			menu->addAction( "Delete" , this , SLOT(removeArrayItem()) );
 		else
 		{

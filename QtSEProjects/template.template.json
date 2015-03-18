@@ -34,6 +34,7 @@
         },
         {
             "key": "stageList",
+            "value": "stage_name",
             "type": "string",
             "indexable": true,
             "guiInsert": true
@@ -251,7 +252,7 @@
             "guiInsert": true
         }
     ],
-    
+
     "model": [
         {
             "key": "wavefront",
