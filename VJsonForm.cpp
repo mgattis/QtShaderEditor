@@ -219,82 +219,87 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 	// changes. Beware infinite loops on corrupted data. If initial values must be
 	// garbage, set the data on the item before adding it to the tree
 
-	if( formItem && column == 2 )
+	if( formItem )
 	{
-		bool ok = false;
-
-		switch( formItem->type )
+		if( column == 2 )
 		{
-			case CJsonKeyvalueData::structure:
-				formItem->setText( column , formItem->defaultValue.toString() );
-				break;
-			case CJsonKeyvalueData::boolean:
-			{
-				bool value = formItem->text( column ).toInt( &ok );
+			bool ok = false;
 
-				if( !ok )
+			switch( formItem->type )
+			{
+				case CJsonKeyvalueData::structure:
+					formItem->setText( column , formItem->defaultValue.toString() );
+					break;
+				case CJsonKeyvalueData::boolean:
 				{
-					if( !formItem->text( 2 ).compare( "true" , Qt::CaseInsensitive ) )
+					bool value = formItem->text( column ).toInt( &ok );
+
+					if( !ok )
 					{
-						value = true;
-						ok = true;
+						if( !formItem->text( 2 ).compare( "true" , Qt::CaseInsensitive ) )
+						{
+							value = true;
+							ok = true;
+						}
+						else if( !formItem->text( 2 ).compare( "false" , Qt::CaseInsensitive ) )
+						{
+							value = false;
+							ok = true;
+						}
+
+						// Don't default to one or the other. Use the last accepted value
 					}
-					else if( !formItem->text( 2 ).compare( "false" , Qt::CaseInsensitive ) )
+
+					if( ok )
 					{
-						value = false;
-						ok = true;
+						formItem->setText( column , value ? "true" : "false" );
+						formItem->lastValue = value;
+						setModified();
 					}
+					else
+						formItem->setText( column , formItem->lastValue.toBool() ? "true" : "false" );
 
-					// Don't default to one or the other. Use the last accepted value
+					break;
 				}
-
-				if( ok )
+				case CJsonKeyvalueData::integer:
 				{
-					formItem->setText( column , value ? "true" : "false" );
-					formItem->lastValue = value;
-					setModified();
+					int value = formItem->text( column ).toInt( &ok );
+
+					if( ok )
+					{
+						formItem->setText( column , QString::number( value ) );
+						formItem->lastValue = value;
+						setModified();
+					}
+					else
+						formItem->setText( column , formItem->lastValue.toInt() );
+
+					break;
 				}
-				else
-					formItem->setText( column , formItem->lastValue.toBool() ? "true" : "false" );
-
-				break;
-			}
-			case CJsonKeyvalueData::integer:
-			{
-				int value = formItem->text( column ).toInt( &ok );
-
-				if( ok )
+				case CJsonKeyvalueData::floating:
 				{
-					formItem->setText( column , QString::number( value ) );
-					formItem->lastValue = value;
-					setModified();
-				}
-				else
-					formItem->setText( column , formItem->lastValue.toInt() );
+					int value = formItem->text( column ).toFloat( &ok );
 
-				break;
-			}
-			case CJsonKeyvalueData::floating:
-			{
-				int value = formItem->text( column ).toFloat( &ok );
-
-				if( ok )
-				{
-					formItem->setText( column , QString::number( value ) );
-					formItem->lastValue = value;
-					setModified();
+					if( ok )
+					{
+						formItem->setText( column , QString::number( value ) );
+						formItem->lastValue = value;
+						setModified();
+					}
+					else
+						formItem->setText( column , QString::number( formItem->lastValue.toFloat() ) );
+					break;
 				}
-				else
-					formItem->setText( column , QString::number( formItem->lastValue.toFloat() ) );
-				break;
+				case CJsonKeyvalueData::string:
+					//if( formItem->lastValue.formItem->text( column ) )
+					formItem->lastValue = formItem->text( column );
+					setModified();
+					break;
+				default: {}
 			}
-			case CJsonKeyvalueData::string:
-				//if( formItem->lastValue.formItem->text( column ) )
-				formItem->lastValue = formItem->text( column );
-				setModified();
-				break;
-			default: {}
 		}
+		else // NOTE: Expensive? This doesn't always work either
+			resizeColumnToContents( column );
 	}
 }
 

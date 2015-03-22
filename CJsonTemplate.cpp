@@ -260,7 +260,7 @@ void CJsonTemplate::validate( QJsonArray &cmp, const QJsonArray &ref )
 			}
 			else
 			{
-				std::cout << "removing " << index << std::endl;
+				//std::cout << "removing " << index << std::endl;
 
 				cmp.removeAt( index );
 			}
@@ -305,7 +305,7 @@ void CJsonTemplate::validate( QJsonObject &cmp , const QJsonObject &ref )
 		}
 		else
 		{
-			std::cout << "replacing " << refKeys.at( index ).toLatin1().data() << std::endl;
+			//std::cout << "replacing " << refKeys.at( index ).toLatin1().data() << std::endl;
 
 			cmp.insert( refKeys.at( index ) , ref[ refKeys.at( index ) ] );
 		}
@@ -422,7 +422,7 @@ void CJsonTemplate::createTree( const QString &name , const QJsonObject &obj , Q
 		for( int index = 0 ; index < keyvalues->length() ; index++ )
 		{
 			const CJsonKeyvalueData *data = keyvalues->at( index );
-			std::cout << "Working on: " << data->key.toLatin1().data() << std::endl;
+			//std::cout << "Working on: " << data->key.toLatin1().data() << std::endl;
 
 			// Some keys are optional or mutually exclusive with others
 			// Don't attempt to parse something we don't have
@@ -473,17 +473,17 @@ void CJsonTemplate::createTree( const QString &name , const QJsonObject &obj , Q
 
 					if( data->type == CJsonKeyvalueData::structure )
 					{
-						std::cout << "toString() " << data->key.toLatin1().data() << " = " << data->value.toString().toLatin1().data() << "" << std::endl;
+						//std::cout << "toString() " << data->key.toLatin1().data() << " = " << data->value.toString().toLatin1().data() << "" << std::endl;
 
 						QJsonValue strValue = obj.value( data->key );
 
 						//if( strValue.isObject() )
-							std::cout << "Type: " << (int)strValue.type() << std::endl;
+							//std::cout << "Type: " << (int)strValue.type() << std::endl;
 
 						QJsonObject strObject = strValue.toObject();
 						QStringList keys = strObject.keys();
-						for( int index2 = 0 ; index2 < keys.size() ; index2++ )
-							std::cout << "Key: " << keys.at( index2 ).toLatin1().data() << std::endl;
+						//for( int index2 = 0 ; index2 < keys.size() ; index2++ )
+							//std::cout << "Key: " << keys.at( index2 ).toLatin1().data() << std::endl;
 						createTree( data->value.toString() , strObject , item );
 					}
 					else
@@ -508,11 +508,12 @@ QJsonObject CJsonTemplate::loadUserJson( const QString &path , QString &type ) c
 		{
 			userObject = doc.object();
 			type = userObject.value( "itemType" ).toString();
-			std::cout << userObject.value( "itemType" ).toString().toLatin1().data() << std::endl;
-			std::cout << userObject.value( "itemName" ).toString().toLatin1().data() << std::endl;
+			//std::cout << userObject.value( "itemType" ).toString().toLatin1().data() << std::endl;
+			//std::cout << userObject.value( "itemName" ).toString().toLatin1().data() << std::endl;
 
 			QJsonObject templateObject = createTree( type , true );
 
+#if 0
 			std::cout << "===============================" << std::endl;
 
 			std::cout << "templateObject" << std::endl;
@@ -522,14 +523,17 @@ QJsonObject CJsonTemplate::loadUserJson( const QString &path , QString &type ) c
 			std::cout << "userObject" << std::endl;
 			QJsonDocument doc3( userObject );
 			std::cout << doc3.toJson().data() << std::endl;
+#endif
 
 			validate( userObject , templateObject );
 
+#if 0
 			std::cout << "validated" << std::endl;
 			QJsonDocument doc4( userObject );
 			std::cout << doc4.toJson().data() << std::endl;
 
 			std::cout << "===============================" << std::endl;
+#endif
 		}
 		else
 			std::cout << error.errorString().toLatin1().data() << std::endl;

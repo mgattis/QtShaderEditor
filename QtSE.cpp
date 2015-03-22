@@ -287,6 +287,11 @@ void QtSE::fsProjectTreeItemDoubleClicked( QTreeWidgetItem *item , int column )
 
 		if( !type.isEmpty() )
 		{
+			VGLSLEdit *edit = new VGLSLEdit( NULL );
+			edit->setWindowTitle( "testedit" );
+			tabArea->addWidgetToArea( edit , edit->windowTitle() );
+			return;
+
 			VJsonForm *form = makeVJsonForm();
 			CJsonTemplate::get()->createTree( type , obj , form->invisibleRootItem() );
 			UTIL_expandTreeItems( form , form->invisibleRootItem() );

@@ -121,7 +121,7 @@ QIcon UTIL_shellIconForExtension( const QString &extension );
 // Path is taken to be absolute
 bool UTIL_makeDirectoriesForPath( const QString &path , bool lastSplitIsFile );
 
-int UTIL_getFontWidth( const QString &string );
+int UTIL_getFontWidth( const QString &string , const QFont &font = QFont() );
 
 void UTIL_cleanFilePath( QByteArray &path );
 void UTIL_cleanFilePath( QString &path );

@@ -3,6 +3,7 @@
 
 #include "CPath.h"
 #include "VDraggableTabBar.h"
+#include "VGLSLEdit.h"
 #include "VGLView.h"
 #include "VJsonForm.h"
 #include "VTabWidgetArea.h"

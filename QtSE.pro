@@ -33,7 +33,8 @@ SOURCES += main.cpp\
 	CProjectProject.cpp \
 	IProjectObject.cpp \
 	CProjectStage.cpp \
-    VTabWidgetArea.cpp
+    VTabWidgetArea.cpp \
+    VGLSLEdit.cpp
 
 HEADERS  += QtSE.h \
     CResourceManager.h \
@@ -50,7 +51,8 @@ HEADERS  += QtSE.h \
 	IProjectObject.h \
 	IProjectStage.h \
 	CProjectStage.h \
-    VTabWidgetArea.h
+    VTabWidgetArea.h \
+    VGLSLEdit.h
 
 DISTFILES += \
     .gitignore

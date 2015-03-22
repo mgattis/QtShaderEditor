@@ -380,9 +380,9 @@ bool UTIL_makeDirectoriesForPath( const QString &path , bool lastSplitIsFile )
 	return true;
 }
 
-int UTIL_getFontWidth( const QString &string )
+int UTIL_getFontWidth( const QString &string , const QFont &font /* = QFont() */ )
 {
-	static QFontMetrics *fontMetrics = new QFontMetrics( QFont() );
+	static QFontMetrics *fontMetrics = new QFontMetrics( font );
 
 	return fontMetrics->width( string );
 }
