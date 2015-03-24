@@ -1,8 +1,11 @@
 #ifndef VGLVIEW_H
 #define VGLVIEW_H
 
+#include "CCamera.h"
+
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <QGLShader>
 #include <QGLWidget>
@@ -12,6 +15,8 @@
 #include <QObject>
 #include <QTime>
 #include <QTimer>
+
+#include <QGLShader>
 
 #ifndef M_PI
 #define M_PI (3.14159265359)
@@ -31,7 +36,10 @@ public:
 		KEY_W = 1 << 31,
 		KEY_A = 1 << 30,
 		KEY_S = 1 << 29,
-		KEY_D = 1 << 28
+        KEY_D = 1 << 28,
+        KEY_SPACE = 1 << 27,
+        KEY_LSHIFT = 1 << 26,
+        KEY_C = 1 << 25
 	};
 
 public:
@@ -40,12 +48,8 @@ public:
 	void paintGL( void );
 
 public:
-	//QGLShader* getVertexShader( void ) { return vertexShader; }
-	//QGLShader* getFragmentShader( void ) { return fragmentShader; }
-	void setVertexShader( QGLShader *shader );
-	void setFragmentShader( QGLShader *shader );
-
-	void moveCamera( const glm::vec3 &vector ) { xPos = vector.x; yPos = vector.y; zPos = vector.z; }
+    void updateCamera(float lastFrameTime);
+    void drawScene();
 
 protected slots:
 	void enterEvent( QEvent *event );
@@ -65,10 +69,14 @@ protected:
 	unsigned int keyBits;
 
 	QPoint lastCursorPos;
-	float mouseSensitivity , moveSpeed;
-	float fov;
-	float xPos , yPos , zPos;
-	float xRot , yRot , zRot;
+    float mouseSensitivity;
+    CCamera camera;
+
+    float maxAcceleration;
+    float maxVelocity;
+    float friction;
+
+    QGLShaderProgram program;
 };
 
 #endif // VGLVIEW_H

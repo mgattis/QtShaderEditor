@@ -8,7 +8,7 @@
 #include <QString>
 #include <QStringList>
 
-#include "CProjectProject.h"
+#include "CProject.h"
 
 int main( int argc , char *argv[] )
 {

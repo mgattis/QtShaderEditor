@@ -1,21 +1,20 @@
-#include "CProjectProject.h"
-#include "CProjectStage.h"
+#include "CProject.h"
 
 #include <QJsonParseError>
 
-CProjectProject::CProjectProject() {
+CProject::CProject() {
     projectPath = QDir::home();
     projectVersion = "v0.1b";
 
-    defaultCamera = DEFAULT_CAMERA_ORBIT;
+    defaultCamera = CAMERA_ORBIT;
     speedMultiplier = 1.0;
 }
 
-CProjectProject::~CProjectProject() {
+CProject::~CProject() {
 
 }
 
-QJsonObject CProjectProject::_loadJsonFile(QString userJsonFile) {
+QJsonObject CProject::_loadJsonFile(QString userJsonFile) {
     QJsonObject json;
 
     std::clog << "[INFO]: Opening '" << userJsonFile.toStdString() << "' for reading." << std::endl;
@@ -43,7 +42,7 @@ QJsonObject CProjectProject::_loadJsonFile(QString userJsonFile) {
     return json;
 }
 
-bool CProjectProject::loadProject(QString userJsonFile) {
+bool CProject::loadProject(QString userJsonFile) {
     userJsonFile = QDir(userJsonFile).absolutePath();
     QFileInfo fileInfo = userJsonFile;
     projectPath = fileInfo.absoluteDir();
@@ -66,7 +65,7 @@ bool CProjectProject::loadProject(QString userJsonFile) {
     return false;
 }
 
-bool CProjectProject::initiaize() {
+bool CProject::initiaize() {
     // Only if the project JSON is loaded.
     if (this->bIdentifiersLoaded) {
         if (userJson.contains("projectVersion")) {
@@ -80,7 +79,7 @@ bool CProjectProject::initiaize() {
             QJsonObject defaultCamera = userJson["defaultCamera"].toObject();
             if (defaultCamera.contains("cameraType")) {
                 if (!defaultCamera["cameraType"].toString().compare("freeCamera")) {
-                    this->defaultCamera = DEFAULT_CAMERA_FREE;
+                    this->defaultCamera = CAMERA_FREE;
                 }
                 if (defaultCamera.contains("speedMultiplier")) {
                     this->speedMultiplier = defaultCamera["speedMultiplier"].toDouble();
@@ -102,7 +101,7 @@ bool CProjectProject::initiaize() {
                     for (; stageListIt != stageList.end(); ++stageListIt) {
                         QString stageName = (*stageListIt).toString();
 
-                        IProjectStage *stage = resourceManager->getProjectObject(stageName);
+                        CStage *stage = resourceManager->getProjectObject(stageName);
                         this->stageList.push_back(stage);
                     }
                 }
@@ -120,7 +119,7 @@ bool CProjectProject::initiaize() {
     return false;
 }
 
-bool CProjectProject::_loadAllProjectObjects(QDir directory) {
+bool CProject::_loadAllProjectObjects(QDir directory) {
     QDirIterator directoryIt(directory);
 
     while (directoryIt.hasNext()) {
@@ -149,14 +148,14 @@ bool CProjectProject::_loadAllProjectObjects(QDir directory) {
     return true;
 }
 
-bool CProjectProject::_loadProjectObject(QJsonObject userJson) {
+bool CProject::_loadProjectObject(QJsonObject userJson) {
     if (userJson.contains("itemType")) {
         IProjectObject *projectObject = NULL;
         QString itemType = userJson["itemType"].toString();
 
         // Determine type and create the right object.
         if (itemType.compare("stage") == 0) {
-            projectObject = new CProjectStage();
+            projectObject = new CStage();
         }
         // End types.
 
@@ -177,7 +176,7 @@ bool CProjectProject::_loadProjectObject(QJsonObject userJson) {
     return false;
 }
 
-bool CProjectProject::_initializeAllProjectObjects() {
+bool CProject::_initializeAllProjectObjects() {
     QMap<QString, IProjectObject *> projectList;
     bool bSuccess = true;
 
@@ -198,10 +197,10 @@ bool CProjectProject::_initializeAllProjectObjects() {
     return true;
 }
 
-bool CProjectProject::run(float elapsedTime) {
-    QList<IProjectStage *>::const_iterator stageListIt = stageList.begin();
+bool CProject::run(float elapsedTime) {
+    QList<CStage *>::const_iterator stageListIt = stageList.begin();
     for (; stageListIt != stageList.end(); ++stageListIt) {
-        IProjectStage *stage = (*stageListIt);
+        CStage *stage = (*stageListIt);
 
         stage->run(elapsedTime);
     }
@@ -209,18 +208,18 @@ bool CProjectProject::run(float elapsedTime) {
     return false;
 }
 
-float CProjectProject::getSpeedMultiplier() {
+float CProject::getSpeedMultiplier() {
     return speedMultiplier;
 }
 
-EProjectDefalutCamera CProjectProject::getDefaultCamera() {
+CameraType_t CProject::getDefaultCamera() {
     return defaultCamera;
 }
 
-QString CProjectProject::getProjectPath() {
+QString CProject::getProjectPath() {
     return projectPath.canonicalPath();
 }
 
-QString CProjectProject::getProjectVersion() {
+QString CProject::getProjectVersion() {
     return projectVersion;
 }
