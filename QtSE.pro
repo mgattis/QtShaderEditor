@@ -34,7 +34,9 @@ SOURCES += main.cpp\
 	IProjectObject.cpp \
 	CProjectStage.cpp \
     VTabWidgetArea.cpp \
-    VGLSLEdit.cpp
+    VGLSLEdit.cpp \
+    tinyobjloader/tiny_obj_loader.cc \
+    CObj.cpp
 
 HEADERS  += QtSE.h \
     CResourceManager.h \
@@ -52,7 +54,9 @@ HEADERS  += QtSE.h \
 	IProjectStage.h \
 	CProjectStage.h \
     VTabWidgetArea.h \
-    VGLSLEdit.h
+    VGLSLEdit.h \
+    tinyobjloader/tiny_obj_loader.h \
+    CObj.h
 
 DISTFILES += \
     .gitignore

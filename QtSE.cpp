@@ -121,6 +121,7 @@ VJsonForm* QtSE::makeVJsonForm( void )
 void QtSE::open( void )
 {
 	//loadProject( QFileDialog::getOpenFileName( this , "Open File" , "." , "JSON File (*.json)" ) );
+	QDir::setCurrent( "/home/terrenteller/Projects/QtShaderEditor/resources/" );
 	loadProject( "/home/terrenteller/Projects/QtShaderEditor/QtSEProjects/demo/testProject.project.json" );
 }
 

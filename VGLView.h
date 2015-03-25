@@ -1,15 +1,25 @@
 #ifndef VGLVIEW_H
 #define VGLVIEW_H
 
+#include <iostream>
+
+#include "CObj.h"
+
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/mat4x4.hpp"
 
+#include <QByteArray>
+#include <QDir>
+#include <QFile>
 #include <QGLShader>
 #include <QGLWidget>
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QObject>
+#include <QOpenGLTexture>
 #include <QTime>
 #include <QTimer>
 
@@ -69,6 +79,21 @@ protected:
 	float fov;
 	float xPos , yPos , zPos;
 	float xRot , yRot , zRot;
+
+	CObj *obj;
+	CGLMesh *mesh;
+	QVector< CGLMesh* > meshArray;
+
+	//float data[ 6 ][ 3 ];
+	//float normal[ 6 ][ 3 ];
+	//float tex[ 6 ][ 2 ];
+
+	const char *vertShader , *fragShader;
+	GLuint eboID , vaoID , vboID[ 2 ] , textureID , shaderProgram , vertexShader , fragmentShader;
+	unsigned int shaderAttribute;
+
+	QOpenGLTexture *texture;
+	QImage *image;
 };
 
 #endif // VGLVIEW_H
