@@ -15,6 +15,7 @@ debug
 QtSEProjects
 release
 resources
+tinyobjloader
 
 # C++ objects and libs
 
