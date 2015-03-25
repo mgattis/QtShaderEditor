@@ -11,7 +11,7 @@ VJsonForm::VJsonForm( QWidget *parent /* = NULL */ ) : QTreeWidget( parent )
 	//QJsonObject obj = CJsonTemplate::get()->createTree( "shader" , true );
 	//generateChildren( this->invisibleRootItem() , obj );
 
-	//QJsonObject obj = CJsonTemplate::get()->loadUserJson( "/home/terrenteller/Projects/QtShaderEditor/assets/testProject/shaders/shader2.shader.json" );
+	//QJsonObject obj = CJsonTemplate::get()->loadUserJson( QDir::home().absolutePath() + "/Projects/QtShaderEditor/assets/testProject/shaders/shader2.shader.json" );
 	//CJsonTemplate::get()->createTree( "shader" , obj , this->invisibleRootItem() );
 
 	this->setContextMenuPolicy( Qt::CustomContextMenu );

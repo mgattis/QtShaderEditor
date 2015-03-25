@@ -133,7 +133,6 @@ public:
 								QString path = texturePath + materialName;
 								std::cout << "Loading: " << path.toLatin1().data() << std::endl;
 
-								//QImage *image = new QImage( "/home/terrenteller/Projects/QtShaderEditor/resources/grassside.png" );
 								// Load image
 								QImage *image = new QImage( path );
 								*image = image->mirrored( 0 , 1 );

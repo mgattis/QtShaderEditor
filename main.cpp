@@ -10,7 +10,7 @@
 #include <QString>
 #include <QStringList>
 
-#include "CProjectProject.h"
+#include "CProject.h"
 
 static void PrintInfo(const std::vector<tinyobj::shape_t>& shapes, const std::vector<tinyobj::material_t>& materials)
 {
@@ -84,8 +84,8 @@ int main( int argc , char *argv[] )
 #endif
 
 #if 0
-	const char *filename = "/home/terrenteller/Projects/QtShaderEditor/resources/grassblock.obj";
-	const char *basepath = "/home/terrenteller/Projects/QtShaderEditor/resources/";
+	const char *filename = QDir::home().absolutePath() + "/Projects/QtShaderEditor/resources/grassblock.obj";
+	const char *basepath = QDir::home().absolutePath() + "/Projects/QtShaderEditor/resources/";
 	std::cout << "Loading " << filename << std::endl;
 
 	std::vector<tinyobj::shape_t> shapes;

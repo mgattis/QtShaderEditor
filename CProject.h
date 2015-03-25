@@ -1,8 +1,8 @@
-#ifndef CPROJECTPROJECT_H
-#define CPROJECTPROJECT_H
+#ifndef CPROJECT_H
+#define CPROJECT_H
 
-#include "IProjectProject.h"
-#include "IProjectStage.h"
+#include "CProject.h"
+#include "CStage.h"
 #include "CJsonTemplate.h"
 #include "CPath.h"
 #include "CResourceManager.h"
@@ -14,13 +14,18 @@
 #include <QDirIterator>
 #include <QFile>
 
-class CProjectProject : public IProjectProject {
+enum CameraType_t {
+    CAMERA_ORBIT,
+    CAMERA_FREE
+};
+
+class CProject : public IProjectObject {
 private:
-    QList<IProjectStage *> stageList;
+    QList<CStage *> stageList;
 
     QString projectVersion;
 
-    EProjectDefalutCamera defaultCamera;
+    CameraType_t defaultCamera;
     float speedMultiplier;
 
 private:
@@ -30,8 +35,8 @@ private:
     bool _initializeAllProjectObjects();
 
 public:
-    CProjectProject();
-    ~CProjectProject();
+    CProject();
+    ~CProject();
 
     // bool loadUserJson(QJsonObject userJson);
     bool loadProject(QString userJsonFile);
@@ -40,9 +45,9 @@ public:
     bool run(float elapsedTime);
 
     float getSpeedMultiplier();
-    EProjectDefalutCamera getDefaultCamera();
+    CameraType_t getDefaultCamera();
     QString getProjectPath();
     QString getProjectVersion();
 };
 
-#endif /* !CPROJECTPROJECT_H */
+#endif /* !CPROJECT_H */

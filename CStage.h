@@ -1,9 +1,10 @@
-#ifndef CPROJECTSTAGE_H
-#define CPROJECTSTAGE_H
+#ifndef CSTAGE_H
+#define CSTAGE_H
 
-#include "IProjectStage.h"
+#include "IProjectObject.h"
+#include "glm/glm.hpp"
 
-class CProjectStage: public IProjectStage {
+class CStage: public IProjectObject {
 private:
     glm::mat4 projectionMatrix;
     QList<IProjectObject *> framebufferList;
@@ -11,8 +12,8 @@ private:
     QList<IProjectObject *> textureList;
 
 public:
-    CProjectStage();
-    ~CProjectStage();
+    CStage();
+    ~CStage();
 
     // bool loadUserJson(QJsonObject userJson);
     bool initiaize();
@@ -22,5 +23,5 @@ public:
     glm::mat4 getProjectionMatrix();
 };
 
-#endif // CPROJECTSTAGE_H
+#endif // CSTAGE_H
 

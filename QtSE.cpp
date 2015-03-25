@@ -121,8 +121,8 @@ VJsonForm* QtSE::makeVJsonForm( void )
 void QtSE::open( void )
 {
 	//loadProject( QFileDialog::getOpenFileName( this , "Open File" , "." , "JSON File (*.json)" ) );
-	QDir::setCurrent( "/home/terrenteller/Projects/QtShaderEditor/resources/" );
-	loadProject( "/home/terrenteller/Projects/QtShaderEditor/QtSEProjects/demo/testProject.project.json" );
+	QDir::setCurrent( QDir::home().absolutePath() + "/Projects/QtShaderEditor/resources/" );
+	loadProject( QDir::home().absolutePath() + "/Projects/QtShaderEditor/QtSEProjects/demo/testProject.project.json" );
 }
 
 void QtSE::save( void )
@@ -169,7 +169,7 @@ void QtSE::focusChanged( QWidget *previous , QWidget *current )
 
 void QtSE::about( void )
 {
-	//CJsonTemplate::get()->loadUserJson( "/home/terrenteller/Projects/QtShaderEditor/assets/testProject/shaders/shader2.shader.json" );
+	//CJsonTemplate::get()->loadUserJson( QDir::home().absolutePath() + "/Projects/QtShaderEditor/assets/testProject/shaders/shader2.shader.json" );
 }
 
 void QtSE::projectTreeContextMenu( QPoint point )

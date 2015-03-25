@@ -30,13 +30,14 @@ SOURCES += main.cpp\
     CJsonTemplate.cpp \
     VJsonForm.cpp \
 	VDraggableTabBar.cpp \
-	CProjectProject.cpp \
 	IProjectObject.cpp \
-	CProjectStage.cpp \
     VTabWidgetArea.cpp \
-    VGLSLEdit.cpp \
+	VGLSLEdit.cpp \
     tinyobjloader/tiny_obj_loader.cc \
-    CObj.cpp
+	CObj.cpp \
+    CStage.cpp \
+    CProject.cpp \
+	CCamera.cpp
 
 HEADERS  += QtSE.h \
     CResourceManager.h \
@@ -48,15 +49,14 @@ HEADERS  += QtSE.h \
     CJsonTemplate.h \
     VJsonForm.h \
 	VDraggableTabBar.h \
-	CProjectProject.h \
-	IProjectProject.h \
 	IProjectObject.h \
-	IProjectStage.h \
-	CProjectStage.h \
     VTabWidgetArea.h \
-    VGLSLEdit.h \
+	VGLSLEdit.h \
     tinyobjloader/tiny_obj_loader.h \
-    CObj.h
+	CObj.h \
+    CStage.h \
+    CProject.h \
+	CCamera.h
 
 DISTFILES += \
     .gitignore
