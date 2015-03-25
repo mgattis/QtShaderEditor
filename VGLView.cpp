@@ -27,18 +27,20 @@ void VGLView::initializeGL( void )
          "uniform mat4 ViewMatrix;\n"
          "void main(void)\n"
          "{\n"
-         "   mat4 MVPMatrix = ProjectionMatrix * ViewMatrix * ModelMatrix;\n"
-         "   gl_Position = MVPMatrix * vec4(gl_Vertex.xyzw);\n"
+         "   gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * gl_Vertex;\n"
          "}");
      program.addShaderFromSourceCode(QGLShader::Fragment,
          "uniform float time;\n"
          "void main(void)\n"
          "{\n"
-         "   gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0) * abs(sin(time));\n"
+         "   float red = sin(time);\n"
+         "   float green = sin(time + 3.14159 * 2.0 * 0.3333333);\n"
+         "   float blue = sin(time + 3.14159 * 2.0 * 0.6666667);\n"
+         "   gl_FragColor = vec4(red, green, blue, 1.0);\n"
          "}");
 
     connect( &repaintTimer , SIGNAL(timeout()) , this , SLOT(updateGL()) );
-    repaintTimer.setInterval( 32 );
+    repaintTimer.setInterval( 16 );
 	repaintTimer.start();
 }
 
@@ -112,9 +114,9 @@ void VGLView::updateCamera(float lastFrameTime) {
     // apply velocity
     camera.position += lastFrameTime * camera.velocity;
 
-    glRotatef(camera.angle.x, 1.0, 0.0, 0.0);
-    glRotatef(camera.angle.z, 0.0, 0.0, 1.0);
-    glTranslatef(camera.position.x, camera.position.y, camera.position.z);
+    //glRotatef(camera.angle.x, 1.0, 0.0, 0.0);
+    //glRotatef(camera.angle.z, 0.0, 0.0, 1.0);
+    //glTranslatef(camera.position.x, camera.position.y, camera.position.z);
 
     camera.viewMatrix = camera.getMatrixFromPosition();
 }

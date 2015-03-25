@@ -22,7 +22,7 @@
 #define M_PI (3.14159265359)
 #endif
 
-#define DEG2RAD (M_PI/180)
+#define DEG2RAD (M_PI/180.0)
 
 class VGLView : public QGLWidget
 {

@@ -19,8 +19,21 @@ CCamera::~CCamera() {
 }
 
 glm::mat4 CCamera::getMatrixFromPosition() {
-    glm::mat4 m = glm::rotate(glm::mat4(), angle.x, glm::vec3(1.0, 0.0, 0.0));
-    m = m * glm::rotate(m, angle.z, glm::vec3(0.0, 0.0, 1.0));
-    m = m * glm::translate(m, glm::vec3(position));
+    /*while (angle.x < 0.0) {
+        angle.x += 360.0;
+    }
+    while (angle.x >= 360.0) {
+        angle.x -= 360.0;
+    }
+    while (angle.z < 0.0) {
+        angle.z += 360.0;
+    }
+    while (angle.z >= 360.0) {
+        angle.z -= 360.0;
+    }*/
+
+    glm::mat4 m = glm::rotate(glm::mat4(), (float)(angle.x), glm::vec3(1.0, 0.0, 0.0));
+    m = glm::rotate(m, (float)(angle.z), glm::vec3(0.0, 0.0, 1.0));
+    m = glm::translate(m, glm::vec3(position));
     return m;
 }
