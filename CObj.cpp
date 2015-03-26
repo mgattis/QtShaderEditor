@@ -8,17 +8,20 @@ CGLMesh::CGLMesh( int vertexCount )
 	normals = new float[ vertexCount ][ 3 ];
 	texCoords = new float[ vertexCount ][ 2 ];
 
-	ambientID = NULL;
-	diffuseID = NULL;
-	specularID = NULL;
-	normalMapID = NULL;
+	vertexBuf = normalBuf = texCoordBuf = 0;
+	ambientID = diffuseID = specularID = normalMapID = NULL;
 }
 
 CGLMesh::~CGLMesh()
 {
-	delete[] vertices;
-	delete[] normals;
-	delete[] texCoords;
+	//glDeleteBuffers( 1 , vertexBuf );
+	glDeleteBuffers( 1 , normalBuf );
+	glDeleteBuffers( 1 , texCoordBuf );
+
+	glDeleteTextures( 1 , ambientID );
+	glDeleteTextures( 1 , diffuseID );
+	glDeleteTextures( 1 , specularID );
+	glDeleteTextures( 1 , normalMapID );
 
 	delete[] ambientID;
 	delete[] diffuseID;
@@ -40,9 +43,6 @@ void CGLMesh::draw( void )
 	glBindBuffer( GL_ARRAY_BUFFER , texCoordBuf );
 	glVertexAttribPointer( texCoordLoc , 2 , GL_FLOAT , GL_FALSE , 0 , 0 );
 
-	//glActiveTexture( GL_TEXTURE0 );
-	//glBindTexture( GL_TEXTURE_2D , texID );
-
 #if 1
 	if( diffuseID )
 	{
@@ -56,29 +56,14 @@ void CGLMesh::draw( void )
 
 CObj::CObj()
 {
-	//vertexBuf = normalBuf = texCoordBuf = 0;
-	//ambientBuf = diffuseBuf = specularBuf = normalMapBuf = 0;
+	// Nothing to do
 }
 
 CObj::~CObj()
 {
-	CGLMesh *mesh = NULL;
 	for( int index = 0 ; index < meshArray.size() ; index++ )
-	{
-		mesh = meshArray.at( index );
-
-		glDeleteBuffers( 1 , mesh->vertexBuf );
-		glDeleteBuffers( 1 , mesh->normalBuf );
-		glDeleteBuffers( 1 , mesh->texCoordBuf );
-		glDeleteBuffers( 1 , mesh->ambientBuf );
-		glDeleteBuffers( 1 , mesh->diffuseBuf );
-		glDeleteBuffers( 1 , mesh->specularBuf );
-		glDeleteBuffers( 1 , mesh->normalMapBuf );
-
 		delete meshArray.at( index );
-	}
 
 	for( int index = 0 ; index < materialArray.size() ; index++ )
 		delete materialArray.at( index );
 }
-

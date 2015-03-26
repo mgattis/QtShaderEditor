@@ -37,28 +37,23 @@ struct CGLMesh
 	float (*texCoords)[ 2 ];
 
 	GLint ambientLoc;
-	GLuint ambientBuf;
-	GLuint (*ambientID);
+	GLuint *ambientID;
 
 	GLint diffuseLoc;
-	GLuint diffuseBuf;
-	GLuint (*diffuseID);
+	GLuint *diffuseID;
 
 	GLint specularLoc;
-	GLuint specularBuf;
-	GLuint (*specularID);
+	GLuint *specularID;
 
 	GLint normalMapLoc;
-	GLuint normalMapBuf;
-	GLuint (*normalMapID);
-
-	GLuint texID;
+	GLuint *normalMapID;
 };
 
 class CObj
 {
 private:
 	CObj( void );
+public:
 	~CObj();
 
 public:
@@ -112,7 +107,6 @@ public:
 								break;
 							case 1:
 								materialName = materials[ materialIndex ].diffuse_texname.data();
-								//materialName = "lambertian.jpg";
 								break;
 							case 2:
 								materialName = materials[ materialIndex ].specular_texname.data();
@@ -156,7 +150,7 @@ public:
 
 							// Set the ID
 							GLuint *idArray = new GLuint[ 1 ];
-							obj->meshArray.at( shapeIndex )->texID = idArray[ 0 ] = texID;
+							idArray[ 0 ] = texID;
 							//std::cout << "Using: " << texID << std::endl;
 
 							switch( index )

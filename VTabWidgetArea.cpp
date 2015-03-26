@@ -3,6 +3,7 @@
 VTabWidgetArea::VTabWidgetArea()
 {
 	VDraggableTabWidget *initialTab = makeVDraggableTabWidget();
+	activeTabWidget = initialTab;
 
 	/*
 	for( int index = 0 ; index < 6 ; index++ )

@@ -11,6 +11,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/mat4x4.hpp"
 
+#include <QApplication>
 #include <QByteArray>
 #include <QDir>
 #include <QFile>
@@ -78,7 +79,7 @@ protected:
 	QTimer repaintTimer;
 	unsigned int keyBits;
 
-	QPoint lastCursorPos;
+	QPoint originalGlobalCursorPos , originalLocalCursorPos , lastCursorPos;
 	float mouseSensitivity;/* , moveSpeed;
 	float fov;
 	float xPos , yPos , zPos;
@@ -90,20 +91,14 @@ protected:
 	float friction;
 
 	CObj *obj;
-	CGLMesh *mesh;
-	QVector< CGLMesh* > meshArray;
-
-	//float data[ 6 ][ 3 ];
-	//float normal[ 6 ][ 3 ];
-	//float tex[ 6 ][ 2 ];
 
 	QGLShaderProgram program;
 	const char *vertShader , *fragShader;
-	GLuint eboID , vaoID , vboID[ 2 ] , textureID , shaderProgram , vertexShader , fragmentShader;
-	unsigned int shaderAttribute;
+	GLuint shaderProgram , vertexShader , fragmentShader;
 
-	QOpenGLTexture *texture;
-	QImage *image;
+	//QOpenGLTexture *texture;
+	GLuint defaultTextureID;
+	QImage *defaultTexture;
 };
 
 #endif // VGLVIEW_H
