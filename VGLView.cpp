@@ -67,6 +67,7 @@ void VGLView::initializeGL( void )
 		QString filePath;
 		//std::cout << "homedir: " << homeDir.toLatin1().data() << std::endl;
 
+		// TODO: Remove
 		basePath += "/Projects/QtShaderEditor/resources";
 		filePath = basePath + "/grassblock.obj";
 		//basePath += "/Projects/QtShaderEditor/resources";
