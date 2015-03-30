@@ -2,10 +2,12 @@
 #define QTSE_H
 
 #include "CPath.h"
+#include "StdRedirector.h"
 #include "VDraggableTabBar.h"
 #include "VGLSLEdit.h"
 #include "VGLView.h"
 #include "VJsonForm.h"
+#include "VLogger.h"
 #include "VTabWidgetArea.h"
 
 #include <QAction>
@@ -22,11 +24,17 @@
 #include <QTreeWidgetItem>
 #include <QMainWindow>
 #include <QMenuBar>
+#include <QMutex>
 #include <QTextEdit>
+#include <QListWidget>
 #include <QWidget>
 #include <QMdiArea>
 #include <QTextEdit>
 #include <QList>
+#include <QScrollBar>
+
+static QTextEdit *g_coutEdit;
+static QListWidget *g_coutList;
 
 class QtSE : public QMainWindow
 {
@@ -100,13 +108,16 @@ protected:
 			QTabWidget *itemsTab;
 				QTreeWidget *projectTree;
 				QTreeWidget *fsProjectTree;
-		QMap< VJsonForm* , VDraggableTabWidget* > tabMap;
-		VTabWidgetArea *tabArea;
+		QSplitter *editSplitter;
+			VTabWidgetArea *tabArea;
+			VLogger *coutEdit;
 
 protected:
+	CPath jsonProjectName;
+	QMap< QString , QWidget* > openFiles;
 	CProjectTreeItem *activeProjectItem;
 
-	CPath projectPath;
+	StdRedirector<> *redirector;
 
 protected:
 	VJsonForm* makeVJsonForm( void );
@@ -133,6 +144,8 @@ protected slots:
 	inline void splitHorizontally( void ) { tabArea->split( Qt::Vertical ); }
 	inline void splitVertically( void ) { tabArea->split( Qt::Horizontal ); }
 	inline void splitCollapse( void ) { tabArea->splitCollapse(); }
+
+	void tabWidgetDeleted( QWidget *widget );
 
 	//void tabWidgetTabAdded( QWidget *widget );
 	//void tabWidgetTabDestroyed( QObject *object );

@@ -42,7 +42,7 @@ void VJsonFormItem::toArray( QJsonArray &array ) const
 				array.append( QJsonValue( child->text( 2 ).toFloat() ) );
 				break;
 			case CJsonKeyvalueData::string:
-				array.append( QJsonValue( child->text( 2 ).toLatin1().data() ) );
+				array.append( QJsonValue( child->text( 2 ) ) );
 				break;
 			default: {}
 		}
@@ -73,6 +73,7 @@ void VJsonFormItem::toObject( QJsonObject &obj ) const
 			QJsonObject childObj;
 			this->toStructure( childObj );
 			obj.insert( this->text( 0 ) , QJsonValue( childObj ) );
+			break;
 		}
 		case CJsonKeyvalueData::boolean:
 			obj.insert( this->text( 0 ) , QJsonValue( (bool)this->text( 2 ).toInt() ) );
@@ -97,7 +98,8 @@ CJsonTemplate::CJsonTemplate( const QString &path /* = QString() */ )
 
 CJsonTemplate::~CJsonTemplate()
 {
-	// Nothing to do
+	QList< CJsonStructure* > list = structMap.values();
+	UTIL_deleteListAsPointerArray( list );
 }
 
 void CJsonTemplate::parseDefaults( const QString &path /* = QString() */ )
@@ -105,8 +107,7 @@ void CJsonTemplate::parseDefaults( const QString &path /* = QString() */ )
 	QFile file;
 
 	if( path.isNull() )
-		file.setFileName( "QtSEProjects/template.template.json" );
-		//file.setFileName( "assets/template1.template.json" );
+		file.setFileName( QCoreApplication::applicationDirPath() + "/QtSEProjects/template.template.json" );
 	else
 		file.setFileName( path );
 
@@ -481,13 +482,33 @@ void CJsonTemplate::createTree( const QString &name , const QJsonObject &obj , Q
 							//std::cout << "Type: " << (int)strValue.type() << std::endl;
 
 						QJsonObject strObject = strValue.toObject();
-						QStringList keys = strObject.keys();
+						//QStringList keys = strObject.keys();
 						//for( int index2 = 0 ; index2 < keys.size() ; index2++ )
 							//std::cout << "Key: " << keys.at( index2 ).toLatin1().data() << std::endl;
 						createTree( data->value.toString() , strObject , item );
 					}
 					else
-						item->setData( 2 , Qt::DisplayRole , obj.value( data->key ).toVariant() );
+					{
+						switch( data->type )
+						{
+							case CJsonKeyvalueData::boolean:
+								item->setData( 2 , Qt::EditRole , obj.value( data->key ).toVariant() );
+								//item->setText( 2 , obj.value( data->key ).toString( "false" ) == "true" ? "true" : "false" );
+								break;
+							case CJsonKeyvalueData::floating:
+								item->setText( 2 , QString::number( obj.value( data->key ).toDouble() ) );
+								break;
+							case CJsonKeyvalueData::integer:
+								item->setText( 2 , QString::number( obj.value( data->key ).toInt() ) );
+								break;
+							case CJsonKeyvalueData::string:
+								item->setText( 2 , obj.value( data->key ).toString() );
+								break;
+							default: {}
+						}
+
+						//item->setData( 2 , Qt::EditRole , obj.value( data->key ).toVariant() );
+					}
 				}
 			}
 		}

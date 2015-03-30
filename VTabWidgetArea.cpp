@@ -26,6 +26,15 @@ void VTabWidgetArea::addWidgetToArea( QWidget *widget , const QString &title , V
 	tabWidget->setCurrentIndex( tabWidget->addTab( widget , title ) );
 
 	connect( widget , SIGNAL(windowTitleChanged(QString)) , this , SLOT(subWidgetTitleChanged(QString)) );
+	connect( widget , SIGNAL(destroyed(QObject*)) , this , SLOT(tabWidgetTabDestroyed(QObject*)) );
+}
+
+void VTabWidgetArea::showWidget( const QWidget *widget )
+{
+	VDraggableTabWidget *tabWidget = tabMap.value( widget , NULL );
+
+	if( tabWidget )
+		tabWidget->setCurrentWidget( widget );
 }
 
 VDraggableTabWidget* VTabWidgetArea::getActiveTabWidget( void )
@@ -146,7 +155,10 @@ void VTabWidgetArea::tabWidgetTabDestroyed( QObject *object )
 	QWidget *widget = dynamic_cast< QWidget* >( object );
 
 	if( widget )
+	{
 		tabMap.remove( widget );
+		emit widgetDeleted( widget );
+	}
 }
 
 void VTabWidgetArea::tabWidgetCountChanged( int count )

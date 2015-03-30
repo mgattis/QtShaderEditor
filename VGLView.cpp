@@ -78,6 +78,12 @@ void VGLView::initializeGL( void )
 		//filePath = basePath + "/head.OBJ";
 		//basePath += "/Projects/QtShaderEditor/resources/lost-empire";
 		//filePath = basePath + "/lost_empire.obj";
+		//basePath += "/Projects/QtShaderEditor/resources/rungholt";
+		//filePath = basePath + "/rungholt.obj";
+		//basePath += "/Projects/QtShaderEditor/resources/san-miguel";
+		//filePath = basePath + "/san-miguel.obj";
+
+		//std::cout << "Address: " << (long*)&system << std::endl;
 
 		obj = CObj::loadFromPath( filePath , basePath );
 		std::cout << "obj: " << obj << std::endl;
@@ -89,10 +95,17 @@ void VGLView::initializeGL( void )
 
 			glBindBuffer( GL_ARRAY_BUFFER , buf[ 0 ] );
 			glBufferData( GL_ARRAY_BUFFER , obj->meshArray.at( index )->vertexCount * sizeof( *obj->meshArray.at( index )->vertices ) , obj->meshArray.at( index )->vertices , GL_STATIC_DRAW );
+			delete[] obj->meshArray.at( index )->vertices;
+			obj->meshArray.at( index )->vertices = NULL;
 			obj->meshArray.at( index )->vertexBuf = buf[ 0 ];
+
+			delete[] obj->meshArray.at( index )->normals;
+			obj->meshArray.at( index )->normals = NULL;
 
 			glBindBuffer( GL_ARRAY_BUFFER , buf[ 1 ] );
 			glBufferData( GL_ARRAY_BUFFER , obj->meshArray.at( index )->vertexCount * sizeof( *obj->meshArray.at( index )->texCoords ) , obj->meshArray.at( index )->texCoords , GL_STATIC_DRAW );
+			delete[] obj->meshArray.at( index )->texCoords;
+			obj->meshArray.at( index )->texCoords = NULL;
 			obj->meshArray.at( index )->texCoordBuf = buf[ 1 ];
 		}
 

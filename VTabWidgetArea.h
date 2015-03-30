@@ -19,6 +19,7 @@ public:
 public:
 	void addWidgetToArea( QWidget *widget , const QString &title ) { addWidgetToArea( widget , title , getActiveTabWidget() ); }
 	void addWidgetToArea( QWidget *widget , const QString &title , VDraggableTabWidget *tabWidget );
+	void showWidget( const QWidget *widget );
 
 	inline QWidget* getActiveWidget( void ) { return getActiveTabWidget() ? activeTabWidget->currentWidget() : NULL; }
 	VDraggableTabWidget* getActiveTabWidget( void );
@@ -30,6 +31,9 @@ protected:
 protected:
 	VDraggableTabWidget *activeTabWidget;
 	QMap< QWidget* , VDraggableTabWidget* > tabMap;
+
+signals:
+	void widgetDeleted( QWidget *widget );
 
 public slots:
 	void split( Qt::Orientation orientation );

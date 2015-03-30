@@ -2,24 +2,29 @@
 
 void QtSE::CProjectTreeItem::getRelativePath( QString &relativePath ) const
 {
-	if( partType == dir )
-		relativePath.prepend( QString( "%1/" ).arg( this->text( 0 ) ) );
-	else
-		relativePath.append( this->text( 0 ) );
-
+	// Recurse down, then append going up
 	if( this->parent() && !this->parent()->text( 0 ).isEmpty() )
 		( (CProjectTreeItem*)this->parent() )->getRelativePath( relativePath );
+
+	relativePath.append( QString( "/%1" ).arg( this->text( 0 ) ) );
 }
 
 QString QtSE::CProjectTreeItem::getFullPath( const QString &basePath ) const
 {
-	QString relativePath;
+	QString relativePath = basePath;
 	getRelativePath( relativePath );
-	return relativePath.prepend( basePath );
+	return relativePath;
 }
 
 QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 {
+	// Make this first so we can start intercepting messages ASAP
+	coutEdit = new VLogger( NULL );
+	std::cerr << "test error" << std::endl;
+	std::clog << "test log" << std::endl;
+
+	//g_coutList = new QListWidget( NULL );
+
 	activeProjectItem = NULL;
 
 	//connect( qApp , SIGNAL(focusChanged(QWidget*,QWidget*)) , this , SLOT(focusChanged(QWidget*,QWidget*)) );
@@ -75,28 +80,35 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	itemsTab->setContextMenuPolicy( Qt::CustomContextMenu );
 	connect( itemsTab , SIGNAL(customContextMenuRequested(QPoint)) , this , SLOT(itemsTabTreeContextMenu(QPoint)) );
 
-	viewSplitter = new QSplitter( NULL );
-	viewSplitter->setOrientation( Qt::Vertical );
+	viewSplitter = new QSplitter( Qt::Vertical , NULL );
 	viewSplitter->addWidget( viewWidget );
 	viewSplitter->setStretchFactor( 0 , 1 );
 	viewSplitter->addWidget( itemsTab );
 	viewSplitter->setStretchFactor( 1 , 4 );
 
 	tabArea = new VTabWidgetArea();
+	connect( tabArea , SIGNAL(widgetDeleted(QWidget*)) , this , SLOT(tabWidgetDeleted(QWidget*)) );
 
 	// Make some test stuff
-	for( int index = 0 ; index < 3 ; index++ )
+	for( int index = 0 ; index < 0 ; index++ )
 	{
 		VJsonForm *form = makeVJsonForm();
 		form->setWindowTitle( QString( "Shader %1" ).arg( index + 1 ) );
 		tabArea->addWidgetToArea( makeVJsonForm() , form->windowTitle() );
 	}
 
+	editSplitter = new QSplitter( Qt::Vertical , NULL );
+	editSplitter->addWidget( tabArea );
+	editSplitter->setStretchFactor( 0 , 4 );
+	editSplitter->addWidget( coutEdit );
+	editSplitter->setStretchFactor( 1 , 1 );
+	//editSplitter->addWidget( g_coutList );
+
 	windowSplitter = new QSplitter( NULL );
 	windowSplitter->addWidget( viewSplitter );
-	windowSplitter->setStretchFactor( 0 , 1 );
-	windowSplitter->addWidget( tabArea );
-	windowSplitter->setStretchFactor( 1 , 4 );
+	windowSplitter->setStretchFactor( 0 , 4 );
+	windowSplitter->addWidget( editSplitter );
+	windowSplitter->setStretchFactor( 1 , 1 );
 
 	this->setCentralWidget( windowSplitter );
 	//initialTab->widget( 0 )->setFocus();
@@ -120,9 +132,11 @@ VJsonForm* QtSE::makeVJsonForm( void )
 
 void QtSE::open( void )
 {
-	//loadProject( QFileDialog::getOpenFileName( this , "Open File" , "." , "JSON File (*.json)" ) );
-	QDir::setCurrent( QDir::home().absolutePath() + "/Projects/QtShaderEditor/resources/" );
-	loadProject( QDir::home().absolutePath() + "/Projects/QtShaderEditor/QtSEProjects/demo/testProject.project.json" );
+	//loadProject( QFileDialog::getOpenFileName( this , "Open File" , "." , "JSON Project File (*.project.json)" ) );
+
+	// TODO: Load json and verify that it is a project
+	QDir::setCurrent( QDir::homePath() + "/Projects/QtShaderEditor/QtSEProjects/demo/" );
+	loadProject( QDir::currentPath() + "/testProject.project.json" );
 }
 
 void QtSE::save( void )
@@ -282,24 +296,48 @@ void QtSE::fsProjectTreeItemDoubleClicked( QTreeWidgetItem *item , int column )
 
 	if( projectItem && !projectItem->isDir() )
 	{
-		QString type , filePath = projectItem->getFullPath( projectPath.getPath( true ) );
+		QString relPath;
+		projectItem->getRelativePath( relPath );
 
-		QJsonObject obj = CJsonTemplate::get()->loadUserJson( filePath , type );
-
-		if( !type.isEmpty() )
+		if( !openFiles.contains( relPath ) )
 		{
-			VGLSLEdit *edit = new VGLSLEdit( NULL );
-			edit->setWindowTitle( "testedit" );
-			tabArea->addWidgetToArea( edit , edit->windowTitle() );
-			return;
+			QString filePath = QDir::currentPath().append( relPath );
 
-			VJsonForm *form = makeVJsonForm();
-			CJsonTemplate::get()->createTree( type , obj , form->invisibleRootItem() );
-			UTIL_expandTreeItems( form , form->invisibleRootItem() );
-			form->setWindowTitle( item->text( 0 ) );
-			tabArea->addWidgetToArea( form , form->windowTitle() );
+			if( relPath.endsWith( ".json" , Qt::CaseInsensitive ) )
+			{
+				QString type;
+				QJsonObject obj = CJsonTemplate::get()->loadUserJson( filePath , type );
+
+				if( !type.isEmpty() )
+				{
+					VJsonForm *form = makeVJsonForm();
+					openFiles.insert( relPath , form );
+
+					CJsonTemplate::get()->createTree( type , obj , form->invisibleRootItem() );
+					UTIL_expandTreeItems( form , form->invisibleRootItem() );
+					form->setWindowTitle( item->text( 0 ) );
+					tabArea->addWidgetToArea( form , form->windowTitle() );
+				}
+			}
+			else if( relPath.endsWith( ".glsl" , Qt::CaseInsensitive ) )
+			{
+				VGLSLEdit *edit = new VGLSLEdit( NULL );
+				openFiles.insert( relPath , edit );
+
+				edit->setWindowTitle( "testedit" );
+				tabArea->addWidgetToArea( edit , edit->windowTitle() );
+			}
 		}
+		else
+			tabArea->showWidget( openFiles.value( relPath , NULL ) );
 	}
+}
+
+void QtSE::tabWidgetDeleted( QWidget *widget )
+{
+	QString key = openFiles.key( widget , "" );
+	std::cout << key.toLatin1().data() << std::endl;
+	openFiles.remove( key );
 }
 
 void QtSE::fsRefresh( void )
@@ -310,13 +348,23 @@ void QtSE::fsRefresh( void )
 void QtSE::loadProject( const QString &path /* = QString() */ )
 {
 	if( !path.isEmpty() )
-		projectPath.setPath( path , true );
+	{
+#if 1
+		QString projectValue;
+		QJsonObject obj = CJsonTemplate::get()->loadUserJson( path , projectValue );
 
-	QString basePath( projectPath.getPath( true ) );
+		if( !obj.isEmpty() || projectValue != "project" )
+		{
+			CPath pathParts( path , true );
+			jsonProjectName = pathParts.getName( true );
+			QDir::setCurrent( pathParts.getPath( false ) );
 
-	//projectTree->clear();
-	fsProjectTree->clear();
-	generateProjectTree( basePath , fsProjectTree->invisibleRootItem() );
+			//projectTree->clear();
+			fsProjectTree->clear();
+			generateProjectTree( QDir::current().absolutePath() , fsProjectTree->invisibleRootItem() );
+		}
+#endif
+	}
 }
 
 void QtSE::generateProjectTree( const QString &path , QTreeWidgetItem *dirItem )
@@ -362,7 +410,7 @@ void QtSE::generateProjectTree( const QString &path , QTreeWidgetItem *dirItem )
 
 void QtSE::addFolder( void )
 {
-	QString activeFilePath = activeProjectItem->getFullPath( projectPath.getPath( true ) );
+	QString activeFilePath = activeProjectItem->getFullPath( CPath( QDir::currentPath() ).getPath( true ) );
 	QDir dir( activeFilePath );
 
 	if( dir.exists() )
@@ -431,7 +479,7 @@ bool QtSE::deleteItem( CProjectTreeItem *curItem /* = NULL */ )
 			deleteItem( curItem->child( 0 ) );
 
 		// Get file path
-		QString activeFilePath = curItem->getFullPath( projectPath.getPath( true ) );
+		QString activeFilePath = curItem->getFullPath( CPath( QDir::currentPath() ).getPath( true ) );
 
 		// Delete depending on type
 		QDir dir( activeFilePath );

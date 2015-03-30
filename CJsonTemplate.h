@@ -1,11 +1,13 @@
 #ifndef CJSONTEMPLATE_H
 #define CJSONTEMPLATE_H
 
+#include "qtil.h"
 #include "VJsonForm.h"
 
 #include <iostream>
 
 #include <QByteArray>
+#include <QCoreApplication>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -83,6 +85,8 @@ public:
 
 struct CJsonStructure
 {
+	~CJsonStructure() { UTIL_deleteVectorAsPointerArray( keyvalues ); }
+
 	QVector< CJsonKeyvalueData* > keyvalues;
 };
 

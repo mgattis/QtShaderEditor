@@ -14,14 +14,15 @@ CGLMesh::CGLMesh( int vertexCount )
 
 CGLMesh::~CGLMesh()
 {
+	// FIXME: This segfaults
 	//glDeleteBuffers( 1 , vertexBuf );
-	glDeleteBuffers( 1 , normalBuf );
-	glDeleteBuffers( 1 , texCoordBuf );
+	//glDeleteBuffers( 1 , normalBuf );
+	//glDeleteBuffers( 1 , texCoordBuf );
 
-	glDeleteTextures( 1 , ambientID );
-	glDeleteTextures( 1 , diffuseID );
-	glDeleteTextures( 1 , specularID );
-	glDeleteTextures( 1 , normalMapID );
+	//glDeleteTextures( 1 , ambientID );
+	//glDeleteTextures( 1 , diffuseID );
+	//glDeleteTextures( 1 , specularID );
+	//glDeleteTextures( 1 , normalMapID );
 
 	delete[] ambientID;
 	delete[] diffuseID;

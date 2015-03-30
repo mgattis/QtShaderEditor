@@ -6,14 +6,6 @@ VJsonForm::VJsonForm( QWidget *parent /* = NULL */ ) : QTreeWidget( parent )
 	this->setHeaderLabels( QStringList( "Key" ) << "Type" << "Value" );
 	this->setEditTriggers( QAbstractItemView::NoEditTriggers );
 
-	//CJsonTemplate::get()->createTree( "shader" , this->invisibleRootItem() );
-
-	//QJsonObject obj = CJsonTemplate::get()->createTree( "shader" , true );
-	//generateChildren( this->invisibleRootItem() , obj );
-
-	//QJsonObject obj = CJsonTemplate::get()->loadUserJson( QDir::home().absolutePath() + "/Projects/QtShaderEditor/assets/testProject/shaders/shader2.shader.json" );
-	//CJsonTemplate::get()->createTree( "shader" , obj , this->invisibleRootItem() );
-
 	this->setContextMenuPolicy( Qt::CustomContextMenu );
 	connect( this , SIGNAL(customContextMenuRequested(QPoint)) , this , SLOT(showContextMenu(QPoint)) );
 	connect( this , SIGNAL(itemClicked(QTreeWidgetItem*,int)) , this , SLOT(editTreeItem(QTreeWidgetItem*,int)) );
@@ -278,7 +270,7 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 				}
 				case CJsonKeyvalueData::floating:
 				{
-					int value = formItem->text( column ).toFloat( &ok );
+					float value = formItem->text( column ).toFloat( &ok );
 
 					if( ok )
 					{

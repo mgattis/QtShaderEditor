@@ -125,17 +125,20 @@ public:
 							if( !obj->texMap.contains( materialName ) )
 							{
 								QString path = texturePath + materialName;
+								path = path.replace( '\\' , '/' );
 								std::cout << "Loading: " << path.toLatin1().data() << std::endl;
 
 								// Load image
 								QImage *image = new QImage( path );
+								if( image->isNull() )
+									std::cout << "Error: Failed to load" << std::endl;
 								*image = image->mirrored( 0 , 1 );
-								*image = image->convertToFormat( QImage::Format_RGB888 );
+								*image = image->convertToFormat( QImage::Format_RGBA8888 );
 
 								// Load texture into OpenGL
 								glGenTextures( 1 , &texID );
 								glBindTexture( GL_TEXTURE_2D , texID );
-								glTexImage2D( GL_TEXTURE_2D , 0 , GL_RGB , image->width() , image->height() , 0 , GL_RGB , GL_UNSIGNED_BYTE , ( (const QImage*)image )->bits() );
+								glTexImage2D( GL_TEXTURE_2D , 0 , GL_RGBA , image->width() , image->height() , 0 , GL_RGBA , GL_UNSIGNED_BYTE , ( (const QImage*)image )->bits() );
 								glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_MAG_FILTER , GL_NEAREST );
 								glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_MIN_FILTER , GL_NEAREST );
 								delete image;

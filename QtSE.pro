@@ -37,7 +37,8 @@ SOURCES += main.cpp\
 	CObj.cpp \
     CStage.cpp \
     CProject.cpp \
-	CCamera.cpp
+	CCamera.cpp \
+    VLogger.cpp
 
 HEADERS  += QtSE.h \
     CResourceManager.h \
@@ -56,7 +57,9 @@ HEADERS  += QtSE.h \
 	CObj.h \
     CStage.h \
     CProject.h \
-	CCamera.h
+	CCamera.h \
+    StdRedirector.h \
+    VLogger.h
 
 DISTFILES += \
     .gitignore
