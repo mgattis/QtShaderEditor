@@ -6,9 +6,48 @@
 
 #include <QAction>
 #include <QCloseEvent>
+#include <QComboBox>
+#include <QItemEditorCreatorBase>
+#include <QItemEditorFactory>
 #include <QMenu>
 #include <QTreeWidget>
 #include <QWidget>
+
+class ColorListEditor : public QComboBox
+{
+	Q_OBJECT
+	Q_PROPERTY(QColor color READ color WRITE setColor USER true)
+
+public:
+	ColorListEditor(QWidget *widget = 0);
+
+public:
+	QColor color() const;
+	void setColor(QColor c);
+
+private:
+	void populateList();
+};
+
+class VStringListEdit : public QComboBox
+{
+	Q_OBJECT
+	Q_PROPERTY( QString string READ getString WRITE setString USER true )
+	Q_PROPERTY( QStringList stringList READ getStringList WRITE setStringList USER true )
+
+public:
+	VStringListEdit( QWidget *widget = NULL );
+
+public:
+	QString getString( void ) const;
+	void setString( QString str );
+
+	QStringList getStringList( void ) const;
+	void setStringList( QStringList list );
+
+private:
+	void populateList( void );
+};
 
 class VJsonForm : public QTreeWidget
 {

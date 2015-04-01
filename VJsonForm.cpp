@@ -1,7 +1,122 @@
 #include "VJsonForm.h"
 
+ColorListEditor::ColorListEditor(QWidget *widget) : QComboBox(widget)
+{
+	populateList();
+}
+
+QColor ColorListEditor::color() const
+{
+	return qvariant_cast<QColor>(itemData(currentIndex(), Qt::DecorationRole));
+}
+
+void ColorListEditor::setColor(QColor color)
+{
+	setCurrentIndex(findData(color, int(Qt::DecorationRole)));
+}
+
+void ColorListEditor::populateList()
+{
+	QStringList colorNames = QColor::colorNames();
+
+	for (int i = 0; i < colorNames.size(); ++i) {
+		QColor color(colorNames[i]);
+
+		insertItem(i, colorNames[i]);
+		setItemData(i, color, Qt::DecorationRole);
+	}
+}
+
+// ====================================
+
+VStringListEdit::VStringListEdit( QWidget *widget = NULL ) : QComboBox( widget )
+{
+	// Nothing to do
+	populateList();
+}
+
+QString VStringListEdit::getString( void ) const
+{
+	return this->currentText();
+	return "freeCamera";
+	return qvariant_cast< QString >( itemData( currentIndex() , Qt::DecorationRole ) );
+}
+
+void VStringListEdit::setString( QString str )
+{
+	setCurrentIndex( findData( str , int( Qt::DecorationRole ) ) );
+}
+
+QStringList VStringListEdit::getStringList( void ) const
+{
+	QStringList list;
+	for( int index = 0 ; index < this->count() ; index++ )
+		list.append( this->itemText( index ) );
+	return qvariant_cast< QStringList >( list );
+	//return qvariant_cast< QStringList >( itemData( currentIndex() , Qt::DecorationRole ) );
+}
+
+void VStringListEdit::setStringList( QStringList list )
+{
+	if( list.size() )
+	{
+		//stringList = list;
+		//std::cout << list.at( 0 ).toLatin1().data() << std::endl;
+		this->clear();
+		for( int index = 0 ; index < list.size() ; index++ )
+		{
+			insertItem( index , list.at( index ) );
+			setItemData( index , list[ index ] , Qt::DecorationRole );
+		}
+	}
+	//setCurrentIndex( findData( list , int( Qt::DecorationRole ) ) );
+}
+
+void VStringListEdit::populateList( void )
+{
+	QStringList cameraTypes( "orbitCamera" );
+	cameraTypes << "freeCamera";
+
+	for( int i = 0 ; i < cameraTypes.size() ; ++i )
+	{
+		insertItem( i , cameraTypes[ i ] );
+		//setItemData( i , color , Qt::DecorationRole );
+		//setItemData( i , colorNames[ i ] , Qt::DecorationRole );
+	}
+
+	return;
+
+
+	QStringList colorNames = QColor::colorNames();
+
+	for( int i = 0 ; i < colorNames.size() ; ++i )
+	{
+		QColor color( colorNames[ i ] );
+
+		insertItem( i , colorNames[ i ] );
+		//setItemData( i , color , Qt::DecorationRole );
+		setItemData( i , colorNames[ i ] , Qt::DecorationRole );
+	}
+}
+
 VJsonForm::VJsonForm( QWidget *parent /* = NULL */ ) : QTreeWidget( parent )
 {
+#if 0
+	QItemEditorFactory *editorFactory = new QItemEditorFactory;
+	QItemEditorCreatorBase *creator = new QStandardItemEditorCreator< VStringListEdit >();
+	//editorFactory->registerEditor( QVariant::StringList , creator );
+	editorFactory->registerEditor( QVariant::String , creator );
+	QItemEditorFactory::setDefaultFactory( editorFactory );
+	//this->setItemEditorFactory( editorFactory );
+#endif
+
+#if 0
+	QItemEditorFactory *editorFactory = new QItemEditorFactory;
+	QItemEditorCreatorBase *creator = new QStandardItemEditorCreator< ColorListEditor >();
+	editorFactory->registerEditor( QVariant::Color , creator );
+	QItemEditorFactory::setDefaultFactory( editorFactory );
+#endif
+
 	this->setColumnCount( 2 );
 	this->setHeaderLabels( QStringList( "Key" ) << "Type" << "Value" );
 	this->setEditTriggers( QAbstractItemView::NoEditTriggers );
@@ -131,6 +246,9 @@ void VJsonForm::showContextMenu( QPoint point )
 
 	if( item )
 	{
+		if( item->valueList )
+			std::cout << "valueList" << std::endl;
+
 		QMenu *menu = new QMenu( this );
 		menu->setAttribute( Qt::WA_DeleteOnClose );
 

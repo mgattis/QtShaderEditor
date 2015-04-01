@@ -72,6 +72,9 @@ protected:
 				QAction *actionClose;
 		QTextEdit *textEdit;
 
+public:
+	void setFile( const QString &path );
+
 protected:
 	CGLSLHighlighter *highlighter;
 

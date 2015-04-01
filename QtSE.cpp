@@ -135,7 +135,7 @@ void QtSE::open( void )
 	//loadProject( QFileDialog::getOpenFileName( this , "Open File" , "." , "JSON Project File (*.project.json)" ) );
 
 	// TODO: Load json and verify that it is a project
-	QDir::setCurrent( QDir::homePath() + "/Projects/QtShaderEditor/QtSEProjects/demo/" );
+	QDir::setCurrent( QDir::homePath() + "/Projects/QtShaderEditor/QtSEProjects/experimental/" );
 	loadProject( QDir::currentPath() + "/testProject.project.json" );
 }
 
@@ -323,8 +323,8 @@ void QtSE::fsProjectTreeItemDoubleClicked( QTreeWidgetItem *item , int column )
 			{
 				VGLSLEdit *edit = new VGLSLEdit( NULL );
 				openFiles.insert( relPath , edit );
+				edit->setFile( filePath );
 
-				edit->setWindowTitle( "testedit" );
 				tabArea->addWidgetToArea( edit , edit->windowTitle() );
 			}
 		}

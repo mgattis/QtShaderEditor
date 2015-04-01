@@ -68,8 +68,8 @@ void VGLView::initializeGL( void )
 		//std::cout << "homedir: " << homeDir.toLatin1().data() << std::endl;
 
 		// TODO: Remove
-		basePath += "/Projects/QtShaderEditor/resources";
-		filePath = basePath + "/grassblock.obj";
+		//basePath += "/Projects/QtShaderEditor/resources";
+		//filePath = basePath + "/grassblock.obj";
 		//basePath += "/Projects/QtShaderEditor/resources";
 		//filePath = basePath + "/minecraft.obj";
 		//basePath += "/Projects/QtShaderEditor/resources/dabrovic-sponza";
@@ -78,8 +78,8 @@ void VGLView::initializeGL( void )
 		//filePath = basePath + "/head.OBJ";
 		//basePath += "/Projects/QtShaderEditor/resources/lost-empire";
 		//filePath = basePath + "/lost_empire.obj";
-		//basePath += "/Projects/QtShaderEditor/resources/rungholt";
-		//filePath = basePath + "/rungholt.obj";
+		basePath += "/Projects/QtShaderEditor/resources/rungholt";
+		filePath = basePath + "/rungholt.obj";
 		//basePath += "/Projects/QtShaderEditor/resources/san-miguel";
 		//filePath = basePath + "/san-miguel.obj";
 
@@ -451,6 +451,7 @@ void VGLView::resizeGL( int width , int height )
     glEnable( GL_DEPTH_TEST );
     glClearColor( 0.0 , 0.0 , 0.0, 0.0 );
     glDepthFunc( GL_LEQUAL );
+	glEnable( GL_BLEND );
 
     glViewport( 0 , 0 , (GLint)width , (GLint)height );
     glMatrixMode( GL_PROJECTION );

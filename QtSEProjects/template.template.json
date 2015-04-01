@@ -3,6 +3,7 @@
         {
             "key": "cameraType",
             "value": "orbitCamera",
+            "valueList": "orbitCamera:freeCamera",
             "type": "string",
             "guiInsert": true,
             "projectInsert": true

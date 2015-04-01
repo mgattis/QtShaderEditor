@@ -3,6 +3,8 @@
 CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter( parent )
 {
 	HighlightingRule rule;
+	QBrush green( QColor( 0 , 128, 0 ) );
+	QBrush yellow( QColor( 192 , 192 , 0 ) );
 
 	// Directive
 
@@ -60,7 +62,7 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 
 	// Keyword
 
-	keywordFormat.setForeground( Qt::yellow );
+	keywordFormat.setForeground( yellow );
 	//keywordFormat.setFontWeight( QFont::Bold );
 	QStringList keywordPatterns;
 	keywordPatterns << "\\bif\\b" << "\\belse\\b" << "\\bswitch\\b"
@@ -80,7 +82,7 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 
 	// Type Format
 
-	typeFormat.setForeground( Qt::yellow );
+	typeFormat.setForeground( yellow );
 	QStringList typePatterns;
 	typePatterns << "\\bvoid\\b" << "\\bbool\\b" << "\\bint\\b"
 		<< "\\buint\\b" << "\\bfloat\\b" << "\\bdouble\\b"
@@ -107,7 +109,7 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 
 	// Interpolation Qualifiers
 
-	interpolationQualifiersFormat.setForeground( Qt::yellow );
+	interpolationQualifiersFormat.setForeground( yellow );
 	QStringList interpolationQualifiersPatterns;
 	interpolationQualifiersPatterns << "\\bflat\\b" << "\\bnoperspective\\b" << "\\bsmooth\\b";
 
@@ -120,7 +122,7 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 
 	// Storage Qualifiers
 
-	storageQualifiersFormat.setForeground( Qt::yellow );
+	storageQualifiersFormat.setForeground( yellow );
 	QStringList storageQualifiersFormat;
 	storageQualifiersFormat << "\\bin\\b" << "\\bout\\b" << "\\buniform\\b" << "\\bbuffer\\b";
 
@@ -133,7 +135,7 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 
 	// Memory Qualifiers
 
-	memoryQualifiersFormat.setForeground( Qt::yellow );
+	memoryQualifiersFormat.setForeground( yellow );
 	QStringList memoryQualifiersPatterns;
 	memoryQualifiersPatterns << "\\bcoherent\\b" << "\\bvolatile\\b" << "\\brestrict\\b"
 		<< "\\breadonly\\b" << "\\bwriteonly\\b";
@@ -147,7 +149,7 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 
 	// Memory Layout Qualifiers
 
-	memoryLayoutQualifiersFormat.setForeground( Qt::yellow );
+	memoryLayoutQualifiersFormat.setForeground( yellow );
 	QStringList memoryLayoutQualifiersPatterns;
 	memoryLayoutQualifiersPatterns << "\\bshared\\b" << "\\bpacked\\b" << "\\bstd140\\b"
 		<< "\\bstd430\\b";
@@ -211,12 +213,12 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 	highlightingRules.append(rule);
 	*/
 
-	singleLineCommentFormat.setForeground( Qt::green );
+	singleLineCommentFormat.setForeground( green );
 	rule.pattern = QRegExp( "//[^\n]*" );
 	rule.format = singleLineCommentFormat;
 	highlightingRules.append( rule );
 
-	multiLineCommentFormat.setForeground( Qt::green );
+	multiLineCommentFormat.setForeground( green );
 
 	commentStartExpression = QRegExp( "/\\*" );
 	commentEndExpression = QRegExp( "\\*/" );
@@ -295,3 +297,15 @@ VGLSLEdit::~VGLSLEdit()
 	// Nothing to do
 }
 
+void VGLSLEdit::setFile( const QString &path )
+{
+	QFile file( path );
+
+	if( file.open( QIODevice::ReadOnly ) )
+	{
+		QByteArray data = file.readAll();
+		textEdit->setText( QString( data ) );
+
+		this->setWindowTitle( path.mid( path.lastIndexOf( '/' ) + 1 ) );
+	}
+}

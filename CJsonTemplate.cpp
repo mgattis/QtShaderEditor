@@ -6,6 +6,7 @@ VJsonFormItem::VJsonFormItem( QTreeWidgetItem *parent , CJsonKeyvalueData::Type 
 	this->isArray = isArray;
 	this->defaultValue = defaultValue;
 	this->lastValue = defaultValue;
+	valueList = NULL;
 
 	setFlags( this->flags() | Qt::ItemIsEditable );
 }
@@ -85,7 +86,7 @@ void VJsonFormItem::toObject( QJsonObject &obj ) const
 			obj.insert( this->text( 0 ) , QJsonValue( this->text( 2 ).toFloat() ) );
 			break;
 		case CJsonKeyvalueData::string:
-			obj.insert( this->text( 0 ) , QJsonValue( this->text( 2 ).toLatin1().data() ) );
+			obj.insert( this->text( 0 ) , QJsonValue( this->text( 2 ) ) );
 			break;
 		default: {}
 	}
@@ -208,6 +209,55 @@ void CJsonTemplate::parseDefaults( const QString &path /* = QString() */ )
 										//std::cout << data->value.toString().toLatin1().data();
 										//break;
 									default: {}
+								}
+							}
+							else if( key == "valueList" )
+							{
+								// TODO:
+								data->valueList = new QVariantList;
+								QStringList values = keyvalue.value( key ).toString().split( ':' , QString::SkipEmptyParts );
+
+								bool ok = false;
+								for( int index = 0 ; index < values.size() ; index++ )
+								{
+									switch( data->type )
+									{
+										case CJsonKeyvalueData::floating:
+										{
+											float temp = values.at( index ).toDouble( &ok );
+
+											if( ok )
+												data->valueList->append( QVariant( temp ) );
+											//std::cout << data->value.toFloat();
+											break;
+										}
+										case CJsonKeyvalueData::integer:
+										{
+											int temp = values.at( index ).toInt( &ok );
+
+											if( ok )
+												data->valueList->append( QVariant( temp ) );
+											//std::cout << data->value.toInt();
+											break;
+										}
+										case CJsonKeyvalueData::string:
+										case CJsonKeyvalueData::structure:
+										{
+											data->valueList->append( QVariant( values.at( index ) ) );
+											break;
+										}
+										//case CJsonKeyvalueData::boolean
+										default: {}
+									}
+
+									ok = false;
+								}
+
+								// If the list has less than two valid values, it's not a valid list
+								if( data->valueList->size() < 2 )
+								{
+									delete data->valueList;
+									data->valueList = NULL;
 								}
 							}
 
@@ -466,11 +516,12 @@ void CJsonTemplate::createTree( const QString &name , const QJsonObject &obj , Q
 						}
 					}
 				}
-				else
+				else // data not indexable
 				{
 					VJsonFormItem *item = new VJsonFormItem( parent , data->type , false , data->value );
 					item->setText( 0 , data->key );
 					item->setText( 1 , data->getValueName().toUpper() );
+					item->valueList = data->valueList;
 
 					if( data->type == CJsonKeyvalueData::structure )
 					{
@@ -502,7 +553,16 @@ void CJsonTemplate::createTree( const QString &name , const QJsonObject &obj , Q
 								item->setText( 2 , QString::number( obj.value( data->key ).toInt() ) );
 								break;
 							case CJsonKeyvalueData::string:
-								item->setText( 2 , obj.value( data->key ).toString() );
+								if( item->valueList )
+								{
+									//item->setData( 2 , Qt::DisplayRole , ( QColor( Qt::red ) ) );
+									//item->setData( 2 , Qt::DisplayRole , ( QStringList( "orbitCamera" ) << "freeCamera" ) );
+									item->setData( 2 , Qt::DisplayRole , obj.value( data->key ).toString() );
+									//item->setText( 2 , obj.value( data->key ).toString() );
+									//item->setData( 2 , Qt::EditRole , QVariant( *( item->valueList ) ) );
+								}
+								else
+									item->setText( 2 , obj.value( data->key ).toString() );
 								break;
 							default: {}
 						}

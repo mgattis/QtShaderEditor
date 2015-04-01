@@ -19,6 +19,7 @@
 #include <QStringList>
 #include <QTreeWidgetItem>
 #include <QVariant>
+#include <QVariantList>
 #include <QVector>
 
 struct CJsonKeyvalueData
@@ -35,6 +36,7 @@ struct CJsonKeyvalueData
 	CJsonKeyvalueData( void )
 	{
 		guiInsert = indexable = projectInsert = false;
+		valueList = NULL;
 	}
 
 	inline QString getValueName( void ) const { return type == structure ? value.toString() : getValueName( type ); }
@@ -42,6 +44,18 @@ struct CJsonKeyvalueData
 	QString key;
 	Type type;
 	QVariant value;
+	QVariantList *valueList;
+
+	/*
+	union
+	{
+		QList< void* > voidList;
+		QList< int* > intList;
+		QList< float* > floatList;
+		QList< QString* > stringList;
+	};
+	*/
+
 	bool guiInsert , indexable , projectInsert;
 
 	static QString getValueName( Type type )
@@ -81,6 +95,7 @@ public:
 	CJsonKeyvalueData::Type type;
 	bool isArray;
 	QVariant defaultValue , lastValue;
+	QVariantList *valueList; // Do not delete. We do not own this
 };
 
 struct CJsonStructure
