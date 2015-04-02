@@ -7,6 +7,11 @@ QtSE
 qt.cfg
 cppcheck.sh
 PoppyDebugTools.h
+# Experimental VGLView backup
+VGLView.h_
+VGLView.h__
+VGLView.cpp_
+VGLView.cpp__
 
 # Dirs
 

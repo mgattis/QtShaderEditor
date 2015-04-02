@@ -14,6 +14,10 @@ private:
     ~CResourceManager();
 
 public:
+    // Probably not good to have these public...
+    int iWindowWidth, iWindowHeight;
+
+public:
     bool addProjectObject(IProjectObject *object);
     bool removeProjectObject(QString itemName);
     bool existInProject(QString itemName);

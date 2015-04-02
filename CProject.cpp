@@ -65,6 +65,10 @@ bool CProject::loadProject(QString userJsonFile) {
     return false;
 }
 
+void CProject::setViewPort(int iWidth, int iHeight) {
+
+}
+
 bool CProject::initiaize() {
     // Only if the project JSON is loaded.
     if (this->bIdentifiersLoaded) {
@@ -153,11 +157,19 @@ bool CProject::_loadProjectObject(QJsonObject userJson) {
         IProjectObject *projectObject = NULL;
         QString itemType = userJson["itemType"].toString();
 
+        //
+        // Start of project types
         // Determine type and create the right object.
+        //
         if (itemType.compare("stage") == 0) {
             projectObject = new CStage();
         }
+        else if (itemType.compare("model") == 0) {
+            // Todo: Add this in.
+        }
+        //
         // End types.
+        //
 
         // Add the newly created object.
         if (projectObject) {

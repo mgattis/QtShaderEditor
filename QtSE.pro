@@ -36,9 +36,11 @@ SOURCES += main.cpp\
     tinyobjloader/tiny_obj_loader.cc \
 	CObj.cpp \
     CStage.cpp \
-    CProject.cpp \
+	CProject.cpp \
 	CCamera.cpp \
-    VLogger.cpp
+	VLogger.cpp \
+    CProjectionMatrix.cpp \
+	CAspectRatio.cpp
 
 HEADERS  += QtSE.h \
     CResourceManager.h \
@@ -56,10 +58,12 @@ HEADERS  += QtSE.h \
     tinyobjloader/tiny_obj_loader.h \
 	CObj.h \
     CStage.h \
-    CProject.h \
+	CProject.h \
 	CCamera.h \
     StdRedirector.h \
-    VLogger.h
+	VLogger.h \
+    CProjectionMatrix.h \
+	CAspectRatio.h
 
 DISTFILES += \
     .gitignore

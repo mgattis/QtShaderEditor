@@ -20,19 +20,24 @@ struct CGLMesh
 	CGLMesh( int vertexCount );
 	~CGLMesh();
 
+	void build( void );
 	void draw( void );
+	void clear( void );
 
 	int vertexCount;
 
 	GLint vertexLoc;
+	static GLint vertexLocShared;
 	GLuint vertexBuf;
 	float (*vertices)[ 3 ];
 
 	GLint normalLoc;
+	static GLint normalLocShared;
 	GLuint normalBuf;
 	float (*normals)[ 3 ];
 
 	GLint texCoordLoc;
+	static GLint texCoordLocShared;
 	GLuint texCoordBuf;
 	float (*texCoords)[ 2 ];
 
@@ -53,13 +58,21 @@ class CObj
 {
 private:
 	CObj( void );
+
 public:
 	~CObj();
+
+public:
+	void build( void );
+	void draw( GLuint vertexLoc = -1 , GLuint normalLoc = -1 , GLuint uvLoc = -1 );
 
 public:
 	QVector< tinyobj::material_t* > materialArray;
 	QVector< CGLMesh* > meshArray;
 	QMap< QString , GLuint > texMap;
+
+protected:
+	GLuint vertexLoc , normalLoc , uvLoc;
 
 public:
 	static CObj* loadFromPath( const QString &fileName , const QString &basePath = QString() )

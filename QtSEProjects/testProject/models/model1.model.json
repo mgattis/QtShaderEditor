@@ -4,8 +4,21 @@
 
     "wavefront": {
         "objectFile": "model1.obj",
-        "materialPath": "."
+        "materialTemplateLibraryPath": "."
     },
 
-    "shaderName": "shader1.shader"
+	"modelTranform": [
+		{
+			"rotate": [45.0, 0.0, 0.0, 1.0]
+		},
+		{
+			"translate": [0.0, 0.0, 1.0]
+		}
+	],
+
+	"textureList": [
+		 "texture1.texture"
+	],
+
+    "drawShader": "shader1.shader"
 }

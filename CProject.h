@@ -22,9 +22,7 @@ enum CameraType_t {
 class CProject : public IProjectObject {
 private:
     QList<CStage *> stageList;
-
     QString projectVersion;
-
     CameraType_t defaultCamera;
     float speedMultiplier;
 
@@ -40,6 +38,7 @@ public:
 
     // bool loadUserJson(QJsonObject userJson);
     bool loadProject(QString userJsonFile);
+    void setViewPort(int iWidth, int iHeight);
 
     bool initiaize();
     bool run(float elapsedTime);

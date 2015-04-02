@@ -89,6 +89,7 @@ protected:
 	float maxAcceleration;
 	float maxVelocity;
 	float friction;
+	float speedMultiplier;
 
 	CObj *obj;
 

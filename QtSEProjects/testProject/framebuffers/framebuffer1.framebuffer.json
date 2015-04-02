@@ -11,9 +11,5 @@
     },
 
     "uniformName": "framebuffer1",
-
-    "shaderList": [
-        "shaderName": "shader1.shader"
-    ]
 }
 

@@ -9,7 +9,17 @@ CStage::~CStage() {
 }
 
 bool CStage::initiaize() {
+#if 0
+    if (this->bIdentifiersLoaded) {
+        if (userJson.contains("generateProjectionMatrixPerspective")) {
+            projectionType = PROJECTION_PERSPECTIVE;
+            QJsonObject projection = userJson["generateProjectionMatrixPerspective"];
+            if (projection.contains("fovy")) {
 
+            }
+        }
+    }
+#endif
 	return false;
 }
 
