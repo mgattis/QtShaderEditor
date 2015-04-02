@@ -174,11 +174,6 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 		highlightingRules.append( rule );
 	}
 
-	// First we define a keyword rule which recognizes the most common C++ keywords.
-	// We give the keywordFormat a bold, dark blue font. For each keyword, we assign
-	// the keyword and the specified format to a HighlightingRule object and append
-	// the object to our list of rules.
-
 	// Class
 
 	/*
@@ -264,37 +259,25 @@ void CGLSLHighlighter::highlightBlock( const QString &text )
 	}
 }
 
-VGLSLEdit::VGLSLEdit( QWidget *parent ) : QWidget( parent )
+VGLSLEdit::VGLSLEdit( QWidget *parent ) : QTextEdit( parent )
 {
-	menuBar = new QMenuBar( NULL );
-		menuFile = menuBar->addMenu( "File" );
-			actionClose = menuFile->addAction( "Close" , this , SLOT(close()) );
-
 	QFont font;
 	font.setFamily( "monospace" );
 	font.setFixedPitch( true );
 	font.setPointSize( 9 );
 
-	textEdit = new QTextEdit( NULL );
-	textEdit->setFont( font );
-	textEdit->setTabStopWidth( 4 * UTIL_getFontWidth( " " , font ) );
+	this->setFont( font );
+	this->setTabStopWidth( 4 * UTIL_getFontWidth( " " , font ) );
 	//textEdit->setText( "#include <test>\n\n// test\n\nvoid thing;\n\nvoid main( int argc , char *argv[] )\n{\n/*\nThis is a long comment\n*/\nstd::cout << \"test\";\n}\n" );
 	//textEdit->setText( "in vec3 fromPrevious;\nin uvec2 fromRange;\n \nconst int foo = 5;\nconst uvec2 range = uvec2(2, 5);\nuniform vec2 pairs;\n \nuniform sampler2D tex;\n \nvoid main()\n{\n\tfoo; //constant expressions are dynamically uniform.\n \n\tuint value = 21; //'value' is dynamically uniform.\n\tvalue = range.x; //still dynamically uniform.\n\tvalue = range.y + fromRange.y; //not dynamically uniform; current contents come from a non-dynamically uniform source.\n\tvalue = 4; //dynamically uniform again.\n\tif(fromPrevious.y < 3.14)\n\t\tvalue = 12;\n\tvalue; //NOT dynamically uniform. Current contents depend on 'fromPrevious', an input variable.\n \n\tfloat number = abs(pairs.x); //'number' is dynamically uniform.\n\tnumber = sin(pairs.y); //still dynamically uniform.\n\tnumber = cos(fromPrevious.x); //not dynamically uniform.\n \n\tvec4 colors = texture(tex, pairs.xy); //dynamically uniform, even though it comes from a texture.\n\t\t\t\t\t\t\t\t\t\t//It uses the same texture coordinate, thus getting the same texel every time.\n\tcolors = texture(tex, fromPrevious.xy); //not dynamically uniform.\n \n\tfor(int i = range.x; i < range.y; ++i)\n\t{\n\t\t\t //loop initialized with, compared against, and incremented by dynamically uniform expressions.\n\t\ti; //Therefore, 'i' is dynamically uniform, even though it changes.\n\t}\n \n\tfor(int i = fromRange.x; i < fromRange.y; ++i)\n\t{\n\t\ti; //'i' is not dynamically uniform; 'fromRange' is not dynamically uniform.\n\t}\n}\n" );
 
-	highlighter = new CGLSLHighlighter( textEdit->document() );
-
-	windowLayout = new QGridLayout( NULL );
-	//windowLayout->setSpacing( 0 );
-	windowLayout->setMenuBar( menuBar );
-	windowLayout->addWidget( textEdit , 0 , 0 , 1 , 1 );
-	delete this->layout();
-	this->setLayout( windowLayout );
-	//this->setContentsMargins( 0 , 0 , 0 , 0 );
+	connect( this , SIGNAL(textChanged()) , this , SLOT(dummy()) );
+	highlighter = new CGLSLHighlighter( this->document() );
 }
 
 VGLSLEdit::~VGLSLEdit()
 {
-	// Nothing to do
+	delete highlighter;
 }
 
 void VGLSLEdit::setFile( const QString &path )
@@ -303,9 +286,39 @@ void VGLSLEdit::setFile( const QString &path )
 
 	if( file.open( QIODevice::ReadOnly ) )
 	{
+		filePath = path;
+
 		QByteArray data = file.readAll();
-		textEdit->setText( QString( data ) );
+		this->setText( QString( data ) );
 
 		this->setWindowTitle( path.mid( path.lastIndexOf( '/' ) + 1 ) );
 	}
+}
+
+void VGLSLEdit::save( void )
+{
+	if( filePath.isEmpty() )
+	{
+		filePath = QFileDialog::getSaveFileName( this , "Save File As" , "." , "GLSL File (*.glsl)" );
+
+		if( filePath.isEmpty() )
+			return;
+	}
+
+	this->setWindowModified( false );
+	return;
+
+	QFile file( filePath );
+
+	if( file.open( QIODevice::WriteOnly | QIODevice::Truncate ) )
+	{
+		QByteArray contents = this->toPlainText().toLatin1();
+
+		if( file.write( contents ) != -1 )
+			this->setWindowModified( false );
+		else
+			slog::log( "Unable to write file" , file.errorString() );
+	}
+	else
+		slog::log( "Unable to open file" , file.errorString() );
 }

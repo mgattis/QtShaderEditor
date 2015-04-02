@@ -129,6 +129,7 @@ protected slots:
 	void save( void );
 
 	void about( void );
+	bool event( QEvent *event );
 
 	// Managed widget slots
 	

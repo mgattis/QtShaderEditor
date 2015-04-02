@@ -106,6 +106,8 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 
 	// Test
 	open();
+
+	this->setWindowTitle( "QtSE[*]" );
 }
 
 QtSE::~QtSE()
@@ -139,14 +141,27 @@ void QtSE::save( void )
 	{
 		if( VJsonForm *jsonForm = dynamic_cast< VJsonForm* >( focus ) )
 			jsonForm->save();
-		//else if( VGLSLEdit *glslEdit = dynamic_cast< VGLSLEdit* >( focus ) )
-			//glslEdit->save();
+		else if( VGLSLEdit *glslEdit = dynamic_cast< VGLSLEdit* >( focus ) )
+			glslEdit->save();
 	}
 }
 
 void QtSE::about( void )
 {
 	// Nothing to do
+
+	static bool test = true;
+
+	this->setWindowModified( test );
+	test = !test;
+}
+
+bool QtSE::event( QEvent *event )
+{
+	if( event && event->type() == QEvent::ModifiedChange )
+		std::cout << "title modified" << std::endl;
+
+	return QMainWindow::event( event );
 }
 
 void QtSE::projectTreeContextMenu( QPoint point )

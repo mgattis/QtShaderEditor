@@ -1,9 +1,11 @@
 #ifndef VGLSLEDIT_H
 #define VGLSLEDIT_H
 
+#include "log.h"
 #include "qtil.h"
 
 #include <QAction>
+#include <QFileDialog>
 #include <QGridLayout>
 #include <QMenuBar>
 #include <QSyntaxHighlighter>
@@ -14,6 +16,13 @@ class CGLSLHighlighter : public QSyntaxHighlighter
 {
 	Q_OBJECT
 
+private:
+	struct HighlightingRule
+	{
+		QRegExp pattern;
+		QTextCharFormat format;
+	};
+
 public:
 	CGLSLHighlighter( QTextDocument *parent = NULL );
 
@@ -21,11 +30,6 @@ protected:
 	void highlightBlock( const QString &text );
 
 private:
-	struct HighlightingRule
-	{
-		QRegExp pattern;
-		QTextCharFormat format;
-	};
 	QVector< HighlightingRule > highlightingRules;
 
 	QRegExp commentStartExpression;
@@ -57,12 +61,12 @@ private:
 	QTextCharFormat functionFormat;
 };
 
-class VGLSLEdit : public QWidget
+class VGLSLEdit : public QTextEdit
 {
 	Q_OBJECT
 
 public:
-	explicit VGLSLEdit( QWidget *parent = NULL );
+	VGLSLEdit( QWidget *parent = NULL );
 	~VGLSLEdit();
 
 protected:
@@ -74,13 +78,16 @@ protected:
 
 public:
 	void setFile( const QString &path );
+	void save( void );
 
 protected:
+	QString filePath;
 	CGLSLHighlighter *highlighter;
 
 signals:
 
 public slots:
+	void dummy( void ) { if( !this->isWindowModified() ) this->setWindowModified( true ); }
 };
 
 #endif // VGLSLEDIT_H

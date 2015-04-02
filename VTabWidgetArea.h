@@ -8,6 +8,20 @@
 #include <QSplitter>
 #include <QWidget>
 
+class EventModifiedChangeFilter : public QObject
+{
+	Q_OBJECT
+
+public:
+	EventModifiedChangeFilter( QObject *parent );
+
+protected:
+	bool eventFilter( QObject *obj , QEvent *event );
+
+signals:
+	void objModified( QObject *obj , bool isModified );
+};
+
 class VTabWidgetArea : public QSplitter
 {
 	Q_OBJECT
@@ -25,10 +39,13 @@ public:
 	VDraggableTabWidget* getActiveTabWidget( void );
 
 protected:
+	bool event( QEvent *event );
+
 	VDraggableTabWidget* VTabWidgetArea::makeVDraggableTabWidget( void );
 	VDraggableTabWidget* getFirstTabWidget( QSplitter *splitter ) const;
 
 protected:
+	EventModifiedChangeFilter *modifiedChangeFilter;
 	VDraggableTabWidget *activeTabWidget;
 	QMap< QWidget* , VDraggableTabWidget* > tabMap;
 
@@ -54,6 +71,7 @@ protected slots:
 	void removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget );
 
 	void subWidgetTitleChanged( const QString &title );
+	void subWidgetModifiedChange( QObject *obj , bool isModified );
 };
 
 #endif // VTABWIDGETAREA_H

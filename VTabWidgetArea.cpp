@@ -1,7 +1,24 @@
 #include "VTabWidgetArea.h"
 
+EventModifiedChangeFilter::EventModifiedChangeFilter( QObject *parent ) : QObject( parent )
+{
+	// Nothing to do
+}
+
+bool EventModifiedChangeFilter::eventFilter( QObject *obj , QEvent *event )
+{
+	if( event->type() == QEvent::ModifiedChange )
+		emit objModified( obj , ( (QWidget*)obj )->testAttribute( Qt::WA_WindowModified ) );
+
+	// Don't eat the event
+	return QObject::eventFilter( obj , event );
+}
+
 VTabWidgetArea::VTabWidgetArea()
 {
+	modifiedChangeFilter = new EventModifiedChangeFilter( this );
+	connect( modifiedChangeFilter , SIGNAL(objModified(QObject*,bool)) , this , SLOT(subWidgetModifiedChange(QObject*,bool)) );
+
 	VDraggableTabWidget *initialTab = makeVDraggableTabWidget();
 	activeTabWidget = initialTab;
 
@@ -17,13 +34,14 @@ VTabWidgetArea::VTabWidgetArea()
 
 VTabWidgetArea::~VTabWidgetArea()
 {
-	//
+	// Nothing to do
 }
 
 void VTabWidgetArea::addWidgetToArea( QWidget *widget , const QString &title , VDraggableTabWidget *tabWidget )
 {
 	widget->setAttribute( Qt::WA_DeleteOnClose );
 	tabWidget->setCurrentIndex( tabWidget->addTab( widget , title ) );
+	widget->installEventFilter( modifiedChangeFilter );
 
 	connect( widget , SIGNAL(windowTitleChanged(QString)) , this , SLOT(subWidgetTitleChanged(QString)) );
 	connect( widget , SIGNAL(destroyed(QObject*)) , this , SLOT(tabWidgetTabDestroyed(QObject*)) );
@@ -53,6 +71,14 @@ VDraggableTabWidget* VTabWidgetArea::getActiveTabWidget( void )
 	}
 
 	return activeTabWidget;
+}
+
+bool VTabWidgetArea::event( QEvent *event )
+{
+	if( event && event->type() == QEvent::ModifiedChange )
+		std::cout << "title modified" << std::endl;
+
+	return QSplitter::event( event );
 }
 
 VDraggableTabWidget* VTabWidgetArea::makeVDraggableTabWidget( void )
@@ -300,4 +326,9 @@ void VTabWidgetArea::subWidgetTitleChanged( const QString &title )
 			tabWidget->setTabText( tabWidget->indexOf( caller ) , title );
 		}
 	}
+}
+
+void VTabWidgetArea::subWidgetModifiedChange( QObject *obj , bool isModified )
+{
+	std::cout << (int)obj << " has been " << ( isModified ? "modified" : "unmodified" ) << std::endl;
 }
