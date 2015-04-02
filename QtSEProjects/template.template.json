@@ -5,7 +5,6 @@
             "value": "orbitCamera",
             "type": "string",
             "guiInsert": true,
-            "projectInsert": true
         },
         {
             "key": "speedMultiplier",
@@ -34,7 +33,6 @@
         },
         {
             "key": "stageList",
-            "value": "stage_name",
             "type": "string",
             "indexable": true,
             "guiInsert": true
@@ -47,14 +45,12 @@
             "value": 1.0,
             "type": "float",
             "guiInsert": true,
-            "projectInsert": true
         },
         {
             "key": "windowHeight",
             "value": 1.0,
             "type": "float",
             "guiInsert": true,
-            "projectInsert": true
         },
         {
             "key": "multiplier",
@@ -73,7 +69,7 @@
         }
     ],
 
-    "generatePerspectiveMatrix": [
+    "generateProjectionMatrixPerspective": [
         {
             "key": "fovy",
             "value": 70.0,
@@ -99,7 +95,7 @@
         }
     ],
 
-    "generateOrthogonalMatrix": [
+    "generateProjectionMatrixOrtho": [
         {
             "key": "left",
             "value": -1.0,
@@ -125,32 +121,74 @@
             "guiInsert": true
         },
         {
-            "key": "nearVal",
+            "key": "zNear",
             "value": -1.0,
             "type": "float",
             "guiInsert": true
-        }
+        },
+		{
+			"key": "zFar",
+			"value": 1.0,
+			"type": "float",
+			"guiInsert": true
+		}
     ],
 
+	"transforms": [
+		{
+			"key": "loadIdentity",
+			"value": false,
+			"type": "boolean",
+			"guiInsert": true
+		}.
+		{
+			"key": "rotate",
+			"value": 0.0,
+			"type": "float",
+			"indexable": true
+		},
+		{
+			"key": "translate",
+			"value": 0.0,
+			"type": "float",
+			"indexable": true
+		},
+		{
+			"key": "scale",
+			"value": 0.0,
+			"type": "float",
+			"indexable": true
+		}
+	],
+	
     "stage": [
         {
-            "key": "generatePerspectiveMatrix",
-            "type": "generatePerspectiveMatrix",
+            "key": "generateProjectionMatrixPerspective",
+            "type": "generateProjectionMatrixPerspective",
             "guiInsert": true,
-            "projectInsert": true
         },
         {
-            "key": "generateOrthogonalMatrix",
-            "type": "generateOrthogonalMatrix"
+            "key": "generateProjectionMatrixOrtho",
+            "type": "generateProjectionMatrixOrtho"
         },
+		{
+			"key": "viewTransforms",
+			"type": "transforms",
+		},
         {
-            "key": "framebufferList",
+            "key": "inputFramebufferList",
             "value": "framebuffer_name",
             "type": "string",
             "indexable": true,
             "guiInsert": true
         },
-        {
+		{
+			"key": "outputFramebuffer",
+			"value": "finalframebuffer",
+			"type": "string",
+			"guiInsert": true
+        },
+            "key": "modelList",
             "key": "modelList",
             "value": "model_name",
             "type": "string",
@@ -158,10 +196,9 @@
             "guiInsert": true
         },
         {
-            "key": "textureList",
-            "value": "texture_name",
-            "type": "string",
-            "indexable": true,
+            "key": "runOnce",
+            "value": false,
+            "type": "boolean",
             "guiInsert": true
         }
     ],
@@ -188,13 +225,6 @@
             "key": "uniformName",
             "value": "defaultframebuffer",
             "type": "string",
-            "guiInsert": true
-        },
-        {
-            "key": "shaderList",
-            "value": "shader_name",
-            "type": "string",
-            "indexable": true,
             "guiInsert": true
         }
     ],
@@ -228,10 +258,9 @@
             "guiInsert": true
         },
         {
-            "key": "shaderList",
-            "value": "shader_name",
+            "key": "uniformName",
+            "value": "uniform_name",
             "type": "string",
-            "indexable": true,
             "guiInsert": true
         }
     ],
@@ -245,7 +274,7 @@
             "guiInsert": true
         },
         {
-            "key": "materialsPath",
+            "key": "materialTemplateLibraryPath",
             "value": ".",
             "type": "string",
             "isPath": true,
@@ -259,12 +288,23 @@
             "type": "wavefront",
             "guiInsert": true
         },
+		{
+			"key": "modelTransform",
+			"type": "transforms"
+		},
         {
-            "key": "shader",
-            "value": "shader_name",
+            "key": "textureList",
+            "value": "texture_name",
             "type": "string",
+			"indexable": true,
             "guiInsert": true
-        }
+        },
+		{
+			"key": "drawShader",
+			"value": "shader_name",
+			"type": "string",
+			"guiInsert": true
+		}
     ],
 
     "uniformList": [
@@ -303,7 +343,6 @@
             "indexable": true,
             "guiInsert": true
         },
-        {
             "key": "fragmentSourceFiles",
             "value": "shader.frag.glsl",
             "type": "string",

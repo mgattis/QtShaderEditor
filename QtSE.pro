@@ -35,7 +35,9 @@ SOURCES += main.cpp\
     VGLSLEdit.cpp \
     CStage.cpp \
     CProject.cpp \
-    CCamera.cpp
+    CCamera.cpp \
+    CProjectionMatrix.cpp \
+    CAspectRatio.cpp
 
 HEADERS  += QtSE.h \
     CResourceManager.h \
@@ -52,7 +54,9 @@ HEADERS  += QtSE.h \
     VGLSLEdit.h \
     CStage.h \
     CProject.h \
-    CCamera.h
+    CCamera.h \
+    CProjectionMatrix.h \
+    CAspectRatio.h
 
 DISTFILES += \
     .gitignore

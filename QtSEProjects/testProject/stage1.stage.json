@@ -2,26 +2,38 @@
     "itemName": "stage1.stage",
     "itemType": "stage",
 
-    "generatePerspectiveMatrix": {
+    "generatePerspectiveMatrixPerspective": {
         "fovy": 80.0,
         "aspect": {
             "windowWidth": 1.0,
             "windowHeight": 1.0
         },
         "zNear": 0.1,
-        "zFar": 400.0
+        "zFar": 100.0
     },
 
-    "framebufferList": [
-        "stage1.stage"
-    ],
+	"viewTransforms": [
+		{
+			"loadIdentity"
+		},
+		{
+			"rotate": [45.0, 0.0, 0.0, 1.0]
+		},
+		{
+			"translate": [0.0, 0.0, 1.0]
+		}
+	],
+
+	"inputFramebufferList": [
+		"framebuffer1.framebuffer"
+	],
+
+	"outputFrameBuffer": "framebuffer1.framebuffer",
 
     "modelList": [
         "model1.model"
     ],
 
-    "textureList": [
-        "texture1.texture"
-    ]
+	"runOnce": false
 }
 

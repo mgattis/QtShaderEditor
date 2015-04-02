@@ -1,8 +1,7 @@
 #ifndef CPROJECTIONMATRIX_H
 #define CPROJECTIONMATRIX_H
 
-class CProjectionMatrix
-{
+class CProjectionMatrix {
 public:
     CProjectionMatrix();
 };

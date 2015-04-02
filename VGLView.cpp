@@ -5,9 +5,10 @@ VGLView::VGLView( QWidget *parent /* = NULL */ )
     keyBits = 0;
     mouseSensitivity = 4.0;
 
-    maxAcceleration = 8.0 * 8.0;
-    maxVelocity = 1.0 * 8.0;
-    friction = 2.0 * 8.0;
+    maxAcceleration = 8.0;
+    maxVelocity = 1.0;
+    friction = 2.0;
+    speedMultiplier = 1.0;
 
 	this->setMouseTracking( true );
 }
@@ -19,26 +20,6 @@ VGLView::~VGLView()
 
 void VGLView::initializeGL( void )
 {
-    glewInit();
-
-    program.addShaderFromSourceCode(QGLShader::Vertex,
-         "uniform mat4 ProjectionMatrix;\n"
-         "uniform mat4 ModelMatrix;\n"
-         "uniform mat4 ViewMatrix;\n"
-         "void main(void)\n"
-         "{\n"
-         "   gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * gl_Vertex;\n"
-         "}");
-     program.addShaderFromSourceCode(QGLShader::Fragment,
-         "uniform float time;\n"
-         "void main(void)\n"
-         "{\n"
-         "   float red = sin(time);\n"
-         "   float green = sin(time + 3.14159 * 2.0 * 0.3333333);\n"
-         "   float blue = sin(time + 3.14159 * 2.0 * 0.6666667);\n"
-         "   gl_FragColor = vec4(red, green, blue, 1.0);\n"
-         "}");
-
     connect( &repaintTimer , SIGNAL(timeout()) , this , SLOT(updateGL()) );
     repaintTimer.setInterval( 16 );
 	repaintTimer.start();
@@ -57,21 +38,7 @@ void VGLView::paintGL( void )
 
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    //program.setUniformValue("time", (GLfloat)totalTime);
-    GLuint iResult = glGetUniformLocation(program.programId(), "time");
-    glUniform1f(iResult, totalTime);
-
     updateCamera(lastFrameTime);
-
-    GLuint result = glGetUniformLocation(program.programId(), "ProjectionMatrix");
-    glUniformMatrix4fv(result, 1, GL_FALSE, &(camera.projectionMatrix[0][0]));
-
-    result = glGetUniformLocation(program.programId(), "ModelMatrix");
-    glUniformMatrix4fv(result, 1, GL_FALSE, &(camera.modelMatrix[0][0]));
-
-    result = glGetUniformLocation(program.programId(), "ViewMatrix");
-    glUniformMatrix4fv(result, 1, GL_FALSE, &(camera.viewMatrix[0][0]));
-
     drawScene();
 
     return;
@@ -111,12 +78,32 @@ void VGLView::updateCamera(float lastFrameTime) {
         camera.velocity = glm::vec4(velocity, camera.velocity.z, 0.0);
     }
 
+    // Handle Z
+    if (glm::abs(camera.velocity.z) <= friction * lastFrameTime) {
+        camera.velocity.z = 0.0;
+    }
+    else {
+        camera.velocity.z -= glm::sign(camera.velocity.z) * friction * lastFrameTime;
+    }
+
+    float zacc = 0.0;
+    zacc += keyBits & KEY_SPACE ? 1.0 : 0.0;
+    zacc -= keyBits & KEY_LSHIFT ? 1.0 : 0.0;
+
+    camera.velocity.z += maxAcceleration * zacc * lastFrameTime;
+
+    // Cap Z max speed.
+    if (glm::abs(camera.velocity.z) > maxVelocity) {
+        camera.velocity.z = glm::sign(camera.velocity.z) * maxVelocity;
+    }
+
     // apply velocity
     camera.position += lastFrameTime * camera.velocity;
 
-    //glRotatef(camera.angle.x, 1.0, 0.0, 0.0);
-    //glRotatef(camera.angle.z, 0.0, 0.0, 1.0);
-    //glTranslatef(camera.position.x, camera.position.y, camera.position.z);
+    glLoadIdentity();
+    glRotatef(camera.angle.x, 1.0, 0.0, 0.0);
+    glRotatef(camera.angle.z, 0.0, 0.0, 1.0);
+    glTranslatef(camera.position.x, camera.position.y, -camera.position.z);
 
     camera.viewMatrix = camera.getMatrixFromPosition();
 }
@@ -182,12 +169,12 @@ void VGLView::mouseMoveEvent( QMouseEvent *event )
 
 			// Clamp
 
-            /*if( camera.angle.x > 90.0 ) {
+            if( camera.angle.x < -90.0 ) {
+                camera.angle.x = -90.0;
+            }
+            else if( camera.angle.x > 90.0 ) {
                 camera.angle.x = 90.0;
             }
-            else if( camera.angle.x < -90.0 ) {
-                camera.angle.x = -90.0;
-            }*/
 
 			lastCursorPos = event->pos();
 			event->accept();
@@ -220,6 +207,12 @@ void VGLView::keyPressEvent( QKeyEvent *event )
         case Qt::Key_D:
             keyBits |= KEY_D;
             break;
+        case Qt::Key_Space:
+            keyBits |= KEY_SPACE;
+            break;
+        case Qt::Key_Shift:
+            keyBits |= KEY_LSHIFT;
+            break;
         default:
             event->ignore();
             return;
@@ -246,6 +239,12 @@ void VGLView::keyReleaseEvent( QKeyEvent *event )
                 break;
             case Qt::Key_D:
                 keyBits &= ~KEY_D;
+                break;
+            case Qt::Key_Space:
+                keyBits &= ~KEY_SPACE;
+                break;
+            case Qt::Key_Shift:
+                keyBits &= ~KEY_LSHIFT;
                 break;
             default:
                 event->ignore();

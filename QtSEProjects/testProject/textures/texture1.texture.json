@@ -9,7 +9,6 @@
         "channelType": "auto"
     },
 
-    "shaderList": [
-        "shader1.shader"
-    ]
+	"uniformName": "texture1.texture"
+
 }
