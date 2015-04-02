@@ -5,53 +5,40 @@
 #include "qtil.h"
 
 #include <QAction>
+#include <QApplication>
 #include <QCloseEvent>
 #include <QComboBox>
+#include <QItemDelegate>
 #include <QItemEditorCreatorBase>
 #include <QItemEditorFactory>
 #include <QMenu>
+#include <QModelIndex>
+#include <QStandardItemModel>
+#include <QStringList>
 #include <QTreeWidget>
+#include <QVariant>
 #include <QWidget>
 
-class ColorListEditor : public QComboBox
+class ComboBoxDelegate : public QItemDelegate
 {
 	Q_OBJECT
-	Q_PROPERTY(QColor color READ color WRITE setColor USER true)
 
 public:
-	ColorListEditor(QWidget *widget = 0);
+	ComboBoxDelegate( QObject *parent = NULL );
 
 public:
-	QColor color() const;
-	void setColor(QColor c);
-
-private:
-	void populateList();
-};
-
-class VStringListEdit : public QComboBox
-{
-	Q_OBJECT
-	Q_PROPERTY( QString string READ getString WRITE setString USER true )
-	Q_PROPERTY( QStringList stringList READ getStringList WRITE setStringList USER true )
-
-public:
-	VStringListEdit( QWidget *widget = NULL );
-
-public:
-	QString getString( void ) const;
-	void setString( QString str );
-
-	QStringList getStringList( void ) const;
-	void setStringList( QStringList list );
-
-private:
-	void populateList( void );
+	QWidget* createEditor( QWidget *parent , const QStyleOptionViewItem &option , const QModelIndex &index ) const;
+	void setEditorData( QWidget *editor , const QModelIndex &index ) const;
+	void setModelData( QWidget *editor , QAbstractItemModel *model , const QModelIndex &index ) const;
+	void updateEditorGeometry( QWidget *editor , const QStyleOptionViewItem &option , const QModelIndex &index ) const;
+	void paint( QPainter *painter , const QStyleOptionViewItem &option , const QModelIndex &index ) const;
 };
 
 class VJsonForm : public QTreeWidget
 {
 	Q_OBJECT
+
+	friend class ComboBoxDelegate;
 
 public:
 	VJsonForm( QWidget *parent = NULL );
@@ -67,9 +54,8 @@ protected:
 	void generateValue( QTreeWidgetItem *parent , const QString &name , QJsonValue &value , bool useParent = false );
 	void generateChildren( QTreeWidgetItem *parent , QJsonObject &object );
 
-signals:
-	void modified( void );
-	void unmodified( void );
+protected:
+	ComboBoxDelegate *delegate;
 
 public slots:
 	void save( void );
@@ -81,8 +67,9 @@ public slots:
 	void editTreeItem( QTreeWidgetItem *item , int column );
 	void itemTextChanged( QTreeWidgetItem *item , int column );
 
-	void setModified( void );
-	void setUnmodified( void );
+	inline setModified( void ) { setModified( true ); }
+	inline setUnmodified( void ) { setModified( false ); }
+	void setModified( bool modified ) { if( modified != this->isWindowModified() ) this->setWindowModified( modified ); }
 };
 
 #endif // VJSONFORM_H

@@ -66,7 +66,7 @@ class VGLSLEdit : public QTextEdit
 	Q_OBJECT
 
 public:
-	VGLSLEdit( QWidget *parent = NULL );
+	VGLSLEdit( const QString &initialData = QString() , QWidget *parent = NULL );
 	~VGLSLEdit();
 
 protected:
@@ -77,7 +77,7 @@ protected:
 		QTextEdit *textEdit;
 
 public:
-	void setFile( const QString &path );
+	void load( const QString &path );
 	void save( void );
 
 protected:
@@ -87,7 +87,9 @@ protected:
 signals:
 
 public slots:
-	void dummy( void ) { if( !this->isWindowModified() ) this->setWindowModified( true ); }
+	inline setModified( void ) { setModified( true ); }
+	inline setUnmodified( void ) { setModified( false ); }
+	void setModified( bool modified ) { if( modified != this->isWindowModified() ) this->setWindowModified( modified ); }
 };
 
 #endif // VGLSLEDIT_H

@@ -259,7 +259,7 @@ void CGLSLHighlighter::highlightBlock( const QString &text )
 	}
 }
 
-VGLSLEdit::VGLSLEdit( QWidget *parent ) : QTextEdit( parent )
+VGLSLEdit::VGLSLEdit( const QString &initialData /* = QString() */ , QWidget *parent /* = NULL */ ) : QTextEdit( parent )
 {
 	QFont font;
 	font.setFamily( "monospace" );
@@ -271,7 +271,10 @@ VGLSLEdit::VGLSLEdit( QWidget *parent ) : QTextEdit( parent )
 	//textEdit->setText( "#include <test>\n\n// test\n\nvoid thing;\n\nvoid main( int argc , char *argv[] )\n{\n/*\nThis is a long comment\n*/\nstd::cout << \"test\";\n}\n" );
 	//textEdit->setText( "in vec3 fromPrevious;\nin uvec2 fromRange;\n \nconst int foo = 5;\nconst uvec2 range = uvec2(2, 5);\nuniform vec2 pairs;\n \nuniform sampler2D tex;\n \nvoid main()\n{\n\tfoo; //constant expressions are dynamically uniform.\n \n\tuint value = 21; //'value' is dynamically uniform.\n\tvalue = range.x; //still dynamically uniform.\n\tvalue = range.y + fromRange.y; //not dynamically uniform; current contents come from a non-dynamically uniform source.\n\tvalue = 4; //dynamically uniform again.\n\tif(fromPrevious.y < 3.14)\n\t\tvalue = 12;\n\tvalue; //NOT dynamically uniform. Current contents depend on 'fromPrevious', an input variable.\n \n\tfloat number = abs(pairs.x); //'number' is dynamically uniform.\n\tnumber = sin(pairs.y); //still dynamically uniform.\n\tnumber = cos(fromPrevious.x); //not dynamically uniform.\n \n\tvec4 colors = texture(tex, pairs.xy); //dynamically uniform, even though it comes from a texture.\n\t\t\t\t\t\t\t\t\t\t//It uses the same texture coordinate, thus getting the same texel every time.\n\tcolors = texture(tex, fromPrevious.xy); //not dynamically uniform.\n \n\tfor(int i = range.x; i < range.y; ++i)\n\t{\n\t\t\t //loop initialized with, compared against, and incremented by dynamically uniform expressions.\n\t\ti; //Therefore, 'i' is dynamically uniform, even though it changes.\n\t}\n \n\tfor(int i = fromRange.x; i < fromRange.y; ++i)\n\t{\n\t\ti; //'i' is not dynamically uniform; 'fromRange' is not dynamically uniform.\n\t}\n}\n" );
 
-	connect( this , SIGNAL(textChanged()) , this , SLOT(dummy()) );
+	this->setText( initialData );
+	setUnmodified();
+
+	connect( this , SIGNAL(textChanged()) , this , SLOT(setModified()) );
 	highlighter = new CGLSLHighlighter( this->document() );
 }
 
@@ -280,7 +283,7 @@ VGLSLEdit::~VGLSLEdit()
 	delete highlighter;
 }
 
-void VGLSLEdit::setFile( const QString &path )
+void VGLSLEdit::load( const QString &path )
 {
 	QFile file( path );
 
@@ -290,8 +293,9 @@ void VGLSLEdit::setFile( const QString &path )
 
 		QByteArray data = file.readAll();
 		this->setText( QString( data ) );
+		setUnmodified();
 
-		this->setWindowTitle( path.mid( path.lastIndexOf( '/' ) + 1 ) );
+		this->setWindowTitle( path.mid( path.lastIndexOf( '/' ) + 1 ) + "[*]" );
 	}
 }
 
@@ -303,9 +307,11 @@ void VGLSLEdit::save( void )
 
 		if( filePath.isEmpty() )
 			return;
+		else
+			this->setWindowTitle( filePath.mid( filePath.lastIndexOf( '/' ) + 1 ) + "[*]" );
 	}
 
-	this->setWindowModified( false );
+	setUnmodified();
 	return;
 
 	QFile file( filePath );
@@ -315,7 +321,7 @@ void VGLSLEdit::save( void )
 		QByteArray contents = this->toPlainText().toLatin1();
 
 		if( file.write( contents ) != -1 )
-			this->setWindowModified( false );
+			setUnmodified();
 		else
 			slog::log( "Unable to write file" , file.errorString() );
 	}

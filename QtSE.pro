@@ -41,7 +41,7 @@ SOURCES += main.cpp\
 	VLogger.cpp \
     CProjectionMatrix.cpp \
 	CAspectRatio.cpp \
-    log.cpp
+	log.cpp
 
 HEADERS  += QtSE.h \
     CResourceManager.h \
@@ -65,7 +65,7 @@ HEADERS  += QtSE.h \
 	VLogger.h \
     CProjectionMatrix.h \
 	CAspectRatio.h \
-    log.h
+	log.h
 
 DISTFILES += \
     .gitignore

@@ -1,102 +1,78 @@
 #include "VJsonForm.h"
 
-ColorListEditor::ColorListEditor(QWidget *widget) : QComboBox(widget)
+ComboBoxDelegate::ComboBoxDelegate( QObject *parent /* = NULL */ ) : QItemDelegate( parent )
 {
-	populateList();
+	//
 }
 
-QColor ColorListEditor::color() const
+QWidget* ComboBoxDelegate::createEditor( QWidget *parent , const QStyleOptionViewItem &option , const QModelIndex &index ) const
 {
-	return qvariant_cast<QColor>(itemData(currentIndex(), Qt::DecorationRole));
-}
+	// Is ghetto a technical term? Can't find a way to get the view of a model
+	VJsonForm *treeWidget = (VJsonForm*)this->parent();
+	//VJsonForm *treeWidget = (VJsonForm*)index.model();
+	VJsonFormItem *item = (VJsonFormItem*)treeWidget->itemFromIndex( index );
 
-void ColorListEditor::setColor(QColor color)
-{
-	setCurrentIndex(findData(color, int(Qt::DecorationRole)));
-}
-
-void ColorListEditor::populateList()
-{
-	QStringList colorNames = QColor::colorNames();
-
-	for (int i = 0; i < colorNames.size(); ++i) {
-		QColor color(colorNames[i]);
-
-		insertItem(i, colorNames[i]);
-		setItemData(i, color, Qt::DecorationRole);
-	}
-}
-
-// ====================================
-
-VStringListEdit::VStringListEdit( QWidget *widget = NULL ) : QComboBox( widget )
-{
-	// Nothing to do
-	populateList();
-}
-
-QString VStringListEdit::getString( void ) const
-{
-	return this->currentText();
-	return "freeCamera";
-	return qvariant_cast< QString >( itemData( currentIndex() , Qt::DecorationRole ) );
-}
-
-void VStringListEdit::setString( QString str )
-{
-	setCurrentIndex( findData( str , int( Qt::DecorationRole ) ) );
-}
-
-QStringList VStringListEdit::getStringList( void ) const
-{
-	QStringList list;
-	for( int index = 0 ; index < this->count() ; index++ )
-		list.append( this->itemText( index ) );
-	return qvariant_cast< QStringList >( list );
-	//return qvariant_cast< QStringList >( itemData( currentIndex() , Qt::DecorationRole ) );
-}
-
-void VStringListEdit::setStringList( QStringList list )
-{
-	if( list.size() )
+	if( item->valueList )
 	{
-		//stringList = list;
-		//std::cout << list.at( 0 ).toLatin1().data() << std::endl;
-		this->clear();
-		for( int index = 0 ; index < list.size() ; index++ )
-		{
-			insertItem( index , list.at( index ) );
-			setItemData( index , list[ index ] , Qt::DecorationRole );
-		}
+		QComboBox* editor = new QComboBox( parent );
+		for( int index = 0 ; index < item->valueList->size() ; index++ )
+			editor->addItem( item->valueList->at( index ).toString() );
+
+		//editor->addItems( QStringList( "freeCamera" ) << "orbitCamera" );
+
+		return editor;
 	}
-	//setCurrentIndex( findData( list , int( Qt::DecorationRole ) ) );
+
+	return QItemDelegate::createEditor( parent , option , index );
 }
 
-void VStringListEdit::populateList( void )
+void ComboBoxDelegate::setEditorData( QWidget *editor , const QModelIndex &index ) const
 {
-	QStringList cameraTypes( "orbitCamera" );
-	cameraTypes << "freeCamera";
+	VJsonForm *treeWidget = (VJsonForm*)this->parent();
+	//VJsonForm *treeWidget = (VJsonForm*)index.model();
+	VJsonFormItem *item = (VJsonFormItem*)treeWidget->itemFromIndex( index );
 
-	for( int i = 0 ; i < cameraTypes.size() ; ++i )
+	if( item->valueList )
 	{
-		insertItem( i , cameraTypes[ i ] );
-		//setItemData( i , color , Qt::DecorationRole );
-		//setItemData( i , colorNames[ i ] , Qt::DecorationRole );
+		QComboBox *comboBox = (QComboBox*)editor;
+
+		QVariant value = index.model()->data( index , Qt::EditRole );
+		int curIndex = comboBox->findData( value , Qt::EditRole );
+
+		if( curIndex != -1 )
+			comboBox->setCurrentIndex( curIndex );
+
+		std::cout << "Current: " << value.toString().toLatin1().data() << std::endl;
+		std::cout << "Current Index: " << curIndex << std::endl;
 	}
+	else
+		QItemDelegate::setEditorData( editor , index );
+}
 
-	return;
+void ComboBoxDelegate::setModelData( QWidget *editor , QAbstractItemModel *model , const QModelIndex &index ) const
+{
+	return QItemDelegate::setModelData( editor , model , index );
 
+	QComboBox *comboBox = (QComboBox*)editor;
+	model->setData( index , comboBox->currentText() , Qt::EditRole );
+}
 
-	QStringList colorNames = QColor::colorNames();
+void ComboBoxDelegate::updateEditorGeometry( QWidget *editor , const QStyleOptionViewItem &option , const QModelIndex &index ) const
+{
+	editor->setGeometry( option.rect );
+}
 
-	for( int i = 0 ; i < colorNames.size() ; ++i )
-	{
-		QColor color( colorNames[ i ] );
+void ComboBoxDelegate::paint( QPainter *painter , const QStyleOptionViewItem &option , const QModelIndex &index ) const
+{
+	return QItemDelegate::paint( painter , option , index );
 
-		insertItem( i , colorNames[ i ] );
-		//setItemData( i , color , Qt::DecorationRole );
-		setItemData( i , colorNames[ i ] , Qt::DecorationRole );
-	}
+	QStyleOptionViewItemV4 myOption = option;
+	QString text = index.data( Qt::EditRole ).toString();
+	text = "test";
+
+	myOption.text = text;
+
+	QApplication::style()->drawControl( QStyle::CE_ItemViewItem , &myOption , painter );
 }
 
 VJsonForm::VJsonForm( QWidget *parent /* = NULL */ ) : QTreeWidget( parent )
@@ -117,6 +93,10 @@ VJsonForm::VJsonForm( QWidget *parent /* = NULL */ ) : QTreeWidget( parent )
 	QItemEditorFactory::setDefaultFactory( editorFactory );
 #endif
 
+	delegate = new ComboBoxDelegate( this );
+	//tableView.setItemDelegate(&delegate);
+	this->setItemDelegateForColumn( 2 , delegate );
+
 	this->setColumnCount( 2 );
 	this->setHeaderLabels( QStringList( "Key" ) << "Type" << "Value" );
 	this->setEditTriggers( QAbstractItemView::NoEditTriggers );
@@ -132,7 +112,7 @@ VJsonForm::VJsonForm( QWidget *parent /* = NULL */ ) : QTreeWidget( parent )
 
 VJsonForm::~VJsonForm()
 {
-	//
+	delete delegate;
 }
 
 void VJsonForm::closeEvent( QCloseEvent *event )
@@ -411,34 +391,4 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 		else // NOTE: Expensive? This doesn't always work either
 			resizeColumnToContents( column );
 	}
-}
-
-void VJsonForm::setModified( void )
-{
-	//std::cout << QString( "void VJsonForm::setModified()" ).toLatin1().data() << std::endl;
-
-	if( !this->windowTitle().endsWith( "*" ) )
-		this->setWindowTitle( this->windowTitle().append( "*" ) );
-
-	if( !isWindowModified() )
-		setWindowModified( true );
-
-	emit modified();
-}
-
-void VJsonForm::setUnmodified( void )
-{
-	//std::cout << QString( "void VJsonForm::setUnmodified()" ).toLatin1().data() << std::endl;
-
-	if( this->windowTitle().endsWith( "*" ) )
-	{
-		QString title = this->windowTitle();
-		title.chop( 1 );
-		this->setWindowTitle( title );
-	}
-
-	if( isWindowModified() )
-		setWindowModified( false );
-
-	emit unmodified();
 }

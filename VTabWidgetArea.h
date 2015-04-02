@@ -27,12 +27,12 @@ class VTabWidgetArea : public QSplitter
 	Q_OBJECT
 
 public:
-	VTabWidgetArea();
+	VTabWidgetArea( void );
 	~VTabWidgetArea();
 
 public:
-	void addWidgetToArea( QWidget *widget , const QString &title ) { addWidgetToArea( widget , title , getActiveTabWidget() ); }
-	void addWidgetToArea( QWidget *widget , const QString &title , VDraggableTabWidget *tabWidget );
+	void addWidgetToArea( QWidget *widget ) { addWidgetToArea( widget , getActiveTabWidget() ); }
+	void addWidgetToArea( QWidget *widget , VDraggableTabWidget *tabWidget );
 	void showWidget( const QWidget *widget );
 
 	inline QWidget* getActiveWidget( void ) { return getActiveTabWidget() ? activeTabWidget->currentWidget() : NULL; }

@@ -106,8 +106,6 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 
 	// Test
 	open();
-
-	this->setWindowTitle( "QtSE[*]" );
 }
 
 QtSE::~QtSE()
@@ -148,20 +146,7 @@ void QtSE::save( void )
 
 void QtSE::about( void )
 {
-	// Nothing to do
-
-	static bool test = true;
-
-	this->setWindowModified( test );
-	test = !test;
-}
-
-bool QtSE::event( QEvent *event )
-{
-	if( event && event->type() == QEvent::ModifiedChange )
-		std::cout << "title modified" << std::endl;
-
-	return QMainWindow::event( event );
+	// Nothing to do yet
 }
 
 void QtSE::projectTreeContextMenu( QPoint point )
@@ -294,16 +279,16 @@ void QtSE::fsProjectTreeItemDoubleClicked( QTreeWidgetItem *item , int column )
 					CJsonTemplate::get()->createTree( type , obj , form->invisibleRootItem() );
 					UTIL_expandTreeItems( form , form->invisibleRootItem() );
 					form->setWindowTitle( item->text( 0 ) );
-					tabArea->addWidgetToArea( form , form->windowTitle() );
+					tabArea->addWidgetToArea( form );
 				}
 			}
 			else if( relPath.endsWith( ".glsl" , Qt::CaseInsensitive ) )
 			{
 				VGLSLEdit *edit = new VGLSLEdit( NULL );
 				openFiles.insert( relPath , edit );
-				edit->setFile( filePath );
+				edit->load( filePath );
 
-				tabArea->addWidgetToArea( edit , edit->windowTitle() );
+				tabArea->addWidgetToArea( edit );
 			}
 		}
 		else

@@ -14,20 +14,13 @@ bool EventModifiedChangeFilter::eventFilter( QObject *obj , QEvent *event )
 	return QObject::eventFilter( obj , event );
 }
 
-VTabWidgetArea::VTabWidgetArea()
+VTabWidgetArea::VTabWidgetArea( void )
 {
 	modifiedChangeFilter = new EventModifiedChangeFilter( this );
 	connect( modifiedChangeFilter , SIGNAL(objModified(QObject*,bool)) , this , SLOT(subWidgetModifiedChange(QObject*,bool)) );
 
 	VDraggableTabWidget *initialTab = makeVDraggableTabWidget();
 	activeTabWidget = initialTab;
-
-	/*
-	for( int index = 0 ; index < 6 ; index++ )
-	{
-		initialTab->addTab( makeVJsonForm() , QString( "Test %1" ).arg( index + 1 ) );
-		tabMap[ initialTab->widget( index ) ] = initialTab;
-	}*/
 
 	this->addWidget( initialTab );
 }
@@ -37,10 +30,10 @@ VTabWidgetArea::~VTabWidgetArea()
 	// Nothing to do
 }
 
-void VTabWidgetArea::addWidgetToArea( QWidget *widget , const QString &title , VDraggableTabWidget *tabWidget )
+void VTabWidgetArea::addWidgetToArea( QWidget *widget , VDraggableTabWidget *tabWidget )
 {
 	widget->setAttribute( Qt::WA_DeleteOnClose );
-	tabWidget->setCurrentIndex( tabWidget->addTab( widget , title ) );
+	tabWidget->setCurrentIndex( tabWidget->addTab( widget , widget->windowTitle().replace( "[*]" , "" ) ) );
 	widget->installEventFilter( modifiedChangeFilter );
 
 	connect( widget , SIGNAL(windowTitleChanged(QString)) , this , SLOT(subWidgetTitleChanged(QString)) );
@@ -331,4 +324,20 @@ void VTabWidgetArea::subWidgetTitleChanged( const QString &title )
 void VTabWidgetArea::subWidgetModifiedChange( QObject *obj , bool isModified )
 {
 	std::cout << (int)obj << " has been " << ( isModified ? "modified" : "unmodified" ) << std::endl;
+
+	QWidget *widget = (QWidget*)obj;
+	VDraggableTabWidget *tabWidget = tabMap.value( obj , NULL );
+
+	if( tabWidget )
+	{
+		int index = tabWidget->indexOf( obj );
+
+		if( index != -1 )
+		{
+			if( isModified )
+				tabWidget->setTabText( index , widget->windowTitle().replace( "[*]" , "*" ) );
+			else
+				tabWidget->setTabText( index , widget->windowTitle().replace( "[*]" , "" ) );
+		}
+	}
 }
