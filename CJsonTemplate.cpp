@@ -119,7 +119,7 @@ void CJsonTemplate::parseDefaults( const QString &path /* = QString() */ )
 	QJsonParseError error;
 	QJsonDocument doc = QJsonDocument::fromJson( data , &error );
 
-	//std::cout << error.errorString().toLatin1().data();
+	std::cerr << error.errorString().toLatin1().data();
 
 	if( !doc.isEmpty() && doc.isObject() )
 	{
@@ -594,7 +594,7 @@ QJsonObject CJsonTemplate::loadUserJson( const QString &path , QString &type ) c
 
 			QJsonObject templateObject = createTree( type , true );
 
-#if 0
+#if 1
 			std::cout << "===============================" << std::endl;
 
 			std::cout << "templateObject" << std::endl;
@@ -608,7 +608,7 @@ QJsonObject CJsonTemplate::loadUserJson( const QString &path , QString &type ) c
 
 			validate( userObject , templateObject );
 
-#if 0
+#if 1
 			std::cout << "validated" << std::endl;
 			QJsonDocument doc4( userObject );
 			std::cout << doc4.toJson().data() << std::endl;

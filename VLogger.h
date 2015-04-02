@@ -2,6 +2,7 @@
 #define VLOGGER_H
 
 #include "StdRedirector.h"
+#include "qtil.h"
 
 #include <QCoreApplication>
 #include <QFile>

@@ -20,8 +20,9 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 {
 	// Make this first so we can start intercepting messages ASAP
 	coutEdit = new VLogger( NULL );
-	std::cerr << "test error" << std::endl;
-	std::clog << "test log" << std::endl;
+	std::cout << "test cout" << std::endl;
+	std::cerr << "test cerr" << std::endl;
+	std::clog << "test clog" << std::endl;
 
 	//g_coutList = new QListWidget( NULL );
 
@@ -89,20 +90,11 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	tabArea = new VTabWidgetArea();
 	connect( tabArea , SIGNAL(widgetDeleted(QWidget*)) , this , SLOT(tabWidgetDeleted(QWidget*)) );
 
-	// Make some test stuff
-	for( int index = 0 ; index < 0 ; index++ )
-	{
-		VJsonForm *form = makeVJsonForm();
-		form->setWindowTitle( QString( "Shader %1" ).arg( index + 1 ) );
-		tabArea->addWidgetToArea( makeVJsonForm() , form->windowTitle() );
-	}
-
 	editSplitter = new QSplitter( Qt::Vertical , NULL );
 	editSplitter->addWidget( tabArea );
 	editSplitter->setStretchFactor( 0 , 4 );
 	editSplitter->addWidget( coutEdit );
 	editSplitter->setStretchFactor( 1 , 1 );
-	//editSplitter->addWidget( g_coutList );
 
 	windowSplitter = new QSplitter( NULL );
 	windowSplitter->addWidget( viewSplitter );
@@ -111,7 +103,6 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	windowSplitter->setStretchFactor( 1 , 1 );
 
 	this->setCentralWidget( windowSplitter );
-	//initialTab->widget( 0 )->setFocus();
 
 	// Test
 	open();
@@ -135,7 +126,8 @@ void QtSE::open( void )
 	//loadProject( QFileDialog::getOpenFileName( this , "Open File" , "." , "JSON Project File (*.project.json)" ) );
 
 	// TODO: Load json and verify that it is a project
-	QDir::setCurrent( QDir::homePath() + "/Projects/QtShaderEditor/QtSEProjects/experimental/" );
+	QDir::setCurrent( QCoreApplication::applicationDirPath() + "/QtSEProjects/experimental/" );
+	//QDir::setCurrent( QDir::homePath() + "/Projects/QtShaderEditor/QtSEProjects/experimental/" );
 	loadProject( QDir::currentPath() + "/testProject.project.json" );
 }
 
@@ -145,45 +137,16 @@ void QtSE::save( void )
 
 	if( focus )
 	{
-		VJsonForm *jsonForm = dynamic_cast< VJsonForm* >( focus );
-
-		if( jsonForm )
-		{
+		if( VJsonForm *jsonForm = dynamic_cast< VJsonForm* >( focus ) )
 			jsonForm->save();
-		}
+		//else if( VGLSLEdit *glslEdit = dynamic_cast< VGLSLEdit* >( focus ) )
+			//glslEdit->save();
 	}
 }
-
-#if 0
-void QtSE::focusChanged( QWidget *previous , QWidget *current )
-{
-	//std::cout << (int)previous << " -> " << (int)current << std::endl;
-
-	if( current )
-	{
-		VDraggableTabWidget *tabWidget = dynamic_cast< VDraggableTabWidget* >( current );
-
-		if( tabWidget )
-		{
-			//std::cout << "VDraggableTabWidget*" << std::endl;
-			activeTabWidget = tabWidget;
-		}
-
-		VJsonForm *jsonForm = dynamic_cast< VJsonForm* >( current );
-
-		if( jsonForm )
-		{
-			//std::cout << "VJsonForm*" << std::endl;
-			activeForm = jsonForm;
-			activeTabWidget = tabMap.value( activeForm , NULL );
-		}
-	}
-}
-#endif
 
 void QtSE::about( void )
 {
-	//CJsonTemplate::get()->loadUserJson( QDir::home().absolutePath() + "/Projects/QtShaderEditor/assets/testProject/shaders/shader2.shader.json" );
+	// Nothing to do
 }
 
 void QtSE::projectTreeContextMenu( QPoint point )
@@ -349,11 +312,10 @@ void QtSE::loadProject( const QString &path /* = QString() */ )
 {
 	if( !path.isEmpty() )
 	{
-#if 1
 		QString projectValue;
 		QJsonObject obj = CJsonTemplate::get()->loadUserJson( path , projectValue );
 
-		if( !obj.isEmpty() || projectValue != "project" )
+		if( !obj.isEmpty() && projectValue == "project" )
 		{
 			CPath pathParts( path , true );
 			jsonProjectName = pathParts.getName( true );
@@ -363,7 +325,6 @@ void QtSE::loadProject( const QString &path /* = QString() */ )
 			fsProjectTree->clear();
 			generateProjectTree( QDir::current().absolutePath() , fsProjectTree->invisibleRootItem() );
 		}
-#endif
 	}
 }
 

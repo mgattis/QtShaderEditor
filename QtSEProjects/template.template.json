@@ -5,7 +5,7 @@
             "value": "orbitCamera",
             "valueList": "orbitCamera:freeCamera",
             "type": "string",
-            "guiInsert": true,
+            "guiInsert": true
         },
         {
             "key": "speedMultiplier",
@@ -45,13 +45,13 @@
             "key": "windowWidth",
             "value": 1.0,
             "type": "float",
-            "guiInsert": true,
+            "guiInsert": true
         },
         {
             "key": "windowHeight",
             "value": 1.0,
             "type": "float",
-            "guiInsert": true,
+            "guiInsert": true
         },
         {
             "key": "multiplier",
@@ -141,7 +141,7 @@
 			"value": false,
 			"type": "boolean",
 			"guiInsert": true
-		}.
+		},
 		{
 			"key": "rotate",
 			"value": 0.0,
@@ -161,12 +161,12 @@
 			"indexable": true
 		}
 	],
-	
+
     "stage": [
         {
             "key": "generateProjectionMatrixPerspective",
             "type": "generateProjectionMatrixPerspective",
-            "guiInsert": true,
+            "guiInsert": true
         },
         {
             "key": "generateProjectionMatrixOrtho",
@@ -174,7 +174,7 @@
         },
 		{
 			"key": "viewTransforms",
-			"type": "transforms",
+			"type": "transforms"
 		},
         {
             "key": "inputFramebufferList",
@@ -189,6 +189,7 @@
 			"type": "string",
 			"guiInsert": true
         },
+		{
             "key": "modelList",
             "key": "modelList",
             "value": "model_name",
@@ -344,6 +345,7 @@
             "indexable": true,
             "guiInsert": true
         },
+        {
             "key": "fragmentSourceFiles",
             "value": "shader.frag.glsl",
             "type": "string",

@@ -2,6 +2,14 @@
 
 VLogger::VLogger( QWidget *parent ) : QTextEdit( parent )
 {
+	QFont font;
+	font.setFamily( "monospace" );
+	font.setFixedPitch( true );
+	font.setPointSize( 9 );
+
+	this->setFont( font );
+	this->setTabStopWidth( 4 * UTIL_getFontWidth( " " , font ) );
+
 	logToFile = true;
 	logFile.setFileName( QCoreApplication::applicationDirPath() + "/dia.log" );
 

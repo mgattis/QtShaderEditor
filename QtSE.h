@@ -130,8 +130,6 @@ protected slots:
 
 	void about( void );
 
-	//void focusChanged( QWidget *previous , QWidget *current );
-
 	// Managed widget slots
 	
 	void projectTreeContextMenu( QPoint point );
