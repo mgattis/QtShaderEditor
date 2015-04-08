@@ -289,12 +289,11 @@ void VGLSLEdit::load( const QString &path )
 
 	if( file.open( QIODevice::ReadOnly ) )
 	{
-		filePath = path;
-
 		QByteArray data = file.readAll();
 		this->setText( QString( data ) );
-		setUnmodified();
 
+		filePath = path;
+		setUnmodified();
 		this->setWindowTitle( path.mid( path.lastIndexOf( '/' ) + 1 ) + "[*]" );
 	}
 }

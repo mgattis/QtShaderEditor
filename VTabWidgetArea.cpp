@@ -30,10 +30,18 @@ VTabWidgetArea::~VTabWidgetArea()
 	// Nothing to do
 }
 
+bool VTabWidgetArea::event( QEvent *event )
+{
+	if( event && event->type() == QEvent::ModifiedChange )
+		std::cout << "title modified" << std::endl;
+
+	return QSplitter::event( event );
+}
+
 void VTabWidgetArea::addWidgetToArea( QWidget *widget , VDraggableTabWidget *tabWidget )
 {
 	widget->setAttribute( Qt::WA_DeleteOnClose );
-	tabWidget->setCurrentIndex( tabWidget->addTab( widget , widget->windowTitle().replace( "[*]" , "" ) ) );
+	tabWidget->setCurrentIndex( tabWidget->addTab( widget , widget->windowTitle().replace( "[*]" , widget->isWindowModified() ? "*" : "" ) ) );
 	widget->installEventFilter( modifiedChangeFilter );
 
 	connect( widget , SIGNAL(windowTitleChanged(QString)) , this , SLOT(subWidgetTitleChanged(QString)) );
@@ -64,14 +72,6 @@ VDraggableTabWidget* VTabWidgetArea::getActiveTabWidget( void )
 	}
 
 	return activeTabWidget;
-}
-
-bool VTabWidgetArea::event( QEvent *event )
-{
-	if( event && event->type() == QEvent::ModifiedChange )
-		std::cout << "title modified" << std::endl;
-
-	return QSplitter::event( event );
 }
 
 VDraggableTabWidget* VTabWidgetArea::makeVDraggableTabWidget( void )

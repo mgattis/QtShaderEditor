@@ -53,22 +53,60 @@ public slots:
 	void scrollToLatest( void );
 
 protected:
+	static void callbackHelper( const char* ptr , std::streamsize count , void *target , stream type )
+	{
+		// Buffer that keeps data until newline
+		static QByteArray coutData;
+		static QByteArray cerrData;
+		static QByteArray clogData;
+
+		VLogger *logger = (VLogger*)target;
+		QByteArray *data = NULL;
+		void (VLogger::*append)( const QByteArray& ) = NULL;
+
+		// Set what to use
+		switch( type )
+		{
+			case cout:
+				data = &coutData;
+				append = &VLogger::coutAppend;
+				break;
+			case cerr:
+				data = &cerrData;
+				append = &VLogger::cerrAppend;
+				break;
+			case clog:
+				data = &clogData;
+				append = &VLogger::clogAppend;
+				break;
+			default:
+				return;
+		}
+
+		data->append( ptr , count );
+
+		int index = -1;
+		while( ( index = data->lastIndexOf( '\n' ) ) != -1 )
+		{
+			index++;
+			(logger->*append)( data->mid( 0 , index ) ); // I love C++
+			*data = data->mid( index );
+		}
+	}
+
 	static void coutCallback( const char* ptr , std::streamsize count , void *target )
 	{
-		VLogger *logger = (VLogger*)target;
-		logger->coutAppend( ptr , count );
+		callbackHelper( ptr , count , target , cout );
 	}
 
 	static void cerrCallback( const char* ptr , std::streamsize count , void *target )
 	{
-		VLogger *logger = (VLogger*)target;
-		logger->cerrAppend( ptr , count );
+		callbackHelper( ptr , count , target , cerr );
 	}
 
 	static void clogCallback( const char* ptr , std::streamsize count , void *target )
 	{
-		VLogger *logger = (VLogger*)target;
-		logger->clogAppend( ptr , count );
+		callbackHelper( ptr , count , target , clog );
 	}
 };
 

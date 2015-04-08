@@ -69,13 +69,6 @@ public:
 	VGLSLEdit( const QString &initialData = QString() , QWidget *parent = NULL );
 	~VGLSLEdit();
 
-protected:
-	QGridLayout *windowLayout;
-		QMenuBar *menuBar;
-			QMenu *menuFile;
-				QAction *actionClose;
-		QTextEdit *textEdit;
-
 public:
 	void load( const QString &path );
 	void save( void );

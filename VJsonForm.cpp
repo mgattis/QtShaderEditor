@@ -9,7 +9,6 @@ QWidget* ComboBoxDelegate::createEditor( QWidget *parent , const QStyleOptionVie
 {
 	// Is ghetto a technical term? Can't find a way to get the view of a model
 	VJsonForm *treeWidget = (VJsonForm*)this->parent();
-	//VJsonForm *treeWidget = (VJsonForm*)index.model();
 	VJsonFormItem *item = (VJsonFormItem*)treeWidget->itemFromIndex( index );
 
 	if( item->valueList )
@@ -17,8 +16,6 @@ QWidget* ComboBoxDelegate::createEditor( QWidget *parent , const QStyleOptionVie
 		QComboBox* editor = new QComboBox( parent );
 		for( int index = 0 ; index < item->valueList->size() ; index++ )
 			editor->addItem( item->valueList->at( index ).toString() );
-
-		//editor->addItems( QStringList( "freeCamera" ) << "orbitCamera" );
 
 		return editor;
 	}
@@ -29,7 +26,6 @@ QWidget* ComboBoxDelegate::createEditor( QWidget *parent , const QStyleOptionVie
 void ComboBoxDelegate::setEditorData( QWidget *editor , const QModelIndex &index ) const
 {
 	VJsonForm *treeWidget = (VJsonForm*)this->parent();
-	//VJsonForm *treeWidget = (VJsonForm*)index.model();
 	VJsonFormItem *item = (VJsonFormItem*)treeWidget->itemFromIndex( index );
 
 	if( item->valueList )
@@ -41,60 +37,14 @@ void ComboBoxDelegate::setEditorData( QWidget *editor , const QModelIndex &index
 
 		if( curIndex != -1 )
 			comboBox->setCurrentIndex( curIndex );
-
-		std::cout << "Current: " << value.toString().toLatin1().data() << std::endl;
-		std::cout << "Current Index: " << curIndex << std::endl;
 	}
 	else
 		QItemDelegate::setEditorData( editor , index );
 }
 
-void ComboBoxDelegate::setModelData( QWidget *editor , QAbstractItemModel *model , const QModelIndex &index ) const
-{
-	return QItemDelegate::setModelData( editor , model , index );
-
-	QComboBox *comboBox = (QComboBox*)editor;
-	model->setData( index , comboBox->currentText() , Qt::EditRole );
-}
-
-void ComboBoxDelegate::updateEditorGeometry( QWidget *editor , const QStyleOptionViewItem &option , const QModelIndex &index ) const
-{
-	editor->setGeometry( option.rect );
-}
-
-void ComboBoxDelegate::paint( QPainter *painter , const QStyleOptionViewItem &option , const QModelIndex &index ) const
-{
-	return QItemDelegate::paint( painter , option , index );
-
-	QStyleOptionViewItemV4 myOption = option;
-	QString text = index.data( Qt::EditRole ).toString();
-	text = "test";
-
-	myOption.text = text;
-
-	QApplication::style()->drawControl( QStyle::CE_ItemViewItem , &myOption , painter );
-}
-
 VJsonForm::VJsonForm( QWidget *parent /* = NULL */ ) : QTreeWidget( parent )
 {
-#if 0
-	QItemEditorFactory *editorFactory = new QItemEditorFactory;
-	QItemEditorCreatorBase *creator = new QStandardItemEditorCreator< VStringListEdit >();
-	//editorFactory->registerEditor( QVariant::StringList , creator );
-	editorFactory->registerEditor( QVariant::String , creator );
-	QItemEditorFactory::setDefaultFactory( editorFactory );
-	//this->setItemEditorFactory( editorFactory );
-#endif
-
-#if 0
-	QItemEditorFactory *editorFactory = new QItemEditorFactory;
-	QItemEditorCreatorBase *creator = new QStandardItemEditorCreator< ColorListEditor >();
-	editorFactory->registerEditor( QVariant::Color , creator );
-	QItemEditorFactory::setDefaultFactory( editorFactory );
-#endif
-
 	delegate = new ComboBoxDelegate( this );
-	//tableView.setItemDelegate(&delegate);
 	this->setItemDelegateForColumn( 2 , delegate );
 
 	this->setColumnCount( 2 );
@@ -134,6 +84,63 @@ void VJsonForm::closeEvent( QCloseEvent *event )
 	event->accept();
 }
 
+void VJsonForm::load( const QString &path )
+{
+	QString type;
+	QJsonObject obj = CJsonTemplate::get()->loadUserJson( path , type );
+
+	if( !type.isEmpty() )
+	{
+		CJsonTemplate::get()->createTree( type , obj , this->invisibleRootItem() );
+		this->setWindowModified( false );
+		UTIL_expandTreeItems( this , this->invisibleRootItem() );
+
+		filePath = path;
+		setUnmodified();
+		this->setWindowTitle( path.mid( path.lastIndexOf( "/" ) + 1 ) + "[*]" );
+	}
+}
+
+void VJsonForm::save( void )
+{
+	if( filePath.isEmpty() )
+	{
+		filePath = QFileDialog::getSaveFileName( this , "Save File As" , "." , "JSON File (*.json)" );
+
+		if( filePath.isEmpty() )
+			return;
+		else
+			this->setWindowTitle( filePath.mid( filePath.lastIndexOf( '/' ) + 1 ) + "[*]" );
+	}
+
+	QJsonObject obj = toObject();
+
+	QJsonDocument doc( obj );
+	std::cout << doc.toJson().data() << std::endl;
+
+	setUnmodified();
+	return;
+
+	QFile file( filePath );
+
+	if( file.open( QIODevice::WriteOnly | QIODevice::Truncate ) )
+	{
+		//QJsonObject obj = toObject();
+
+		//QJsonDocument doc( obj );
+		//std::cout << doc.toJson().data() << std::endl;
+		QByteArray contents;
+
+		if( file.write( contents ) != -1 )
+			setUnmodified();
+		else
+			slog::log( "Unable to write file" , file.errorString() );
+	}
+	else
+		slog::log( "Unable to open file" , file.errorString() );
+}
+
+#if 0
 void VJsonForm::generateValue( QTreeWidgetItem *parent , const QString &name , QJsonValue &value , bool useParent )
 {
 	QTreeWidgetItem *item = NULL;
@@ -194,6 +201,7 @@ void VJsonForm::generateChildren( QTreeWidgetItem *parent , QJsonObject &object 
 		}
 	}
 }
+#endif
 
 QJsonObject VJsonForm::toObject( void )
 {
@@ -210,25 +218,12 @@ QJsonObject VJsonForm::toObject( void )
 	return obj;
 }
 
-void VJsonForm::save( void )
-{
-	QJsonObject obj = toObject();
-
-	QJsonDocument doc( obj );
-	std::cout << doc.toJson().data() << std::endl;
-
-	setUnmodified();
-}
-
 void VJsonForm::showContextMenu( QPoint point )
 {
 	VJsonFormItem *item = (VJsonFormItem*)this->itemAt( point );
 
 	if( item )
 	{
-		if( item->valueList )
-			std::cout << "valueList" << std::endl;
-
 		QMenu *menu = new QMenu( this );
 		menu->setAttribute( Qt::WA_DeleteOnClose );
 

@@ -2,12 +2,14 @@
 #define VJSONFORM_H
 
 #include "CJsonTemplate.h"
+#include "log.h"
 #include "qtil.h"
 
 #include <QAction>
 #include <QApplication>
 #include <QCloseEvent>
 #include <QComboBox>
+#include <QFileDialog>
 #include <QItemDelegate>
 #include <QItemEditorCreatorBase>
 #include <QItemEditorFactory>
@@ -29,15 +31,13 @@ public:
 public:
 	QWidget* createEditor( QWidget *parent , const QStyleOptionViewItem &option , const QModelIndex &index ) const;
 	void setEditorData( QWidget *editor , const QModelIndex &index ) const;
-	void setModelData( QWidget *editor , QAbstractItemModel *model , const QModelIndex &index ) const;
-	void updateEditorGeometry( QWidget *editor , const QStyleOptionViewItem &option , const QModelIndex &index ) const;
-	void paint( QPainter *painter , const QStyleOptionViewItem &option , const QModelIndex &index ) const;
 };
 
 class VJsonForm : public QTreeWidget
 {
 	Q_OBJECT
 
+	// For itemFromIndex( const QModelIndex );
 	friend class ComboBoxDelegate;
 
 public:
@@ -48,17 +48,20 @@ protected:
 	void closeEvent( QCloseEvent *event );
 
 public:
+	void load( const QString &path );
+	void save( void );
+
 	QJsonObject toObject( void );
 
 protected:
-	void generateValue( QTreeWidgetItem *parent , const QString &name , QJsonValue &value , bool useParent = false );
-	void generateChildren( QTreeWidgetItem *parent , QJsonObject &object );
+	//void generateValue( QTreeWidgetItem *parent , const QString &name , QJsonValue &value , bool useParent = false );
+	//void generateChildren( QTreeWidgetItem *parent , QJsonObject &object );
 
 protected:
+	QString filePath;
 	ComboBoxDelegate *delegate;
 
 public slots:
-	void save( void );
 	void showContextMenu( QPoint point );
 
 	void addArrayItem( void );

@@ -264,31 +264,26 @@ void QtSE::fsProjectTreeItemDoubleClicked( QTreeWidgetItem *item , int column )
 
 		if( !openFiles.contains( relPath ) )
 		{
+			QWidget *addWidget = NULL;
 			QString filePath = QDir::currentPath().append( relPath );
 
 			if( relPath.endsWith( ".json" , Qt::CaseInsensitive ) )
 			{
-				QString type;
-				QJsonObject obj = CJsonTemplate::get()->loadUserJson( filePath , type );
-
-				if( !type.isEmpty() )
-				{
-					VJsonForm *form = makeVJsonForm();
-					openFiles.insert( relPath , form );
-
-					CJsonTemplate::get()->createTree( type , obj , form->invisibleRootItem() );
-					UTIL_expandTreeItems( form , form->invisibleRootItem() );
-					form->setWindowTitle( item->text( 0 ) );
-					tabArea->addWidgetToArea( form );
-				}
+				VJsonForm *form = makeVJsonForm();
+				form->load( filePath );
+				addWidget = form;
 			}
 			else if( relPath.endsWith( ".glsl" , Qt::CaseInsensitive ) )
 			{
 				VGLSLEdit *edit = new VGLSLEdit( NULL );
-				openFiles.insert( relPath , edit );
 				edit->load( filePath );
+				addWidget = edit;
+			}
 
-				tabArea->addWidgetToArea( edit );
+			if( addWidget )
+			{
+				openFiles.insert( relPath , addWidget );
+				tabArea->addWidgetToArea( addWidget );
 			}
 		}
 		else

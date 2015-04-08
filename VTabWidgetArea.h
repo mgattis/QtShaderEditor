@@ -30,6 +30,9 @@ public:
 	VTabWidgetArea( void );
 	~VTabWidgetArea();
 
+protected:
+	bool event( QEvent *event );
+
 public:
 	void addWidgetToArea( QWidget *widget ) { addWidgetToArea( widget , getActiveTabWidget() ); }
 	void addWidgetToArea( QWidget *widget , VDraggableTabWidget *tabWidget );
@@ -39,8 +42,6 @@ public:
 	VDraggableTabWidget* getActiveTabWidget( void );
 
 protected:
-	bool event( QEvent *event );
-
 	VDraggableTabWidget* VTabWidgetArea::makeVDraggableTabWidget( void );
 	VDraggableTabWidget* getFirstTabWidget( QSplitter *splitter ) const;
 
