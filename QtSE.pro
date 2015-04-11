@@ -6,6 +6,8 @@
 
 QT       += core gui widgets opengl
 
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 TARGET = QtSE
 TEMPLATE = app
 
@@ -13,8 +15,11 @@ MOC_DIR = .moc
 OBJECTS_DIR = .obj
 UI_DIR = .ui
 
+# INCLUDEPATH += C:\dev\glm C:\dev\glew-1.12.0\include
+
 CONFIG += debug_and_release
 LIBS += -lGLEW -lGLU -lGL
+# LIBS += C:\dev\glew-1.12.0\lib\glew32.dll
 QMAKE_CXXFLAGS += -msse -msse2 -mfpmath=sse -fpermissive -ggdb
 
 # Warnings
@@ -41,7 +46,10 @@ SOURCES += main.cpp\
 	VLogger.cpp \
     CProjectionMatrix.cpp \
 	CAspectRatio.cpp \
-	log.cpp
+	log.cpp \
+    CFramebuffer.cpp \
+    COrtho.cpp \
+    CPerspective.cpp
 
 HEADERS  += QtSE.h \
     CResourceManager.h \
@@ -65,7 +73,10 @@ HEADERS  += QtSE.h \
 	VLogger.h \
     CProjectionMatrix.h \
 	CAspectRatio.h \
-	log.h
+	log.h \
+    CFramebuffer.h \
+    COrtho.h \
+    CPerspective.h
 
 DISTFILES += \
     .gitignore

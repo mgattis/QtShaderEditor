@@ -1,6 +1,6 @@
 {
     "itemName": "framebuffer1.framebuffer",
-    "type": "framebuffer",
+    "itemType": "framebuffer",
 
     "colorBuffer": true,
     "depthBuffer": true,
@@ -10,6 +10,6 @@
         "windowHeight": 1.0
     },
 
-    "uniformName": "framebuffer1",
+    "uniformName": "framebuffer1"
 }
 

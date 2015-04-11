@@ -1,32 +1,27 @@
 #ifndef CSTAGE_H
 #define CSTAGE_H
 
-#include "CResourceManager.h"
 #include "IProjectObject.h"
-#include "glm/glm.hpp"
 
-enum ProjectionType_t {
-	PROJECTION_ORTHO,
-    PROJECTION_PERSPECTIVE
-};
+#include <QList>
 
-class CStage: public IProjectObject {
+class CStage : public IProjectObject {
 private:
-    glm::mat4 projectionMatrix;
-    QList<IProjectObject *> inputFrameBuffers;
     QList<IProjectObject *> modelList;
+    QList<IProjectObject *> inputFramebuffers;
+    IProjectObject *outputFramebuffer;
+    bool bRunOnce;
 
 public:
     CStage();
+    CStage(QString stageFile);
+    CStage(QString stageFile, QJsonObject stageJson);
     ~CStage();
 
-    // bool loadUserJson(QJsonObject userJson);
-    bool initiaize();
-    bool run(float elapsedTime);
+    bool initialize();
+    void run();
 
-public:
-    glm::mat4 getProjectionMatrix();
+    void setViewPort(int iWidth, int iHeight);
 };
 
 #endif // CSTAGE_H
-

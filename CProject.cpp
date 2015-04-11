@@ -3,235 +3,274 @@
 #include <QJsonParseError>
 
 CProject::CProject() {
-    projectPath = QDir::home();
     projectVersion = "v0.1b";
+    cameraType = "freeCamera";
+    fSpeedMultiplier = 1.0;
+    lpProjectList = &projectList;
+}
 
-    defaultCamera = CAMERA_ORBIT;
-    speedMultiplier = 1.0;
+CProject::CProject(QString projectFile) : IProjectObject(projectFile) {
+    projectVersion = "v0.1b";
+    cameraType = "freeCamera";
+    fSpeedMultiplier = 1.0;
+    lpProjectList = &projectList;
+
+    openProject(projectFile);
 }
 
 CProject::~CProject() {
-
+    closeProject();
 }
 
-QJsonObject CProject::_loadJsonFile(QString userJsonFile) {
-    QJsonObject json;
+void CProject::_loadValuesFromUserJson() {
+    if (isJsonLoaded() == true) {
+        if (userJson.value("projectVersion").isString()) {
+            projectVersion = userJson.value("projectVersion").toString();
+        }
+        if (userJson.value("projectPath").isString()) {
+            QDir directory(workingPath);
+            QString directoryChange = userJson.value("projectPath").toString();
+            directory.cd(directoryChange);
+            projectPath = directory.absolutePath();
+        }
+        if (userJson.value("defaultCamera").isObject()) {
+            QJsonObject defaultCamera = userJson.value("defaultCamera").toObject();
+            if (defaultCamera.contains("cameraType")) {
+                QString cameraType = defaultCamera.value("cameraType").toString();
+                setCameraType(cameraType);
+            }
+            if (defaultCamera.value("speedMultiplier").isDouble()) {
+                setSpeedMultiplier(defaultCamera.value("speedMultiplier").toDouble());
+            }
+        }
+    }
+}
 
-    std::clog << "[INFO]: Opening '" << userJsonFile.toStdString() << "' for reading." << std::endl;
+void CProject::_loadEveryoneElse(QString directory) {
+    QDirIterator directoryIt(directory);
 
+    while(directoryIt.hasNext()) {
+        directoryIt.next();
+
+        QString dirName = directoryIt.fileInfo().fileName();
+        QString dirPath = directoryIt.fileInfo().filePath();
+        bool bIsDir = directoryIt.fileInfo().isDir();
+        bool bIsFile = directoryIt.fileInfo().isDir();
+
+        if (bIsDir) {
+            if (!(dirName.compare(".") == 0 || dirName.compare("..") == 0)) {
+                _loadEveryoneElse(dirPath);
+            }
+        }
+        else {
+            if (directoryIt.fileInfo().suffix().compare("json", Qt::CaseInsensitive) == 0) {
+                _loadProjectObject(dirPath);
+            }
+        }
+    }
+}
+
+void CProject::_loadProjectObject(QString userJsonFile) {
     QFile file(userJsonFile);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    if (file.isOpen()) {
+    if (file.open(QIODevice::ReadOnly)) {
         QString rawData = file.readAll();
         file.close();
 
         QJsonParseError jError;
         QJsonDocument document = QJsonDocument::fromJson(rawData.toUtf8(), &jError);
 
-        if (jError.error != QJsonParseError::NoError) {
-            std::clog << "[WARNING]: JSON parse error: '" << jError.errorString().toStdString() << "'" << std::endl;
-            return json;
+        if (jError.error == QJsonParseError::NoError) {
+            QJsonObject userJsonObject = document.object();
+            QString itemType = "";
+            IProjectObject *newProjectObject = NULL;
+
+            if (userJsonObject.contains("itemType")) {
+                itemType = userJsonObject["itemType"].toString();
+            }
+            else {
+                std::clog << "[WARNING]: Invalid project format. '" << userJsonFile.toStdString() << "'." << std::endl;
+            }
+
+            //
+            // Start factory types.
+            //
+
+            if (itemType.compare("stage") == 0) {
+                newProjectObject = new CStage(userJsonFile, userJsonObject);
+            }
+            else if (itemType.compare("framebuffer") == 0) {
+                newProjectObject = new CFramebuffer(userJsonFile, userJsonObject);
+            }
+            else if (itemType.compare("project") == 0 || itemType.size() == 0) {
+                // Just ignore this.
+                return;
+            }
+            else {
+                std::clog << "[WARNING]: Unrecognised type '" << itemType.toStdString() << "' found in file '" << userJsonFile.toStdString() << "'. Skipping." << std::endl;
+            }
+
+            //
+            // End types.
+            //
+
+            if (newProjectObject != NULL) {
+                projectList[newProjectObject->getItemName()] = newProjectObject;
+            }
+
+            return;
+        }
+        else {
+            std::clog << "[WARNING]: JSON parse error. " << jError.errorString().toStdString() << ". In file '" << userJsonFile.toStdString() << "'." << std::endl;
         }
 
-        json = document.object();
     }
     else {
-        std::clog << "[WARNING]: Unable to open '" << userJsonFile.toStdString() << "' for reading." << std::endl;
+        std::clog << "[WARNING]: Unable to open '" << userJsonFile.toStdString() <<"' for reading." << std::endl;
     }
-
-    return json;
 }
 
-bool CProject::loadProject(QString userJsonFile) {
-    userJsonFile = QDir(userJsonFile).absolutePath();
-    QFileInfo fileInfo = userJsonFile;
-    projectPath = fileInfo.absoluteDir();
+bool CProject::openProject(QString projectFile) {
+    closeProject();
 
-    QJsonObject userJson = _loadJsonFile(userJsonFile);
-    bool bSuccess = loadUserJson(userJson);
-    if (bSuccess && !this->itemType.compare("project")) {
-        std::clog << "[INFO]: '" << this->itemName.toStdString() << "'." << std::endl;
+    if (isJsonLoaded() == false) {
+        bool bSuccess = loadUserJson(projectFile);
+        if (bSuccess == false) {
+            std::clog << "[ERROR]: Unable to load project type/name identifiers. Stopping." << std::endl;
+            return false;
+        }
+    }
 
-        CResourceManager *resourceManager = CResourceManager::instance();
-        resourceManager->clearLists();
-        resourceManager->addProjectObject(this);
+    _loadValuesFromUserJson();
+    _loadEveryoneElse(projectPath);
 
-        return initiaize();
+    bool bResult = initialize();
+    if (bResult == true) {
+        std::clog << "[INFO] Project '" << projectFile.toStdString() << "' opened successfully." << std::endl;
     }
     else {
-        std::clog << "[ERROR]: Unable to load project." << std::endl;
+        std::clog << "[ERROR] Unable to open project '" << projectFile.toStdString() << "'." << std::endl;
     }
 
-    return false;
+    return bResult;
 }
 
-void CProject::setViewPort(int iWidth, int iHeight) {
-
-}
-
-bool CProject::initiaize() {
-    // Only if the project JSON is loaded.
-    if (this->bIdentifiersLoaded) {
-        if (userJson.contains("projectVersion")) {
-            this->projectVersion = userJson["projectVersion"].toString();
-        }
-        if (userJson.contains("projectPath")) {
-            // Change directory.
-            this->projectPath.cd(userJson["projectPath"].toString());
-        }
-        if (userJson.contains("defaultCamera")) {
-            QJsonObject defaultCamera = userJson["defaultCamera"].toObject();
-            if (defaultCamera.contains("cameraType")) {
-                if (!defaultCamera["cameraType"].toString().compare("freeCamera")) {
-                    this->defaultCamera = CAMERA_FREE;
-                }
-                if (defaultCamera.contains("speedMultiplier")) {
-                    this->speedMultiplier = defaultCamera["speedMultiplier"].toDouble();
-                }
-            }
-        }
-
-        // Load everyone else.
-        bool bSuccess = _loadAllProjectObjects(projectPath);
-
-        if (bSuccess) {
-            // Load all stages.
-            if (userJson.contains("stageList")) {
-                CResourceManager *resourceManager = CResourceManager::instance();
-                QJsonArray stageList = userJson["stageList"].toArray();
-
-                if (stageList.size()) {
-                    QJsonArray::const_iterator stageListIt = stageList.begin();
-                    for (; stageListIt != stageList.end(); ++stageListIt) {
-                        QString stageName = (*stageListIt).toString();
-
-                        CStage *stage = resourceManager->getProjectObject(stageName);
-                        this->stageList.push_back(stage);
-                    }
-                }
-            }
-
-            // Link everything together.
-            bSuccess = _initializeAllProjectObjects();
-
-            bInitializeSuccess = bSuccess;
-            return bSuccess;
-        }
-    }
-
-    bInitializeSuccess = false;
-    return false;
-}
-
-bool CProject::_loadAllProjectObjects(QDir directory) {
-    QDirIterator directoryIt(directory);
-
-    while (directoryIt.hasNext()) {
-        directoryIt.next();
-
-        QString dirName = directoryIt.fileInfo().fileName();
-        QString dirPath = directoryIt.fileInfo().filePath();
-        bool bIsDir = directoryIt.fileInfo().isDir();
-        bool bIsFile = directoryIt.fileInfo().isFile();
-
-        if (bIsDir) {
-            if (!(dirName.compare(".") == 0 || dirName.compare("..") == 0)) {
-                _loadAllProjectObjects(QDir(dirPath));
-            }
-        }
-        else if (bIsFile) {
-            if (!directoryIt.fileInfo().suffix().compare("json")) {
-                // Load the project file and create the associated object.
-                // If the type is 'project' it will be ignored in '_loadProjectObject()'.
-                QJsonObject userJson = _loadJsonFile(dirPath);
-                _loadProjectObject(userJson);
-            }
-        }
-    }
-
-    return true;
-}
-
-bool CProject::_loadProjectObject(QJsonObject userJson) {
-    if (userJson.contains("itemType")) {
-        IProjectObject *projectObject = NULL;
-        QString itemType = userJson["itemType"].toString();
-
-        //
-        // Start of project types
-        // Determine type and create the right object.
-        //
-        if (itemType.compare("stage") == 0) {
-            projectObject = new CStage();
-        }
-        else if (itemType.compare("model") == 0) {
-            // Todo: Add this in.
-        }
-        //
-        // End types.
-        //
-
-        // Add the newly created object.
-        if (projectObject) {
-            bool bSuccess = projectObject->loadUserJson(userJson);
-            if (bSuccess) {
-                projectObject->setProjectPath(this->projectPath);
-                CResourceManager::instance()->addProjectObject(projectObject);
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    return false;
-}
-
-bool CProject::_initializeAllProjectObjects() {
-    QMap<QString, IProjectObject *> projectList;
-    bool bSuccess = true;
-
-    projectList = CResourceManager::instance()->getAllProjectObjects();
-
-    QMap<QString, IProjectObject *>::const_iterator projectListIt = projectList.begin();
+bool CProject::closeProject() {
+    QMap<QString, IProjectObject *>::iterator projectListIt = projectList.begin();
     for (; projectListIt != projectList.end(); ++projectListIt) {
-        // Initialize all project objects except the project object its self.
-        if ((*projectListIt)->getType().compare("project")) {
-            bSuccess = (*projectListIt)->initiaize();
-
-            if (!bSuccess) {
-                return false;
-            }
-        }
+        delete (*projectListIt);
     }
+    projectList.clear();
 
+    // Don't know why this is boolean.
     return true;
 }
 
-bool CProject::run(float elapsedTime) {
-    QList<CStage *>::const_iterator stageListIt = stageList.begin();
-    for (; stageListIt != stageList.end(); ++stageListIt) {
-        CStage *stage = (*stageListIt);
+void CProject::run(float fFrameDelay) {
 
-        stage->run(elapsedTime);
+}
+
+
+void CProject::setProjectVersion(QString projectVersion) {
+    this->projectVersion = projectVersion;
+}
+
+void CProject::setCameraType(QString cameraType) {
+    if (cameraType.compare("freeCamera") == 0) {
+        this->cameraType = "freeCamera";
     }
-
-    return false;
+    else if (cameraType.compare("orbitCamera") == 0) {
+        this->cameraType = "orbitCamera";
+    }
 }
 
-float CProject::getSpeedMultiplier() {
-    return speedMultiplier;
-}
-
-CameraType_t CProject::getDefaultCamera() {
-    return defaultCamera;
-}
-
-QString CProject::getProjectPath() {
-    return projectPath.canonicalPath();
+void CProject::setSpeedMultiplier(float fSpeedMultiplier) {
+    if (fSpeedMultiplier > 1.0) {
+        this->fSpeedMultiplier = fSpeedMultiplier;
+    }
 }
 
 QString CProject::getProjectVersion() {
     return projectVersion;
+}
+
+QString CProject::getCameraType() {
+    return cameraType;
+}
+
+float CProject::getSpeedMultiplier() {
+    return fSpeedMultiplier;
+}
+
+bool CProject::initialize() {
+    if (isJsonLoaded()) {
+        this->bInitialized = true;
+
+        setProjectList(&projectList);
+
+        // Initialize other project objects.
+        QMap<QString, IProjectObject *>::iterator projectListIt = projectList.begin();
+        for (; projectListIt != projectList.end(); ++projectListIt) {
+            IProjectObject *projectObject = (*projectListIt);
+            bool bResult = projectObject->initialize();
+            if (bResult == false) {
+                std::clog << "[ERROR]: Initialization failed on " << projectObject->getItemType().toStdString() << "/" << projectObject->getItemName().toStdString() << "." << std::endl;
+                this->bInitialized = false;
+            }
+        }
+
+        // Initialize project object.
+        if (userJson.value("stageList").isArray()) {
+            QJsonArray userStageList = userJson.value("stageList").toArray();
+            QJsonArray::iterator userStageListIt = userStageList.begin();
+            for (; userStageListIt != userStageList.end(); ++userStageListIt) {
+                if ((*userStageListIt).isString()) {
+                    QString stage = (*userStageListIt).toString();
+                    if (projectList.contains(stage)) {
+                        stageList.push_back(projectList[stage]);
+                    }
+                    else {
+                        std::clog << "[WARNING]: Specified stage '" << stage.toStdString() << "' not found." << std::endl;
+                    }
+                }
+            }
+        }
+
+        if (stageList.size() == 0) {
+            this->bInitialized = false;
+        }
+
+        if (this->bInitialized == false) {
+            closeProject();
+        }
+        return this->bInitialized;
+    }
+
+    std::clog << "[ERROR]: Project type/name unspecified." << std::endl;
+    closeProject();
+    return false;
+}
+
+void CProject::setViewPort(int iWidth, int iHeight) {
+    QMap<QString, IProjectObject *>::iterator projectListIt = projectList.begin();
+    for (; projectListIt != projectList.end(); ++projectListIt) {
+        (*projectListIt)->setViewPort(iWidth, iHeight);
+    }
+    viewPortWidth = iWidth;
+    viewPortHeight = iHeight;
+}
+
+void CProject::setCamera(CCamera *camera) {
+    QMap<QString, IProjectObject *>::iterator projectListIt = projectList.begin();
+    for (; projectListIt != projectList.end(); ++projectListIt) {
+        (*projectListIt)->setCamera(camera);
+    }
+    this->camera = camera;
+}
+
+void CProject::setProjectList(QMap<QString, IProjectObject *> *lpProjectList) {
+    QMap<QString, IProjectObject *>::iterator projectListIt = projectList.begin();
+    for (; projectListIt != projectList.end(); ++projectListIt) {
+        (*projectListIt)->setProjectList(lpProjectList);
+    }
+    this->lpProjectList = lpProjectList;
 }

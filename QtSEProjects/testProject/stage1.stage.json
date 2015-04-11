@@ -12,17 +12,19 @@
         "zFar": 100.0
     },
 
-	"viewTransforms": [
-		{
-			"loadIdentity"
-		},
-		{
-			"rotate": [45.0, 0.0, 0.0, 1.0]
-		},
-		{
-			"translate": [0.0, 0.0, 1.0]
-		}
-	],
+    "viewTransforms": [
+        {
+            "operation": "loadIdentity"
+        },
+        {
+            "operation": "rotate",
+            "arguements": [ 45.0, 0.0, 0.0, 1.0 ]
+        },
+        {
+            "operation": "translate",
+            "arguments": [ 1.0, 1.0, 1.0 ]
+        }
+    ],
 
 	"inputFramebufferList": [
 		"framebuffer1.framebuffer"

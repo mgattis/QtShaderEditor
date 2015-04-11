@@ -1,52 +1,56 @@
 #ifndef CPROJECT_H
 #define CPROJECT_H
 
-#include "CProject.h"
+#include "IProjectObject.h"
 #include "CStage.h"
-#include "CJsonTemplate.h"
+#include "CFramebuffer.h"
 #include "CPath.h"
-#include "CResourceManager.h"
 
-#include <QJsonDocument>
-#include <QByteArray>
-#include <QList>
 #include <QDir>
 #include <QDirIterator>
-#include <QFile>
-
-enum CameraType_t {
-    CAMERA_ORBIT,
-    CAMERA_FREE
-};
+#include <QJsonArray>
 
 class CProject : public IProjectObject {
 private:
-    QList<CStage *> stageList;
-    QString projectVersion;
-    CameraType_t defaultCamera;
-    float speedMultiplier;
+    // Whole project stuffs.
+    QMap<QString, IProjectObject *> projectList;
 
 private:
-    QJsonObject _loadJsonFile(QString userJson);
-    bool _loadProjectObject(QJsonObject userJson);
-    bool _loadAllProjectObjects(QDir directory);
-    bool _initializeAllProjectObjects();
+    // User JSON stuffs.
+    QList<CStage *> stageList;
+    QString projectVersion;
+    QString projectPath;
+    QString cameraType;
+    float fSpeedMultiplier;
+
+private:
+    void _loadValuesFromUserJson();
+    void _loadEveryoneElse(QString directory);
+    void _loadProjectObject(QString userJsonFile);
 
 public:
     CProject();
+    CProject(QString projectFile);
     ~CProject();
 
-    // bool loadUserJson(QJsonObject userJson);
-    bool loadProject(QString userJsonFile);
-    void setViewPort(int iWidth, int iHeight);
+    bool openProject(QString projectFile);
+    bool closeProject();
+    void run(float fFrameDelay);
 
-    bool initiaize();
-    bool run(float elapsedTime);
+    void setProjectVersion(QString projectVersion);
+    void setCameraType(QString cameraType);
+    void setSpeedMultiplier(float fSpeedMultiplier);
 
-    float getSpeedMultiplier();
-    CameraType_t getDefaultCamera();
-    QString getProjectPath();
     QString getProjectVersion();
+    QString getCameraType();
+    float getSpeedMultiplier();
+
+public:
+    bool initialize();
+
+    void setViewPort(int iWidth, int iHeight);
+    void setCamera(CCamera *camera);
+    void setProjectList(QMap<QString, IProjectObject *> *lpProjectList);
 };
 
 #endif /* !CPROJECT_H */

@@ -2,36 +2,58 @@
 #define IPROJECTOBJECT_H
 
 #include "CPath.h"
+#include "CCamera.h"
 
 #include <iostream>
 #include <QString>
 #include <QJsonObject>
+#include <QJsonDocument>
+#include <QJsonParseError>
 
 class IProjectObject {
 protected:
+    QMap<QString, IProjectObject *> *lpProjectList;
+
     QString itemName;
     QString itemType;
-    QDir projectPath;
+    QString workingPath;
 
     QJsonObject userJson;
 
-    bool bIdentifiersLoaded;
-    bool bInitializeSuccess;
+    int viewPortWidth;
+    int viewPortHeight;
+    CCamera *camera;
+
+    bool bJsonLoaded;
+    bool bInitialized;
 
 public:
     IProjectObject();
+    IProjectObject(QString userJsonFile);
+    IProjectObject(QString userJsonFile, QJsonObject userJsonObject);
     ~IProjectObject();
 
-    bool loadUserJson(QJsonObject userJson);
-    virtual bool initiaize() = 0;
-    virtual bool run(float elapsedTime) = 0;
+    bool loadUserJson(QString userJsonFile);
+    bool loadUserJson(QString userJsonFile, QJsonObject userJsonObject);
+
+    bool isJsonLoaded();
+    bool isInitialized();
 
     QString getItemName();
     void setItemName(QString itemName);
-    QString getType();
-    void setType(QString itemType);
-    QDir getProjectPath();
-    void setProjectPath(QDir projectPath);
+
+    QString getItemType();
+    void setItemType(QString itemType);
+
+    QDir getWorkingPath();
+    void setWorkingPath(QString workingPath);
+
+public:
+    virtual bool initialize() = 0;
+
+    virtual void setViewPort(int iWidth, int iHeight);
+    virtual void setCamera(CCamera *camera);
+    virtual void setProjectList(QMap<QString, IProjectObject *> *lpProjectList);
 };
 
 #endif /* !IPROJECTOBJECT_H */
