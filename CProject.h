@@ -4,6 +4,9 @@
 #include "IProjectObject.h"
 #include "CStage.h"
 #include "CFramebuffer.h"
+#include "CShader.h"
+#include "CModel.h"
+#include "CTexture.h"
 #include "CPath.h"
 
 #include <QDir>

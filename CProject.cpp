@@ -101,6 +101,15 @@ void CProject::_loadProjectObject(QString userJsonFile) {
             else if (itemType.compare("framebuffer") == 0) {
                 newProjectObject = new CFramebuffer(userJsonFile, userJsonObject);
             }
+            else if (itemType.compare("texture") == 0) {
+                newProjectObject = new CTexture(userJsonFile, userJsonObject);
+            }
+            else if (itemType.compare("shader") == 0) {
+                newProjectObject = new CShader(userJsonFile, userJsonObject);
+            }
+            else if (itemType.compare("model") == 0) {
+                newProjectObject = new CModel(userJsonFile, userJsonObject);
+            }
             else if (itemType.compare("project") == 0 || itemType.size() == 0) {
                 // Just ignore this.
                 return;
@@ -215,6 +224,9 @@ bool CProject::initialize() {
             if (bResult == false) {
                 std::clog << "[ERROR]: Initialization failed on " << projectObject->getItemType().toStdString() << "/" << projectObject->getItemName().toStdString() << "." << std::endl;
                 this->bInitialized = false;
+            }
+            else {
+                std::clog << "[INFO]: '" << projectObject->getItemType().toStdString() << "/" << projectObject->getItemName().toStdString() << "' initialized successfully." << std::endl;
             }
         }
 

@@ -19,6 +19,28 @@ CFramebuffer::CFramebuffer(QString framebufferFile, QJsonObject framebufferJson)
 }
 
 bool CFramebuffer::initialize() {
+    if (isJsonLoaded()) {
+        if (userJson.value("colorBuffer").isBool()) {
+            bColorBuffer = userJson.value("colorBuffer").toBool();
+        }
+        if (userJson.value("depthBuffer").isBool()) {
+            bDepthBuffer = userJson.value("depthBuffer").toBool();
+        }
+
+        if (userJson.value("dimensions").isObject()) {
+            QJsonObject dimensions = userJson.value("dimensions").toObject();
+            // TODO: Add aspect ratio.
+        }
+
+        if (userJson.value("uniformName").isString()) {
+            uniformName = userJson.value("uniformName").toString();
+        }
+
+        this->bInitialized = true;
+    }
+    else {
+        this->bInitialized = false;
+    }
 
     return true;
 }
