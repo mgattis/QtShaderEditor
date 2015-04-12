@@ -49,7 +49,10 @@ SOURCES += main.cpp\
 	log.cpp \
     CFramebuffer.cpp \
     COrtho.cpp \
-    CPerspective.cpp
+    CPerspective.cpp \
+    CModel.cpp \
+    CTexture.cpp \
+    CShader.cpp
 
 HEADERS  += QtSE.h \
     CResourceManager.h \
@@ -76,7 +79,10 @@ HEADERS  += QtSE.h \
 	log.h \
     CFramebuffer.h \
     COrtho.h \
-    CPerspective.h
+    CPerspective.h \
+    CModel.h \
+    CTexture.h \
+    CShader.h
 
 DISTFILES += \
     .gitignore
