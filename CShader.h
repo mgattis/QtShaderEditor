@@ -3,7 +3,7 @@
 
 #include "IProjectObject.h"
 
-#include <gl/glew.h>
+#include <GL/glew.h>
 #include <QList>
 #include <QString>
 #include <QJsonArray>

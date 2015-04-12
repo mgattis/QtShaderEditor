@@ -33,7 +33,7 @@ void VGLView::initializeGL( void )
 
         connect( &repaintTimer , SIGNAL(timeout()) , this , SLOT(updateGL()) );
         repaintTimer.setInterval( 33 );
-        repaintTimer.start();
+		//repaintTimer.start();
 
         project = new CProject("./QtSEProjects/testProject/testProject.project.json");
 

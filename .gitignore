@@ -7,7 +7,9 @@ QtSE
 qt.cfg
 cppcheck.sh
 PoppyDebugTools.h
+
 # Experimental VGLView backup
+
 VGLView.h_
 VGLView.h__
 VGLView.cpp_
@@ -21,6 +23,13 @@ QtSEProjects
 release
 resources
 tinyobjloader
+
+# Testing
+
+*.moc_frontend
+*.obj_frontend
+*.moc_backend
+*.obj_backend
 
 # C++ objects and libs
 

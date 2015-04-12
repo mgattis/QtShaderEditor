@@ -15,11 +15,16 @@ MOC_DIR = .moc
 OBJECTS_DIR = .obj
 UI_DIR = .ui
 
-# INCLUDEPATH += C:\dev\glm C:\dev\glew-1.12.0\include
-
 CONFIG += debug_and_release
-LIBS += -lGLEW -lGLU -lGL
-# LIBS += C:\dev\glew-1.12.0\lib\glew32.dll
+
+win32 {
+	INCLUDEPATH += C:\dev\glm C:\dev\glew-1.12.0\include
+	LIBS += C:\dev\glew-1.12.0\lib\glew32.dll
+}
+linux {
+	LIBS += -lGLEW -lGLU -lGL
+}
+
 QMAKE_CXXFLAGS += -msse -msse2 -mfpmath=sse -fpermissive -ggdb
 
 # Warnings
