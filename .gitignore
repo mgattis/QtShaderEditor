@@ -1,6 +1,8 @@
 # Files
 
 QtSE
+QtSE_frontend
+QtSE_backend
 .directory
 .ycm_extra_conf.py
 .ycm_extra.conf.pyc
