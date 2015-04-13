@@ -54,6 +54,8 @@ struct CGLMesh
 	GLuint *normalMapID;
 };
 
+#include <QImageReader>
+
 class CObj
 {
 private:
@@ -144,7 +146,15 @@ public:
 								// Load image
 								QImage *image = new QImage( path );
 								if( image->isNull() )
+								{
+									QImage test;
+									QImageReader reader;
+									reader.setFileName( path );
+									reader.read( &test );
+									std::cout << reader.errorString().toLatin1().data() << std::endl;
+
 									std::cout << "Error: Failed to load" << std::endl;
+								}
 								*image = image->mirrored( 0 , 1 );
 								*image = image->convertToFormat( QImage::Format_RGBA8888 );
 

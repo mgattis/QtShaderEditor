@@ -14,6 +14,8 @@ MOC_DIR = .moc_frontend
 OBJECTS_DIR = .obj_frontend
 UI_DIR = .ui_frontend
 
+#LIBS += -lglut
+
 # I reject your reality and substitute my own
 SOURCES -= main.cpp
 
