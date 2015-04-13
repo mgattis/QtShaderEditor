@@ -48,6 +48,8 @@ public:
     QDir getWorkingPath();
     void setWorkingPath(QString workingPath);
 
+    QMap<QString, IProjectObject *> *getProjectList();
+
 public:
     virtual bool initialize() = 0;
 

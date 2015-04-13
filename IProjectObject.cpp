@@ -141,3 +141,7 @@ void IProjectObject::setCamera(CCamera *camera) {
 void IProjectObject::setProjectList(QMap<QString, IProjectObject *> *lpProjectList) {
     this->lpProjectList = lpProjectList;
 }
+
+QMap<QString, IProjectObject *> *IProjectObject::getProjectList() {
+    return this->lpProjectList;
+}

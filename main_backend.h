@@ -10,17 +10,26 @@
 #include <QJsonObject>
 #include <QString>
 #include <QStringList>
+#include <CProject.h>
 
 #include <QtTest/QtTest>
 
 int main( int argc , char *argv[] );
 
-class TestQString: public QObject
+class TestBackend: public QObject
 {
+private:
+    CProject project;
 	Q_OBJECT
 
 private slots:
-	void toUpper();
+    void projectOpen();
+
+    void shaderInit();
+    void textureInit();
+    void modelInit();
+    void framebufferInit();
+    void stageInit();
 };
 
 #endif
