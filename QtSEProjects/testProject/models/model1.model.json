@@ -7,7 +7,7 @@
         "materialTemplateLibraryPath": "."
     },
 
-	"modelTranform": [
+	"modelTransform": [
 		{
 			"rotate": [45.0, 0.0, 0.0, 1.0]
 		},

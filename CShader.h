@@ -23,10 +23,9 @@ public:
 
     bool initialize();
 
-    void addVertexSourceFile(QString vertexSource);
+    void addVertexSourceFile(QString vertexFile);
     void addFragmentSourceFile(QString fragmentFile);
     bool build();
-    bool link();
     bool useProgram();
     void deleteProgram();
 

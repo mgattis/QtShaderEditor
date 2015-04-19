@@ -31,7 +31,7 @@ public:
     IProjectObject();
     IProjectObject(QString userJsonFile);
     IProjectObject(QString userJsonFile, QJsonObject userJsonObject);
-    ~IProjectObject();
+    virtual ~IProjectObject();
 
     bool loadUserJson(QString userJsonFile);
     bool loadUserJson(QString userJsonFile, QJsonObject userJsonObject);

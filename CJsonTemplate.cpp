@@ -333,6 +333,8 @@ void CJsonTemplate::validate( QJsonObject &cmp , const QJsonObject &ref )
 		QJsonValue cmpValue = cmp.value( refKeys.at( index ) );
 		QJsonValue refValue = ref.value( refKeys.at( index ) );
 
+		std::cout << refValue.type() << " = " << cmpValue.type() << std::endl;
+
 		if( refValue.type() == cmpValue.type() )
 		{
 			if( refValue.isArray() )
@@ -388,7 +390,7 @@ QJsonObject CJsonTemplate::createTree( const QString &name , bool gui ) const
 
 			// TODO: What was the difference again?
 			// This is important for validation purposes. Ask mgattis
-			//if( gui ? data->guiInsert : data->projectInsert )
+			if( gui ? data->guiInsert : data->projectInsert )
 			{
 				if( data->indexable )
 				{

@@ -292,7 +292,9 @@
         },
 		{
 			"key": "modelTransform",
-			"type": "transforms"
+			"type": "transforms",
+			"indexable": true,
+			"guiInsert": true
 		},
         {
             "key": "textureList",
