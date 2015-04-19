@@ -28,8 +28,8 @@ void VGLView::initializeGL( void )
     static bool complete = false;
 
     if( !complete )
-    {
-        glewInit();
+	{
+		glewInit();
 
         connect( &repaintTimer , SIGNAL(timeout()) , this , SLOT(updateGL()) );
         repaintTimer.setInterval( 33 );

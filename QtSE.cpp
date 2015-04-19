@@ -18,6 +18,9 @@ QString QtSE::CProjectTreeItem::getFullPath( const QString &basePath ) const
 
 QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 {
+	// This doesn't work from main
+	//glewInit();
+
 	// Make this first so we can start intercepting messages ASAP
 	coutEdit = new VLogger( NULL );
 	std::cout << "test cout" << std::endl;
@@ -56,6 +59,10 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	fsProjectTree->setContextMenuPolicy( Qt::CustomContextMenu );
 	connect( fsProjectTree , SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)) , this , SLOT(fsProjectTreeItemDoubleClicked(QTreeWidgetItem*,int)) );
 	connect( fsProjectTree , SIGNAL(customContextMenuRequested(QPoint)) , this , SLOT(fsProjectTreeContextMenu(QPoint)) );
+
+	QFileSystemModel *fs = new QFileSystemModel;
+	fs->setRootPath( QDir::currentPath() );
+	( (QTreeView*)fsProjectTree )->setModel( fs );
 
 	viewWidget = new VGLView( NULL );
 
@@ -105,7 +112,7 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	this->setCentralWidget( windowSplitter );
 
 	// Test
-	open();
+	//open();
 }
 
 QtSE::~QtSE()
@@ -124,9 +131,11 @@ VJsonForm* QtSE::makeVJsonForm( void )
 void QtSE::open( void )
 {
 	//loadProject( QFileDialog::getOpenFileName( this , "Open File" , "." , "JSON Project File (*.project.json)" ) );
+	//return;
 
 	// TODO: Load json and verify that it is a project
-	QDir::setCurrent( QCoreApplication::applicationDirPath() + "/QtSEProjects/experimental/" );
+	//QDir::setCurrent( QCoreApplication::applicationDirPath() + "/QtSEProjects/experimental/" );
+	QDir::setCurrent( QCoreApplication::applicationDirPath() + "/QtSEProjects/testProject/" );
 	//QDir::setCurrent( QDir::homePath() + "/Projects/QtShaderEditor/QtSEProjects/experimental/" );
 	loadProject( QDir::currentPath() + "/testProject.project.json" );
 }
@@ -223,7 +232,7 @@ void QtSE::fsProjectTreeContextMenu( QPoint point )
 
 void QtSE::itemsTabTreeContextMenu( QPoint point )
 {
-	std::cout << "lol" << std::endl;
+	//std::cout << "lol" << std::endl;
 
 	int index = itemsTab->tabBar()->tabAt( itemsTab->tabBar()->mapFromGlobal( QCursor::pos() ) );
 

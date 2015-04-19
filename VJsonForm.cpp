@@ -357,7 +357,7 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 						setModified();
 					}
 					else
-						formItem->setText( column , formItem->lastValue.toInt() );
+						formItem->setText( column , QString::number( formItem->lastValue.toInt() ) );
 
 					break;
 				}

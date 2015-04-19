@@ -1,8 +1,8 @@
 #include "CObj.h"
 
-static GLint CGLMesh::vertexLocShared;
-static GLint CGLMesh::normalLocShared;
-static GLint CGLMesh::texCoordLocShared;
+GLint CGLMesh::vertexLocShared;
+GLint CGLMesh::normalLocShared;
+GLint CGLMesh::texCoordLocShared;
 
 CGLMesh::CGLMesh( int vertexCount )
 {

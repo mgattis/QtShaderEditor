@@ -1,0 +1,30 @@
+{
+    "itemName": "shader1.shader",
+    "itemType": "shader",
+    "thing": "words",
+
+    "vertexSourceFiles": [
+        "shader1.vert.glsl",
+        "shader2.vert.glsl"
+    ],
+
+    "fragmentSourceFiles": [
+        "shader1.frag.glsl",
+        "shader2.frag.glsl"
+    ],
+
+    "uniformList": [
+        {
+            "uniformName": "light1",
+            "type": "vec3",
+            "value": [
+                1.0,
+                "lol",
+                2.0,
+                "m8",
+                3.0
+            ],
+            "normalize": 1.0
+        }
+    ]
+}

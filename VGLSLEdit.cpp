@@ -51,7 +51,7 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 
 	reservedNameFormat.setForeground( Qt::blue );
 	QStringList reservedNamePatterns;
-	reservedNamePatterns << "\\bgl_\S*\\b";
+	reservedNamePatterns << "\\bgl_\\S*\\b";
 
 	foreach( const QString &pattern , reservedNamePatterns )
 	{

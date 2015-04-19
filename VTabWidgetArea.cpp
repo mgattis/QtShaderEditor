@@ -48,7 +48,7 @@ void VTabWidgetArea::addWidgetToArea( QWidget *widget , VDraggableTabWidget *tab
 	connect( widget , SIGNAL(destroyed(QObject*)) , this , SLOT(tabWidgetTabDestroyed(QObject*)) );
 }
 
-void VTabWidgetArea::showWidget( const QWidget *widget )
+void VTabWidgetArea::showWidget( QWidget *widget )
 {
 	VDraggableTabWidget *tabWidget = tabMap.value( widget , NULL );
 
@@ -156,20 +156,20 @@ void VTabWidgetArea::split( Qt::Orientation orientation )
 
 void VTabWidgetArea::tabWidgetTabAdded( QWidget *widget )
 {
-	std::cout << QString( "void VTabWidgetArea::tabWidgetTabAdded( %1 )" ).arg( (int)widget ).toLatin1().data() << std::endl;
+	std::cout << QString( "void VTabWidgetArea::tabWidgetTabAdded( %1 )" ).arg( (long)widget ).toLatin1().data() << std::endl;
 
 	VDraggableTabWidget *tabWidget = dynamic_cast< VDraggableTabWidget* >( QObject::sender() );
 
 	if( widget && tabWidget )
 	{
-		std::cout << QString( "%1 added to %2" ).arg( (int)widget ).arg( (int)tabWidget ).toLatin1().data() << std::endl;
+		std::cout << QString( "%1 added to %2" ).arg( (long)widget ).arg( (long)tabWidget ).toLatin1().data() << std::endl;
 		tabMap[ widget ] = tabWidget;
 	}
 }
 
 void VTabWidgetArea::tabWidgetTabDestroyed( QObject *object )
 {
-	std::cout << QString( "void VTabWidgetArea::tabWidgetTabDestroyed( %1 )" ).arg( (int)object ).toLatin1().data() << std::endl;
+	std::cout << QString( "void VTabWidgetArea::tabWidgetTabDestroyed( %1 )" ).arg( (long)object ).toLatin1().data() << std::endl;
 
 	QWidget *widget = dynamic_cast< QWidget* >( object );
 
@@ -242,7 +242,7 @@ void VTabWidgetArea::tabCloseRequested( int index )
 
 void VTabWidgetArea::removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget )
 {
-	std::cout << QString( "void VTabWidgetArea::removeTabWidgetFromLayout( %1 )" ).arg( (int)tabWidget ).toLatin1().data() << std::endl;
+	std::cout << QString( "void VTabWidgetArea::removeTabWidgetFromLayout( %1 )" ).arg( (long)tabWidget ).toLatin1().data() << std::endl;
 	//std::cout << QString( "removeTabWidgetFromLayout( %1 )" ).arg( (int)tabWidget ).toLatin1().data() << std::endl;
 
 	if( tabWidget )

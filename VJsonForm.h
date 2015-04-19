@@ -70,8 +70,8 @@ public slots:
 	void editTreeItem( QTreeWidgetItem *item , int column );
 	void itemTextChanged( QTreeWidgetItem *item , int column );
 
-	inline setModified( void ) { setModified( true ); }
-	inline setUnmodified( void ) { setModified( false ); }
+	inline void setModified( void ) { setModified( true ); }
+	inline void setUnmodified( void ) { setModified( false ); }
 	void setModified( bool modified ) { if( modified != this->isWindowModified() ) this->setWindowModified( modified ); }
 };
 

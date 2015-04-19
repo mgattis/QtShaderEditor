@@ -328,6 +328,8 @@ void CJsonTemplate::validate( QJsonObject &cmp , const QJsonObject &ref )
 	// Iterate over known keys
 	for( int index = 0 ; index < refKeys.size() ; index++ )
 	{
+		QString refKey = refKeys.at( index );
+		std::cout << "refKey: " << refKey.toLatin1().data() << std::endl;
 		QJsonValue cmpValue = cmp.value( refKeys.at( index ) );
 		QJsonValue refValue = ref.value( refKeys.at( index ) );
 
@@ -340,6 +342,8 @@ void CJsonTemplate::validate( QJsonObject &cmp , const QJsonObject &ref )
 				QJsonArray cmpArray = cmpValue.toArray();
 				QJsonArray refArray = refValue.toArray();
 
+				std::cout << "Array Size: " << refArray.size() << std::endl;
+
 				validate( cmpArray , refArray );
 				cmp.insert( refKeys.at( index ) , QJsonValue( cmpArray ) );
 			}
@@ -350,13 +354,15 @@ void CJsonTemplate::validate( QJsonObject &cmp , const QJsonObject &ref )
 				QJsonObject cmpObject = cmpValue.toObject();
 				QJsonObject refObject = refValue.toObject();
 
+				std::cout << "isObject: " << std::endl;
+
 				validate( cmpObject , refObject );
 				cmp.insert( refKeys.at( index ) , QJsonValue( cmpObject ) );
 			}
 		}
 		else
 		{
-			//std::cout << "replacing " << refKeys.at( index ).toLatin1().data() << std::endl;
+			std::cout << "replacing " << refKeys.at( index ).toLatin1().data() << std::endl;
 
 			cmp.insert( refKeys.at( index ) , ref[ refKeys.at( index ) ] );
 		}
@@ -382,7 +388,7 @@ QJsonObject CJsonTemplate::createTree( const QString &name , bool gui ) const
 
 			// TODO: What was the difference again?
 			// This is important for validation purposes. Ask mgattis
-			if( gui ? data->guiInsert : data->projectInsert )
+			//if( gui ? data->guiInsert : data->projectInsert )
 			{
 				if( data->indexable )
 				{
@@ -554,13 +560,7 @@ void CJsonTemplate::createTree( const QString &name , const QJsonObject &obj , Q
 								break;
 							case CJsonKeyvalueData::string:
 								if( item->valueList )
-								{
-									//item->setData( 2 , Qt::DisplayRole , ( QColor( Qt::red ) ) );
-									//item->setData( 2 , Qt::DisplayRole , ( QStringList( "orbitCamera" ) << "freeCamera" ) );
 									item->setData( 2 , Qt::DisplayRole , obj.value( data->key ).toString() );
-									//item->setText( 2 , obj.value( data->key ).toString() );
-									//item->setData( 2 , Qt::EditRole , QVariant( *( item->valueList ) ) );
-								}
 								else
 									item->setText( 2 , obj.value( data->key ).toString() );
 								break;
@@ -594,7 +594,7 @@ QJsonObject CJsonTemplate::loadUserJson( const QString &path , QString &type ) c
 
 			QJsonObject templateObject = createTree( type , true );
 
-#if 0
+#if 1
 			std::cout << "===============================" << std::endl;
 
 			std::cout << "templateObject" << std::endl;
@@ -608,7 +608,7 @@ QJsonObject CJsonTemplate::loadUserJson( const QString &path , QString &type ) c
 
 			validate( userObject , templateObject );
 
-#if 0
+#if 1
 			std::cout << "validated" << std::endl;
 			QJsonDocument doc4( userObject );
 			std::cout << doc4.toJson().data() << std::endl;

@@ -15,7 +15,7 @@
 #include <QDirIterator>
 #include <QFileDialog>
 #include <QInputDialog>
-
+#include <QFileSystemModel>
 #include <QStack>
 #include <QSplitter>
 #include <QHeaderView>

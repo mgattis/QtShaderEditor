@@ -1,0 +1,19 @@
+{
+    "itemName": "framebuffer1.framebuffer",
+    "type": "framebuffer",
+
+    "colorBuffer": true,
+    "depthBuffer": true,
+
+    "dimensions": {
+        "windowWidth": 1.0,
+        "windowHeight": 1.0
+    },
+
+    "uniformName": "framebuffer1",
+
+    "shaderList": [
+        "shader1.shader"
+    ]
+}
+
