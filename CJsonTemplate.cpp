@@ -328,12 +328,13 @@ void CJsonTemplate::validate( QJsonObject &cmp , const QJsonObject &ref )
 	// Iterate over known keys
 	for( int index = 0 ; index < refKeys.size() ; index++ )
 	{
-		QString refKey = refKeys.at( index );
-		std::cout << "refKey: " << refKey.toLatin1().data() << std::endl;
+		//QString refKey = refKeys.at( index );
+		//std::cout << "refKey: " << refKey.toLatin1().data() << std::endl;
+
 		QJsonValue cmpValue = cmp.value( refKeys.at( index ) );
 		QJsonValue refValue = ref.value( refKeys.at( index ) );
 
-		std::cout << refValue.type() << " = " << cmpValue.type() << std::endl;
+		//std::cout << refValue.type() << " = " << cmpValue.type() << std::endl;
 
 		if( refValue.type() == cmpValue.type() )
 		{
@@ -344,7 +345,7 @@ void CJsonTemplate::validate( QJsonObject &cmp , const QJsonObject &ref )
 				QJsonArray cmpArray = cmpValue.toArray();
 				QJsonArray refArray = refValue.toArray();
 
-				std::cout << "Array Size: " << refArray.size() << std::endl;
+				//std::cout << "Array Size: " << refArray.size() << std::endl;
 
 				validate( cmpArray , refArray );
 				cmp.insert( refKeys.at( index ) , QJsonValue( cmpArray ) );
@@ -356,15 +357,16 @@ void CJsonTemplate::validate( QJsonObject &cmp , const QJsonObject &ref )
 				QJsonObject cmpObject = cmpValue.toObject();
 				QJsonObject refObject = refValue.toObject();
 
-				std::cout << "isObject: " << std::endl;
+				//std::cout << "isObject: " << std::endl;
 
 				validate( cmpObject , refObject );
 				cmp.insert( refKeys.at( index ) , QJsonValue( cmpObject ) );
 			}
 		}
-		else
+		else if( cmpValue.type() != QJsonValue::Undefined )
 		{
-			std::cout << "replacing " << refKeys.at( index ).toLatin1().data() << std::endl;
+			// If cmp doesn't contain a value, don't add it
+			//std::cout << "replacing " << refKeys.at( index ).toLatin1().data() << std::endl;
 
 			cmp.insert( refKeys.at( index ) , ref[ refKeys.at( index ) ] );
 		}
@@ -390,7 +392,7 @@ QJsonObject CJsonTemplate::createTree( const QString &name , bool gui ) const
 
 			// TODO: What was the difference again?
 			// This is important for validation purposes. Ask mgattis
-			if( gui ? data->guiInsert : data->projectInsert )
+			if( gui ? data->guiInsert : true )
 			{
 				if( data->indexable )
 				{
@@ -594,7 +596,8 @@ QJsonObject CJsonTemplate::loadUserJson( const QString &path , QString &type ) c
 			//std::cout << userObject.value( "itemType" ).toString().toLatin1().data() << std::endl;
 			//std::cout << userObject.value( "itemName" ).toString().toLatin1().data() << std::endl;
 
-			QJsonObject templateObject = createTree( type , true );
+			// Create a template with all possible values
+			QJsonObject templateObject = createTree( type , false );
 
 #if 1
 			std::cout << "===============================" << std::endl;
@@ -608,6 +611,7 @@ QJsonObject CJsonTemplate::loadUserJson( const QString &path , QString &type ) c
 			std::cout << doc3.toJson().data() << std::endl;
 #endif
 
+			// Validate the user object against the template
 			validate( userObject , templateObject );
 
 #if 1

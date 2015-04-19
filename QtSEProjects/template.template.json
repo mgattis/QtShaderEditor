@@ -174,7 +174,8 @@
         },
 		{
 			"key": "viewTransforms",
-			"type": "transforms"
+			"type": "transforms",
+			"indexable": true
 		},
         {
             "key": "inputFramebufferList",
@@ -293,8 +294,7 @@
 		{
 			"key": "modelTransform",
 			"type": "transforms",
-			"indexable": true,
-			"guiInsert": true
+			"indexable": true
 		},
         {
             "key": "textureList",
