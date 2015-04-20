@@ -579,6 +579,18 @@ void CJsonTemplate::createTree( const QString &name , const QJsonObject &obj , Q
 	}
 }
 
+QStringList CJsonTemplate::getKeysForStructure( const QString name )
+{
+	QStringList keys;
+	CJsonStructure *data = structMap.value( name , NULL );
+
+	if( data )
+		for( int index = 0 ; index < data->keyvalues.size() ; index++ )
+			keys.append( data->keyvalues.at( index )->key );
+
+	return keys;
+}
+
 QJsonObject CJsonTemplate::loadUserJson( const QString &path , QString &type ) const
 {
 	QJsonObject userObject;
@@ -599,7 +611,7 @@ QJsonObject CJsonTemplate::loadUserJson( const QString &path , QString &type ) c
 			// Create a template with all possible values
 			QJsonObject templateObject = createTree( type , false );
 
-#if 1
+#if 0
 			std::cout << "===============================" << std::endl;
 
 			std::cout << "templateObject" << std::endl;
@@ -614,7 +626,7 @@ QJsonObject CJsonTemplate::loadUserJson( const QString &path , QString &type ) c
 			// Validate the user object against the template
 			validate( userObject , templateObject );
 
-#if 1
+#if 0
 			std::cout << "validated" << std::endl;
 			QJsonDocument doc4( userObject );
 			std::cout << doc4.toJson().data() << std::endl;

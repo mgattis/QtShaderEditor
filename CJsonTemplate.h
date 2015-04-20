@@ -125,6 +125,7 @@ public:
 	QJsonObject createTree( const QString &name , bool gui ) const;
 	void createTree( const QString &name , QTreeWidgetItem *parent ) const;
 	void createTree( const QString &name , const QJsonObject &obj , QTreeWidgetItem *parent ) const;
+	QStringList getKeysForStructure( const QString name );
 
 	QJsonObject loadUserJson( const QString &path , QString &type ) const;
 

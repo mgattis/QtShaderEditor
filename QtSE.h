@@ -107,7 +107,9 @@ protected:
 			VGLView *viewWidget;
 			QTabWidget *itemsTab;
 				QTreeWidget *projectTree;
-				QTreeWidget *fsProjectTree;
+				//QTreeWidget *fsProjectTree;
+				QTreeView *fsProjectTree2;
+					QFileSystemModel *fsModel;
 		QSplitter *editSplitter;
 			VTabWidgetArea *tabArea;
 			VLogger *coutEdit;
@@ -116,6 +118,7 @@ protected:
 	CPath jsonProjectName;
 	QMap< QString , QWidget* > openFiles;
 	CProjectTreeItem *activeProjectItem;
+	QModelIndex fsContextIndex;
 
 	StdRedirector<> *redirector;
 
@@ -128,15 +131,19 @@ protected slots:
 	void open( void );
 	void save( void );
 
+	void openPath( const QString path );
+
 	void about( void );
 
 	// Managed widget slots
 	
 	void projectTreeContextMenu( QPoint point );
-	void fsProjectTreeContextMenu( QPoint point );
+	//void fsProjectTreeContextMenu( QPoint point );
 	void itemsTabTreeContextMenu( QPoint point );
 
-	void fsProjectTreeItemDoubleClicked( QTreeWidgetItem *item , int column );
+	//void fsProjectTreeItemDoubleClicked( QTreeWidgetItem *item , int column );
+	void fsProjectTree2ContextMenu( QPoint point );
+	void fsProjectTree2ItemClicked( QModelIndex index );
 
 	inline void split( Qt::Orientation orientation ) { tabArea->split( orientation ); }
 	inline void splitHorizontally( void ) { tabArea->split( Qt::Vertical ); }
@@ -167,7 +174,7 @@ protected slots:
 	void addModel( void );
 	void addTexture( void );
 	void deleteItem( void );
-	bool deleteItem( CProjectTreeItem *curItem /* = NULL */ );
+	//bool deleteItem( CProjectTreeItem *curItem /* = NULL */ );
 };
 
 #endif // QTSE_H

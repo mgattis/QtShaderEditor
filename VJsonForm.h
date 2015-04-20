@@ -60,12 +60,14 @@ protected:
 protected:
 	QString filePath;
 	ComboBoxDelegate *delegate;
+	VJsonFormItem *lastContextItem;
 
 public slots:
 	void showContextMenu( QPoint point );
 
 	void addArrayItem( void );
 	void removeArrayItem( void );
+	void toggleStructureItem( void );
 
 	void editTreeItem( QTreeWidgetItem *item , int column );
 	void itemTextChanged( QTreeWidgetItem *item , int column );
