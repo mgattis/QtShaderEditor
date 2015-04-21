@@ -45,8 +45,8 @@ QByteArray UTIL_readLineFromQIODevice( QIODevice &device )
     if( device.isOpen() && device.isReadable() && !device.atEnd() )
     {
         // Init
-        static unsigned char newData[128] = { 0 };
-        static unsigned char bytes;
+		static unsigned char newData[128] = { 0 };
+		static unsigned char bytes;
         bytes = 0;
 
         do

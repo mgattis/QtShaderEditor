@@ -220,7 +220,7 @@ QJsonObject VJsonForm::toObject( void )
 
 void VJsonForm::showContextMenu( QPoint point )
 {
-	VJsonFormItem *item = (VJsonFormItem*)this->itemAt( point );
+	VJsonFormItem *item = lastContextItem = (VJsonFormItem*)this->itemAt( point );
 
 	if( item )
 	{
@@ -229,9 +229,35 @@ void VJsonForm::showContextMenu( QPoint point )
 
 		if( item->isArray )
 			menu->addAction( "Add" , this , SLOT(addArrayItem()) );
-		else if( item->parent() && item->parent()->text( 1 ) == "ARRAY" )
+
+		if( !item->isArray && item->type == CJsonKeyvalueData::structure )
+		{
+			QStringList itemKeys , keys = CJsonTemplate::get()->getKeysForStructure( item->lastValue.toString() );
+
+			if( menu->actions().size() && keys.size() )
+				menu->addSeparator();
+
+			for( int index = 0 ; index < item->childCount() ; index++ )
+				itemKeys.append( item->child( index )->text( 0 ) );
+
+			for( int index = 0 ; index < keys.size() ; index++ )
+			{
+				QAction *action = menu->addAction( keys.at( index ) , this , SLOT(toggleStructureItem()) );
+				action->setCheckable( true );
+
+				if( itemKeys.contains( keys.at( index ) ) )
+					action->setChecked( true );
+			}
+		}
+
+		if( item->parent() && item->parent()->text( 1 ) == "ARRAY" )
+		{
+			if( menu->actions().size() )
+				menu->addSeparator();
 			menu->addAction( "Delete" , this , SLOT(removeArrayItem()) );
-		else
+		}
+
+		if( !menu->actions().size() )
 		{
 			delete menu;
 			return;
@@ -285,13 +311,62 @@ void VJsonForm::removeArrayItem( void )
 	}
 }
 
+void VJsonForm::toggleStructureItem( void )
+{
+	QAction *action = (QAction*)QObject::sender();
+	QString key = action->text();
+	bool checked = action->isChecked();
+
+	if( checked )
+	{
+		QTreeWidgetItem *parentItem = new QTreeWidgetItem( (QTreeWidgetItem*)NULL );
+		CJsonTemplate::get()->createTree( lastContextItem->lastValue.toString() , parentItem );
+
+		for( int index = 0 ; index < parentItem->childCount() ; index++ )
+			if( !key.compare( parentItem->child( index )->text( 0 ) , Qt::CaseInsensitive ) )
+			{
+				int pos = -1;
+				for( int parentIndex = 0 ; parentIndex < parentItem->childCount() ; parentIndex++ )
+					for( int targetIndex = 0 ; targetIndex < lastContextItem->childCount() ; targetIndex++ )
+						if( !lastContextItem->child( targetIndex )->text( 0 ).compare( parentItem->child( parentIndex )->text( 0 ) , Qt::CaseInsensitive ) )
+						{
+							pos++;
+							break;
+						}
+						else if( !key.compare( parentItem->child( parentIndex )->text( 0 ) , Qt::CaseInsensitive ) )
+						{
+							// Don't continue past the key we're trying to add
+							parentIndex = parentItem->childCount();
+							targetIndex = lastContextItem->childCount();
+							break;
+						}
+
+				lastContextItem->insertChild( pos + 1 , parentItem->takeChild( index ) );
+				setModified();
+				break;
+			}
+
+		delete parentItem;
+	}
+	else
+	{
+		for( int index = 0 ; index < lastContextItem->childCount() ; index++ )
+			if( !key.compare( lastContextItem->child( index )->text( 0 ) , Qt::CaseInsensitive ) )
+			{
+				delete lastContextItem->takeChild( index );
+				setModified();
+				return;
+			}
+	}
+}
+
 void VJsonForm::editTreeItem( QTreeWidgetItem *item , int column )
 {
 	if( item && column == 2 )
 	{
 		VJsonFormItem *formItem = (VJsonFormItem*)item;
 
-		if( !formItem->isArray && !formItem->type == CJsonKeyvalueData::structure )
+		if( !formItem->isArray && !( formItem->type == CJsonKeyvalueData::structure && !formItem->valueList ) )
 			this->editItem( item , 2 );
 	}
 }
@@ -313,8 +388,37 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 			switch( formItem->type )
 			{
 				case CJsonKeyvalueData::structure:
-					formItem->setText( column , formItem->defaultValue.toString() );
+				{
+					QString structureType = formItem->text( 2 );
+
+					// setText in this block indirectly calls this function again. Avoid
+					if( !( structureType.isEmpty() || structureType == formItem->lastValue.toString() ) )
+					{
+						// Make new structure
+						QTreeWidgetItem *parentItem = new QTreeWidgetItem( (QTreeWidgetItem*)NULL );
+						CJsonTemplate::get()->createTree( formItem->text( 2 ) , parentItem );
+
+						// Clean up old structure
+						while( formItem->child( 0 ) )
+							delete formItem->takeChild( 0 );
+
+						// Add new structure
+						while( parentItem->child( 0 ) )
+							formItem->addChild( parentItem->takeChild( 0 ) );
+
+						// Clean up
+						delete parentItem;
+						formItem->lastValue = structureType;
+						// Perhaps modify formItem's valueList pointer
+						formItem->setText( 0 , structureType );
+						formItem->setText( 1 , structureType.toUpper() );
+						formItem->setText( 2 , "" );
+
+						setModified();
+					}
+
 					break;
+				}
 				case CJsonKeyvalueData::boolean:
 				{
 					bool value = formItem->text( column ).toInt( &ok );
@@ -357,7 +461,7 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 						setModified();
 					}
 					else
-						formItem->setText( column , formItem->lastValue.toInt() );
+						formItem->setText( column , QString::number( formItem->lastValue.toInt() ) );
 
 					break;
 				}

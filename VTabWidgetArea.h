@@ -36,13 +36,13 @@ protected:
 public:
 	void addWidgetToArea( QWidget *widget ) { addWidgetToArea( widget , getActiveTabWidget() ); }
 	void addWidgetToArea( QWidget *widget , VDraggableTabWidget *tabWidget );
-	void showWidget( const QWidget *widget );
+	void showWidget( QWidget *widget );
 
 	inline QWidget* getActiveWidget( void ) { return getActiveTabWidget() ? activeTabWidget->currentWidget() : NULL; }
 	VDraggableTabWidget* getActiveTabWidget( void );
 
 protected:
-	VDraggableTabWidget* VTabWidgetArea::makeVDraggableTabWidget( void );
+	VDraggableTabWidget* makeVDraggableTabWidget( void );
 	VDraggableTabWidget* getFirstTabWidget( QSplitter *splitter ) const;
 
 protected:

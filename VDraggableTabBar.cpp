@@ -143,7 +143,7 @@ void VDraggableTabWidget::tabInserted( int index )
 	this->setMovable( this->count() > 1 );
 	QTabWidget::tabInserted( index );
 
-	std::cout << QString( "%1 \"%2\" inserted into %3" ).arg( (int)this->widget( index ) ).arg( this->tabText( index ).toLatin1().data() ).arg( (int)this ).toLatin1().data() << std::endl;
+	std::cout << QString( "%1 \"%2\" inserted into %3" ).arg( (long)this->widget( index ) ).arg( this->tabText( index ).toLatin1().data() ).arg( (long)this ).toLatin1().data() << std::endl;
 	emit widgetAdded( this->widget( index ) );
 	emit tabCountChanged( this->count() );
 }
@@ -153,7 +153,7 @@ void VDraggableTabWidget::tabRemoved( int index )
 	this->setMovable( this->count() > 1 );
 	QTabWidget::tabRemoved( index );
 
-	std::cout << QString( "window removed from %1" ).arg( (int)this ).toLatin1().data() << std::endl;
+	std::cout << QString( "window removed from %1" ).arg( (long)this ).toLatin1().data() << std::endl;
 	//emit widgetRemoved( this->widget( index ) );
 
 	emit tabCountChanged( this->count() );

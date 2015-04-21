@@ -15,8 +15,8 @@ CModel::CModel(QString modelFile) : IProjectObject(modelFile) {
 
 CModel::CModel(QString modelFile, QJsonObject modelJson) : IProjectObject(modelFile, modelJson) {
     objectFile = "";
-    MTLPath = ".";
-    drawShader = NULL;
+	MTLPath = ".";
+	drawShader = NULL;
 }
 
 CModel::~CModel()

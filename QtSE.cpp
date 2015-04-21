@@ -18,6 +18,9 @@ QString QtSE::CProjectTreeItem::getFullPath( const QString &basePath ) const
 
 QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 {
+	// This doesn't work from main
+	//glewInit();
+
 	// Make this first so we can start intercepting messages ASAP
 	coutEdit = new VLogger( NULL );
 	std::cout << "test cout" << std::endl;
@@ -50,12 +53,22 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	projectTree->setContextMenuPolicy( Qt::CustomContextMenu );
 	connect( projectTree , SIGNAL(customContextMenuRequested(QPoint)) , this , SLOT(projectTreeContextMenu(QPoint)) );
 
+#if 0
 	fsProjectTree = new QTreeWidget( NULL );
 	fsProjectTree->header()->setStretchLastSection( true );
 	fsProjectTree->header()->setHidden( true );
 	fsProjectTree->setContextMenuPolicy( Qt::CustomContextMenu );
 	connect( fsProjectTree , SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)) , this , SLOT(fsProjectTreeItemDoubleClicked(QTreeWidgetItem*,int)) );
 	connect( fsProjectTree , SIGNAL(customContextMenuRequested(QPoint)) , this , SLOT(fsProjectTreeContextMenu(QPoint)) );
+#endif
+
+	fsProjectTree2 = new QTreeView( NULL );
+	fsProjectTree2->header()->setStretchLastSection( true );
+	fsProjectTree2->header()->setHidden( true );
+	fsProjectTree2->setContextMenuPolicy( Qt::CustomContextMenu );
+	fsModel = new QFileSystemModel;
+	connect( fsProjectTree2 , SIGNAL(clicked(QModelIndex)) , this , SLOT(fsProjectTree2ItemClicked(QModelIndex)) );
+	connect( fsProjectTree2 , SIGNAL(customContextMenuRequested(QPoint)) , this , SLOT(fsProjectTree2ContextMenu(QPoint)) );
 
 	viewWidget = new VGLView( NULL );
 
@@ -75,7 +88,8 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 
 	itemsTab = new QTabWidget( NULL );
 	itemsTab->addTab( projectTree , "Project" );
-	itemsTab->addTab( fsProjectTree , "Filesystem" );
+	itemsTab->addTab( fsProjectTree2 , "Filesystem" );
+	//itemsTab->addTab( fsProjectTree , "Filesystem" );
 	itemsTab->setTabPosition( QTabWidget::East );
 	itemsTab->setTabsClosable( false );
 	itemsTab->setContextMenuPolicy( Qt::CustomContextMenu );
@@ -124,10 +138,22 @@ VJsonForm* QtSE::makeVJsonForm( void )
 void QtSE::open( void )
 {
 	//loadProject( QFileDialog::getOpenFileName( this , "Open File" , "." , "JSON Project File (*.project.json)" ) );
+	//return;
 
 	// TODO: Load json and verify that it is a project
-	QDir::setCurrent( QCoreApplication::applicationDirPath() + "/QtSEProjects/experimental/" );
+	//QDir::setCurrent( QCoreApplication::applicationDirPath() + "/QtSEProjects/experimental/" );
+	QDir::setCurrent( QCoreApplication::applicationDirPath() + "/QtSEProjects/testProject/" );
 	//QDir::setCurrent( QDir::homePath() + "/Projects/QtShaderEditor/QtSEProjects/experimental/" );
+
+	fsModel->setRootPath( QDir::currentPath() );
+
+	fsProjectTree2->setModel( fsModel );
+	fsProjectTree2->setRootIndex( fsModel->index( QDir::currentPath() ) );
+
+	// Hide all sections except for file name
+	for( int index = 1 ; index < fsProjectTree2->header()->count() ; index++ )
+		fsProjectTree2->header()->setSectionHidden( index , true );
+
 	loadProject( QDir::currentPath() + "/testProject.project.json" );
 }
 
@@ -147,6 +173,45 @@ void QtSE::save( void )
 void QtSE::about( void )
 {
 	// Nothing to do yet
+}
+
+void QtSE::openPath( const QString path )
+{
+	QString relPath = path;
+	std::cout << path.toLatin1().data() << std::endl;
+	if( path.startsWith( '/' ) )
+	{
+		relPath = path.mid( QDir::currentPath().size() + 1 );
+	}
+	std::cout << relPath.toLatin1().data() << std::endl;
+	relPath.prepend( '/' );
+
+	if( !openFiles.contains( relPath ) )
+	{
+		QWidget *addWidget = NULL;
+		QString filePath = QDir::currentPath().append( relPath );
+
+		if( relPath.endsWith( ".json" , Qt::CaseInsensitive ) )
+		{
+			VJsonForm *form = makeVJsonForm();
+			form->load( filePath );
+			addWidget = form;
+		}
+		else if( relPath.endsWith( ".glsl" , Qt::CaseInsensitive ) )
+		{
+			VGLSLEdit *edit = new VGLSLEdit( NULL );
+			edit->load( filePath );
+			addWidget = edit;
+		}
+
+		if( addWidget )
+		{
+			openFiles.insert( relPath , addWidget );
+			tabArea->addWidgetToArea( addWidget );
+		}
+	}
+	else
+		tabArea->showWidget( openFiles.value( relPath , NULL ) );
 }
 
 void QtSE::projectTreeContextMenu( QPoint point )
@@ -184,6 +249,7 @@ void QtSE::projectTreeContextMenu( QPoint point )
 	}
 }
 
+#if 0
 void QtSE::fsProjectTreeContextMenu( QPoint point )
 {
 	activeProjectItem = (CProjectTreeItem*)fsProjectTree->itemAt( point );
@@ -220,10 +286,11 @@ void QtSE::fsProjectTreeContextMenu( QPoint point )
 		menu->popup( QCursor::pos() , NULL );
 	}
 }
+#endif
 
 void QtSE::itemsTabTreeContextMenu( QPoint point )
 {
-	std::cout << "lol" << std::endl;
+	//std::cout << "lol" << std::endl;
 
 	int index = itemsTab->tabBar()->tabAt( itemsTab->tabBar()->mapFromGlobal( QCursor::pos() ) );
 
@@ -253,6 +320,7 @@ void QtSE::itemsTabTreeContextMenu( QPoint point )
 	}
 }
 
+#if 0
 void QtSE::fsProjectTreeItemDoubleClicked( QTreeWidgetItem *item , int column )
 {
 	CProjectTreeItem *projectItem = dynamic_cast< CProjectTreeItem* >( item );
@@ -261,33 +329,61 @@ void QtSE::fsProjectTreeItemDoubleClicked( QTreeWidgetItem *item , int column )
 	{
 		QString relPath;
 		projectItem->getRelativePath( relPath );
+		relPath = relPath.mid( 1 );
+		std::cout << "fsProjectTreeItemDoubleClicked: " << relPath.toLatin1().data() << std::endl;
 
-		if( !openFiles.contains( relPath ) )
+		openPath( relPath );
+	}
+}
+#endif
+
+void QtSE::fsProjectTree2ContextMenu( QPoint point )
+{
+	fsContextIndex = fsProjectTree2->indexAt( point );
+
+	if( fsContextIndex.isValid() )
+	{
+		QFileInfo info = fsModel->fileInfo( fsContextIndex );
+
+		QMenu *menu = new QMenu();
+		menu->setAttribute( Qt::WA_DeleteOnClose , true );
+
+		if( info.isDir() )
 		{
-			QWidget *addWidget = NULL;
-			QString filePath = QDir::currentPath().append( relPath );
-
-			if( relPath.endsWith( ".json" , Qt::CaseInsensitive ) )
-			{
-				VJsonForm *form = makeVJsonForm();
-				form->load( filePath );
-				addWidget = form;
-			}
-			else if( relPath.endsWith( ".glsl" , Qt::CaseInsensitive ) )
-			{
-				VGLSLEdit *edit = new VGLSLEdit( NULL );
-				edit->load( filePath );
-				addWidget = edit;
-			}
-
-			if( addWidget )
-			{
-				openFiles.insert( relPath , addWidget );
-				tabArea->addWidgetToArea( addWidget );
-			}
+			menu->addAction( "Add Folder" , this , SLOT(addFolder()) );
+			menu->addSeparator();
+			menu->addAction( "Add Stage" , this , SLOT(addStage()) );
+			menu->addAction( "Add Framebuffer" , this , SLOT(addFramebuffer()) );
+			menu->addAction( "Add Shader" , this , SLOT(addShader()) );
+			menu->addAction( "Add Model" , this , SLOT(addModel()) );
+			menu->addAction( "Add Texture" , this , SLOT(addTexture()) );
+			menu->addSeparator();
+			menu->addAction( "Delete Folder" , this , SLOT(deleteItem()) );
 		}
 		else
-			tabArea->showWidget( openFiles.value( relPath , NULL ) );
+		{
+			delete menu;
+			return;
+		}
+
+		menu->popup( QCursor::pos() , NULL );
+	}
+}
+
+void QtSE::fsProjectTree2ItemClicked( QModelIndex index )
+{
+	QFileInfo info = fsModel->fileInfo( index );
+
+	if( info.isFile() )
+	{
+		openPath( info.filePath() );
+	}
+	else if( info.isDir() )
+	{
+		if( fsProjectTree2->isExpanded( index ) )
+			fsProjectTree2->collapse( index );
+		else
+			fsProjectTree2->expand( index );
 	}
 }
 
@@ -317,8 +413,8 @@ void QtSE::loadProject( const QString &path /* = QString() */ )
 			QDir::setCurrent( pathParts.getPath( false ) );
 
 			//projectTree->clear();
-			fsProjectTree->clear();
-			generateProjectTree( QDir::current().absolutePath() , fsProjectTree->invisibleRootItem() );
+			//fsProjectTree->clear();
+			//generateProjectTree( QDir::current().absolutePath() , fsProjectTree->invisibleRootItem() );
 		}
 	}
 }
@@ -366,6 +462,24 @@ void QtSE::generateProjectTree( const QString &path , QTreeWidgetItem *dirItem )
 
 void QtSE::addFolder( void )
 {
+	QFileInfo info = fsModel->fileInfo( fsContextIndex );
+
+	if( info.isDir() )
+	{
+		bool ok = false;
+		QString dirName = QInputDialog::getText( this , this->windowTitle() , "Folder Name:" , QLineEdit::Normal , "" , &ok );
+
+		if( ok )
+		{
+			//std::cout << info.absoluteFilePath().toLatin1().data() << std::endl;
+			QDir dir( info.absoluteFilePath() );
+
+			if( !dir.exists( dirName ) )
+				dir.mkdir( dirName );
+		}
+	}
+
+#if 0
 	QString activeFilePath = activeProjectItem->getFullPath( CPath( QDir::currentPath() ).getPath( true ) );
 	QDir dir( activeFilePath );
 
@@ -392,6 +506,7 @@ void QtSE::addFolder( void )
 	}
 	else
 		QMessageBox::warning( this , this->windowTitle() , "Base path does not exist." );
+#endif
 }
 
 void QtSE::addStage( void )
@@ -421,11 +536,22 @@ void QtSE::addTexture( void )
 
 void QtSE::deleteItem( void )
 {
-	if( activeProjectItem )
-		if( !deleteItem( activeProjectItem ) )
-			QMessageBox::warning( this , this->windowTitle() , "Unable to delete one or more files or directories." );
+	QFileInfo info = fsModel->fileInfo( fsContextIndex );
+
+	if( info.isDir() )
+	{
+		QDir dir( info.absoluteFilePath() );
+		QString rmName = dir.dirName();
+		dir.cdUp();
+		dir.rmdir( rmName );
+	}
+
+	//if( activeProjectItem )
+		//if( !deleteItem( activeProjectItem ) )
+			//QMessageBox::warning( this , this->windowTitle() , "Unable to delete one or more files or directories." );
 }
 
+#if 0
 bool QtSE::deleteItem( CProjectTreeItem *curItem /* = NULL */ )
 {
 	if( curItem )
@@ -448,3 +574,4 @@ bool QtSE::deleteItem( CProjectTreeItem *curItem /* = NULL */ )
 
 	return false;
 }
+#endif

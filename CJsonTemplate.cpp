@@ -328,8 +328,13 @@ void CJsonTemplate::validate( QJsonObject &cmp , const QJsonObject &ref )
 	// Iterate over known keys
 	for( int index = 0 ; index < refKeys.size() ; index++ )
 	{
+		//QString refKey = refKeys.at( index );
+		//std::cout << "refKey: " << refKey.toLatin1().data() << std::endl;
+
 		QJsonValue cmpValue = cmp.value( refKeys.at( index ) );
 		QJsonValue refValue = ref.value( refKeys.at( index ) );
+
+		//std::cout << refValue.type() << " = " << cmpValue.type() << std::endl;
 
 		if( refValue.type() == cmpValue.type() )
 		{
@@ -339,6 +344,8 @@ void CJsonTemplate::validate( QJsonObject &cmp , const QJsonObject &ref )
 
 				QJsonArray cmpArray = cmpValue.toArray();
 				QJsonArray refArray = refValue.toArray();
+
+				//std::cout << "Array Size: " << refArray.size() << std::endl;
 
 				validate( cmpArray , refArray );
 				cmp.insert( refKeys.at( index ) , QJsonValue( cmpArray ) );
@@ -350,12 +357,15 @@ void CJsonTemplate::validate( QJsonObject &cmp , const QJsonObject &ref )
 				QJsonObject cmpObject = cmpValue.toObject();
 				QJsonObject refObject = refValue.toObject();
 
+				//std::cout << "isObject: " << std::endl;
+
 				validate( cmpObject , refObject );
 				cmp.insert( refKeys.at( index ) , QJsonValue( cmpObject ) );
 			}
 		}
-		else
+		else if( cmpValue.type() != QJsonValue::Undefined )
 		{
+			// If cmp doesn't contain a value, don't add it
 			//std::cout << "replacing " << refKeys.at( index ).toLatin1().data() << std::endl;
 
 			cmp.insert( refKeys.at( index ) , ref[ refKeys.at( index ) ] );
@@ -382,7 +392,7 @@ QJsonObject CJsonTemplate::createTree( const QString &name , bool gui ) const
 
 			// TODO: What was the difference again?
 			// This is important for validation purposes. Ask mgattis
-			if( gui ? data->guiInsert : data->projectInsert )
+			if( gui ? data->guiInsert : true )
 			{
 				if( data->indexable )
 				{
@@ -554,13 +564,7 @@ void CJsonTemplate::createTree( const QString &name , const QJsonObject &obj , Q
 								break;
 							case CJsonKeyvalueData::string:
 								if( item->valueList )
-								{
-									//item->setData( 2 , Qt::DisplayRole , ( QColor( Qt::red ) ) );
-									//item->setData( 2 , Qt::DisplayRole , ( QStringList( "orbitCamera" ) << "freeCamera" ) );
 									item->setData( 2 , Qt::DisplayRole , obj.value( data->key ).toString() );
-									//item->setText( 2 , obj.value( data->key ).toString() );
-									//item->setData( 2 , Qt::EditRole , QVariant( *( item->valueList ) ) );
-								}
 								else
 									item->setText( 2 , obj.value( data->key ).toString() );
 								break;
@@ -573,6 +577,18 @@ void CJsonTemplate::createTree( const QString &name , const QJsonObject &obj , Q
 			}
 		}
 	}
+}
+
+QStringList CJsonTemplate::getKeysForStructure( const QString name )
+{
+	QStringList keys;
+	CJsonStructure *data = structMap.value( name , NULL );
+
+	if( data )
+		for( int index = 0 ; index < data->keyvalues.size() ; index++ )
+			keys.append( data->keyvalues.at( index )->key );
+
+	return keys;
 }
 
 QJsonObject CJsonTemplate::loadUserJson( const QString &path , QString &type ) const
@@ -592,7 +608,8 @@ QJsonObject CJsonTemplate::loadUserJson( const QString &path , QString &type ) c
 			//std::cout << userObject.value( "itemType" ).toString().toLatin1().data() << std::endl;
 			//std::cout << userObject.value( "itemName" ).toString().toLatin1().data() << std::endl;
 
-			QJsonObject templateObject = createTree( type , true );
+			// Create a template with all possible values
+			QJsonObject templateObject = createTree( type , false );
 
 #if 0
 			std::cout << "===============================" << std::endl;
@@ -606,6 +623,7 @@ QJsonObject CJsonTemplate::loadUserJson( const QString &path , QString &type ) c
 			std::cout << doc3.toJson().data() << std::endl;
 #endif
 
+			// Validate the user object against the template
 			validate( userObject , templateObject );
 
 #if 0

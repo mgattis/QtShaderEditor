@@ -27,14 +27,15 @@ void VGLView::initializeGL( void )
     // problem is found and resolved
     static bool complete = false;
 
-    if( !complete )
-    {
+	if( !complete )
+	{
         GLenum err = glewInit();
         if (err != GLEW_OK) {
             std::clog << "[WARNING]: Failed to initialize GLEW." << std::endl;
             std::clog << "[WARNING]: " << glewGetErrorString(err) << std::endl;
         }
-        if (!GLEW_VERSION_2_1) {  // check that the machine supports the 2.1 API.
+        if (!GLEW_VERSION_2_1) {
+            // check that the machine supports the 2.1 API.
             std::clog << "[WARNING]: GLEW: API 2.1 not supported." << std::endl;
         }
 
