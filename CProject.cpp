@@ -7,6 +7,10 @@ CProject::CProject() {
     cameraType = "freeCamera";
     fSpeedMultiplier = 1.0;
     lpProjectList = &projectList;
+
+    // Total project run time.
+    bRunTimeListPopulated = false;
+    fRunTime = 0.0;
 }
 
 CProject::CProject(QString projectFile) : IProjectObject(projectFile) {
@@ -14,6 +18,10 @@ CProject::CProject(QString projectFile) : IProjectObject(projectFile) {
     cameraType = "freeCamera";
     fSpeedMultiplier = 1.0;
     lpProjectList = &projectList;
+
+    // Total project run time.
+    bRunTimeListPopulated = false;
+    fRunTime = 0.0;
 
     openProject(projectFile);
 }
@@ -84,11 +92,11 @@ void CProject::_loadProjectObject(QString userJsonFile) {
             QString itemType = "";
             IProjectObject *newProjectObject = NULL;
 
-            if (userJsonObject.contains("itemType")) {
+            if (userJsonObject.value("itemType").isString()) {
                 itemType = userJsonObject["itemType"].toString();
             }
             else {
-                std::clog << "[WARNING]: Invalid project format. '" << userJsonFile.toStdString() << "'." << std::endl;
+                logWarning(QString("Invalid project format. '") + userJsonFile + QString("'."));
             }
 
             //
@@ -115,7 +123,7 @@ void CProject::_loadProjectObject(QString userJsonFile) {
                 return;
             }
             else {
-                std::clog << "[WARNING]: Unrecognised type '" << itemType.toStdString() << "' found in file '" << userJsonFile.toStdString() << "'. Skipping." << std::endl;
+                logWarning(QString("Skipping unrecognised type: '") + itemType + QString("' in file '") + userJsonFile + "'.");
             }
 
             //
@@ -129,12 +137,12 @@ void CProject::_loadProjectObject(QString userJsonFile) {
             return;
         }
         else {
-            std::clog << "[WARNING]: JSON parse error. " << jError.errorString().toStdString() << ". In file '" << userJsonFile.toStdString() << "'." << std::endl;
+            logWarning(QString("JSON parse error '") + jError.errorString() + QString("' in file '") + userJsonFile + QString("'."));
         }
 
     }
     else {
-        std::clog << "[WARNING]: Unable to open '" << userJsonFile.toStdString() <<"' for reading." << std::endl;
+        logWarning(QString("Unable to open project file '") +  userJsonFile + QString("' for reading."));
     }
 }
 
@@ -144,7 +152,7 @@ bool CProject::openProject(QString projectFile) {
     if (isJsonLoaded() == false) {
         bool bSuccess = loadUserJson(projectFile);
         if (bSuccess == false) {
-            std::clog << "[ERROR]: Unable to load project type/name identifiers. Stopping." << std::endl;
+            logError("Unable to load project identifiers. Stopping.");
             return false;
         }
     }
@@ -154,10 +162,10 @@ bool CProject::openProject(QString projectFile) {
 
     bool bResult = initialize();
     if (bResult == true) {
-        std::clog << "[INFO] Project '" << projectFile.toStdString() << "' opened successfully." << std::endl;
+        logInfo(QString("Project opened successfully. '") + projectFile + QString("'."));
     }
     else {
-        std::clog << "[ERROR] Unable to open project '" << projectFile.toStdString() << "'." << std::endl;
+        logError(QString("Unable to open project '") + projectFile + QString("'."));
     }
 
     return bResult;
@@ -175,7 +183,8 @@ bool CProject::closeProject() {
 }
 
 void CProject::run(float fFrameDelay) {
-
+    fRunTime += fFrameDelay;
+    setRunTime(fRunTime);
 }
 
 
@@ -222,11 +231,11 @@ bool CProject::initialize() {
             IProjectObject *projectObject = (*projectListIt);
             bool bResult = projectObject->initialize();
             if (bResult == false) {
-                std::clog << "[ERROR]: Initialization failed on " << projectObject->getItemType().toStdString() << "/" << projectObject->getItemName().toStdString() << "." << std::endl;
+                logError(QString("Initialization failed. '") + projectObject->getFullIdentifier() + QString("'."));
                 this->bInitialized = false;
             }
             else {
-                std::clog << "[INFO]: '" << projectObject->getItemType().toStdString() << "/" << projectObject->getItemName().toStdString() << "' initialized successfully." << std::endl;
+                logInfo(QString("Initialization successfull. '") + projectObject->getFullIdentifier() + QString("'."));
             }
         }
 
@@ -241,7 +250,7 @@ bool CProject::initialize() {
                         stageList.push_back(projectList[stage]);
                     }
                     else {
-                        std::clog << "[WARNING]: Specified stage '" << stage.toStdString() << "' not found." << std::endl;
+                        logWarning(QString("Stage not found. '") + stage + QString("'."));
                     }
                 }
             }
@@ -257,7 +266,7 @@ bool CProject::initialize() {
         return this->bInitialized;
     }
 
-    std::clog << "[ERROR]: Project type/name unspecified." << std::endl;
+    logError("Project identifiers not loaded.");
     closeProject();
     return false;
 }
@@ -267,8 +276,8 @@ void CProject::setViewPort(int iWidth, int iHeight) {
     for (; projectListIt != projectList.end(); ++projectListIt) {
         (*projectListIt)->setViewPort(iWidth, iHeight);
     }
-    viewPortWidth = iWidth;
-    viewPortHeight = iHeight;
+    iViewPortWidth = iWidth;
+    iViewPortHeight = iHeight;
 }
 
 void CProject::setCamera(CCamera *camera) {
@@ -285,4 +294,23 @@ void CProject::setProjectList(QMap<QString, IProjectObject *> *lpProjectList) {
         (*projectListIt)->setProjectList(lpProjectList);
     }
     this->lpProjectList = lpProjectList;
+}
+
+void CProject::setRunTime(float fRunTime) {
+    if (bRunTimeListPopulated == false) {
+        QMap<QString, IProjectObject *>::iterator projectListIt = projectList.begin();
+        for (; projectListIt != projectList.end(); ++projectListIt) {
+            IProjectObject *projectObject = (*projectListIt);
+            if (projectObject->getItemType().compare("shader") == 0) {
+                shaderList.push_back((CShader *)projectObject);
+            }
+        }
+
+        bRunTimeListPopulated = true;
+    }
+
+    QList<CShader *>::iterator shaderListIt = shaderList.begin();
+    for (; shaderListIt != shaderList.end(); ++shaderListIt) {
+        (*shaderListIt)->setRunTime(fRunTime);
+    }
 }

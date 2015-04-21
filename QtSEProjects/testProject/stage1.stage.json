@@ -30,7 +30,7 @@
 		"framebuffer1.framebuffer"
 	],
 
-	"outputFrameBuffer": "framebuffer1.framebuffer",
+	"outputFrameBuffer": "context",
 
     "modelList": [
         "model1.model"

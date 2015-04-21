@@ -20,8 +20,8 @@ protected:
 
     QJsonObject userJson;
 
-    int viewPortWidth;
-    int viewPortHeight;
+    int iViewPortWidth;
+    int iViewPortHeight;
     CCamera *camera;
 
     bool bJsonLoaded;
@@ -45,16 +45,25 @@ public:
     QString getItemType();
     void setItemType(QString itemType);
 
-    QDir getWorkingPath();
+    QString getWorkingPath();
     void setWorkingPath(QString workingPath);
 
     QMap<QString, IProjectObject *> *getProjectList();
+
+    QString getFullIdentifier();
+
+public:
+    // Logging stuff to make logging easy!
+    void logInfo(QString message);
+    void logWarning(QString message);
+    void logError(QString message);
 
 public:
     virtual bool initialize() = 0;
 
     virtual void setViewPort(int iWidth, int iHeight);
     virtual void setCamera(CCamera *camera);
+    virtual void setRunTime(float fRunTime);
     virtual void setProjectList(QMap<QString, IProjectObject *> *lpProjectList);
 };
 

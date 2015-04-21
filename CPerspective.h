@@ -18,7 +18,9 @@ public:
     CPerspective();
     ~CPerspective();
 
-    glm::mat4 generateProjectionMatrix(int iWidth, int iHeight);
+    glm::mat4 getProjectionMatrix(int iWidth, int iHeight);
+    glm::mat4 getProjectionMatrix();
+    QString getType();
 
     void setfovy(float fovy);
     void setzNear(float zNear);

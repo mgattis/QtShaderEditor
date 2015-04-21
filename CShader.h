@@ -2,6 +2,8 @@
 #define CSHADER_H
 
 #include "IProjectObject.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 #include <GL/glew.h>
 #include <QList>
@@ -26,10 +28,20 @@ public:
     void addVertexSourceFile(QString vertexFile);
     void addFragmentSourceFile(QString fragmentFile);
     bool build();
-    bool useProgram();
+    bool useProgram(bool bUse);
     void deleteProgram();
 
+    void uniform1f(QString uniform, float x);
+    void uniform2f(QString uniform, float x, float y);
+    void uniform3f(QString uniform, float x, float y, float z);
+    void uniform4f(QString uniform, float x, float y, float z, float w);
+    void uniform1ui(QString uniform, GLuint index);
+    void uniformMat4(QString uniform, glm::mat4 mat);
+
     GLuint getProgram();
+
+    // Given to us by the project object.
+    void setRunTime(float fRunTime);
 };
 
 #endif // CSHADER_H

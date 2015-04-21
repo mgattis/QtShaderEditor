@@ -13,8 +13,8 @@ CPerspective::CPerspective()
 
     float fAspect = aspect.getAspectRatio(800, 600);
 
-    projectionMatrix = glm::perspective(fovy, fAspect, zNear, zFar);
-    bChanged = false;
+    projectionMatrix = glm::mat4();
+    bChanged = true;
 }
 
 CPerspective::~CPerspective()
@@ -22,11 +22,11 @@ CPerspective::~CPerspective()
 
 }
 
-glm::mat4 CPerspective::generateProjectionMatrix(int iWidth, int iHeight) {
+glm::mat4 CPerspective::getProjectionMatrix(int iWidth, int iHeight) {
     bChanged = this->iWidth != iWidth ? true : bChanged;
     bChanged = this->iHeight != iHeight ? true : bChanged;
 
-    if (bChanged) {
+    if (bChanged || aspect.isAspectChanged()) {
         float fAspect = aspect.getAspectRatio(iWidth, iHeight);
         this->iWidth = iWidth;
         this->iHeight = iHeight;
@@ -38,6 +38,23 @@ glm::mat4 CPerspective::generateProjectionMatrix(int iWidth, int iHeight) {
     else {
         return projectionMatrix;
     }
+}
+
+glm::mat4 CPerspective::getProjectionMatrix() {
+    if (bChanged) {
+        float fAspect = aspect.getAspectRatio(iWidth, iHeight);
+        bChanged = false;
+
+        projectionMatrix = glm::perspective(fovy, fAspect, zNear, zFar);
+        return projectionMatrix;
+    }
+    else {
+        return projectionMatrix;
+    }
+}
+
+QString CPerspective::getType() {
+    return QString("perspective");
 }
 
 void CPerspective::setfovy(float fovy) {
@@ -56,7 +73,6 @@ void CPerspective::setzFar(float zFar) {
 }
 
 CAspectRatio *CPerspective::getAspectRatio() {
-    // Assume it was changed by the caller.
-    bChanged = true;
+    // No longer assume it was changed. We will check for changes in getProjectionMatrix();
     return &aspect;
 }

@@ -113,7 +113,7 @@ void IProjectObject::setItemType(QString itemType) {
     this->itemType = itemType;
 }
 
-QDir IProjectObject::getWorkingPath() {
+QString IProjectObject::getWorkingPath() {
     return this->workingPath;
 }
 
@@ -130,8 +130,8 @@ bool IProjectObject::isJsonLoaded() {
 }
 
 void IProjectObject::setViewPort(int iWidth, int iHeight) {
-    viewPortWidth = iWidth;
-    viewPortHeight = iHeight;
+    iViewPortWidth = iWidth;
+    iViewPortHeight = iHeight;
 }
 
 void IProjectObject::setCamera(CCamera *camera) {
@@ -144,4 +144,56 @@ void IProjectObject::setProjectList(QMap<QString, IProjectObject *> *lpProjectLi
 
 QMap<QString, IProjectObject *> *IProjectObject::getProjectList() {
     return this->lpProjectList;
+}
+
+QString IProjectObject::getFullIdentifier() {
+    if (bJsonLoaded) {
+        return QString(itemType + QString("/") + itemName);
+    }
+    else {
+        return QString("");
+    }
+}
+
+// Only really needed by shaders.
+void IProjectObject::setRunTime(float fRunTime) {
+    return;
+}
+
+// Logging stuff to make logging easy!
+void IProjectObject::logInfo(QString message) {
+    QString log = "[INFO]";
+
+    if (bJsonLoaded) {
+        log.append(QString(" ") + getFullIdentifier());
+    }
+
+    log.append(QString(": ") + message);
+
+    std::clog << log.toStdString() << std::endl;
+}
+
+void IProjectObject::logWarning(QString message) {
+    QString log = "[WARNING]";
+
+    if (bJsonLoaded) {
+        log.append(QString(" ") + getFullIdentifier());
+    }
+
+    log.append(QString(": ") + message);
+
+    std::clog << log.toStdString() << std::endl;
+}
+
+void IProjectObject::logError(QString message) {
+    QString log = "[ERROR]";
+
+    if (bJsonLoaded) {
+        log.append(QString(" ") + getFullIdentifier());
+    }
+
+    log.append(QString(": ") + message);
+
+    std::clog << log.toStdString() << std::endl;
+
 }

@@ -43,30 +43,45 @@ bool CModel::initialize() {
             for (; textureListArrayIt != textureListArray.end(); ++textureListArrayIt) {
                 if ((*textureListArrayIt).isString()) {
                     QString texture = (*textureListArrayIt).toString();
-                    /*if (lpProjectList->contains(texture)) {
-                        IProjectObject *projectObject = lpProjectList[texture];
+                    if (lpProjectList->contains(texture)) {
+                        IProjectObject *projectObject = (*lpProjectList)[texture];
                         if (projectObject->getItemType().compare("texture")) {
                             textureList.push_back((CTexture *)projectObject);
                         }
-                    }*/
+                    }
                 }
             }
         }
 
         if (userJson.value("drawShader").isString()) {
             QString drawShaderName = userJson.value("drawShader").toString();
-            /*if (lpProjectList->contains(drawShaderName)) {
-                IProjectObject *projectObject = lpProjectList[drawShaderName];
-                if (projectObject->getItemType().compare("shader")) {
+            if (lpProjectList->contains(drawShaderName)) {
+                IProjectObject *projectObject = (*lpProjectList)[drawShaderName];
+                if (projectObject->getItemType().compare("shader") == 0) {
                     drawShader = (CShader *)projectObject;
                 }
-            }*/
+            }
         }
+    }
+
+    if (!drawShader) {
+        return false;
     }
 
     return true;
 }
 
 void CModel::draw() {
+    drawShader->useProgram(true);
+    glColor3f(1.0, 1.0, 1.0);
+    glBegin(GL_TRIANGLE_STRIP);
+    glVertex3f(-1.0, -1.0, 0.0);
+    glVertex3f(-1.0, 1.0, 0.0);
+    glVertex3f(1.0, -1.0, 0.0);
+    glVertex3f(1.0, 1.0, 0.0);
+    glEnd();
+}
 
+CShader *CModel::getDrawShader() {
+    return drawShader;
 }

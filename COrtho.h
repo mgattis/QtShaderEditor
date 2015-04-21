@@ -16,12 +16,12 @@ private:
 
 public:
     COrtho();
-    COrtho(float left, float right, float bottom, float top, float zNear, float zFar);
     ~COrtho();
 
-    glm::mat4 generateProjectionMatrix(int iWidth, int iHeight);
+    glm::mat4 getProjectionMatrix(int iWidth, int iHeight);
+    glm::mat4 getProjectionMatrix();
+    QString getType();
 
-    void setAll(float left, float right, float bottom, float top, float zNear, float zFar);
     void setLeft(float left);
     void setRight(float right);
     void setBottom(float bottom);

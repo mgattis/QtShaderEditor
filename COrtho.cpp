@@ -8,8 +8,8 @@ COrtho::COrtho()
     fTop = 1.0;
     zNear = -1.0;
     zFar = 1.0;
-    projectionMatrix = glm::ortho(fLeft, fRight, fBottom, fTop, zNear, zFar);
-    bChanged = false;
+    projectionMatrix = glm::mat4();
+    bChanged = true;
 }
 
 COrtho::~COrtho()
@@ -17,12 +17,16 @@ COrtho::~COrtho()
 
 }
 
-glm::mat4 COrtho::generateProjectionMatrix(int iWidth, int iHeight) {
-    // We don't need width and height for Ortho matrix;
+glm::mat4 COrtho::getProjectionMatrix(int iWidth, int iHeight) {
+    return getProjectionMatrix();
+}
+
+glm::mat4 COrtho::getProjectionMatrix() {
+    // We don't need the viewport for an ortho matrix.
 
     if (bChanged) {
-        bChanged = false;
         projectionMatrix = glm::ortho(fLeft, fRight, fBottom, fTop, zNear, zFar);
+        bChanged = false;
         return projectionMatrix;
     }
     else {
@@ -30,14 +34,8 @@ glm::mat4 COrtho::generateProjectionMatrix(int iWidth, int iHeight) {
     }
 }
 
-void COrtho::setAll(float left, float right, float bottom, float top, float zNear, float zFar) {
-    fLeft = left;
-    fRight = right;
-    fBottom = bottom;
-    fTop = top;
-    this->zNear = zNear;
-    this->zFar = zFar;
-    bChanged = true;
+QString COrtho::getType() {
+    return QString("ortho");
 }
 
 void COrtho::setLeft(float left) {

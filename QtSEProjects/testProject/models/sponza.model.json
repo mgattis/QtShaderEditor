@@ -1,0 +1,24 @@
+{
+    "itemName": "model1.model",
+    "itemType": "model",
+
+    "wavefront": {
+        "objectFile": "sponza.obj",
+        "materialTemplateLibraryPath": "dabrovic-sponza"
+    },
+
+	"modelTranform": [
+		{
+			"rotate": [45.0, 0.0, 0.0, 1.0]
+		},
+		{
+			"translate": [0.0, 0.0, 1.0]
+		}
+	],
+
+	"textureList": [
+		 "floorstreets.texture"
+	],
+
+    "drawShader": "shader1.shader"
+}

@@ -35,7 +35,7 @@ void VGLView::initializeGL( void )
             std::clog << "[WARNING]: " << glewGetErrorString(err) << std::endl;
         }
         if (!GLEW_VERSION_2_1) {  // check that the machine supports the 2.1 API.
-            std::clog << "[WARNING]: Glew API 2.1 not supported." << std::endl;
+            std::clog << "[WARNING]: GLEW: API 2.1 not supported." << std::endl;
         }
 
         connect( &repaintTimer , SIGNAL(timeout()) , this , SLOT(updateGL()) );
@@ -43,6 +43,7 @@ void VGLView::initializeGL( void )
 		//repaintTimer.start();
 
         project = new CProject("./QtSEProjects/testProject/testProject.project.json");
+        project->setViewPort(this->width(), this->height());
 
         complete = true;
     }
@@ -171,7 +172,7 @@ void VGLView::resizeGL( int width , int height )
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 
-    //CResourceManager::instance()->setViewPort(width, height);
+    project->setViewPort(width, height);
 }
 
 void VGLView::enterEvent( QEvent *event )

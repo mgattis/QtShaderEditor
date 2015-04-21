@@ -1,7 +1,11 @@
 #include "CShader.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+
 CShader::CShader()
 {
+    // Valid programs will never be 0.
     program = 0;
     vs = 0;
     fs = 0;
@@ -39,13 +43,13 @@ bool CShader::initialize() {
         }
 
         if (userJson.value("fragmentSourceFiles").isArray()) {
-            QJsonArray fragmentSourceFilesArray = userJson.value("vertexSourceFiles").toArray();
+            QJsonArray fragmentSourceFilesArray = userJson.value("fragmentSourceFiles").toArray();
 
             QJsonArray::iterator fragmentSourceFilesArrayIt = fragmentSourceFilesArray.begin();
             for (; fragmentSourceFilesArrayIt != fragmentSourceFilesArray.end(); ++fragmentSourceFilesArrayIt) {
                 if ((*fragmentSourceFilesArrayIt).isString()) {
                     QString fragmentSourceFile = (*fragmentSourceFilesArrayIt).toString();
-                    vertexSourceFiles.push_back(fragmentSourceFile);
+                    fragmentSourceFiles.push_back(fragmentSourceFile);
                 }
             }
         }
@@ -56,10 +60,34 @@ bool CShader::initialize() {
         this->bInitialized = false;
     }
 
-    // TODO: Add shader loading and compilation here.
+    // Make sure we have at least one vertex shader.
+    if (vertexSourceFiles.size() == 0) {
+        logWarning("GLSL vertex source file(s) must be supplied for shader compilation.");
+        this->bInitialized = false;
+    }
 
-    build();
-    return this->bInitialized;
+    // Make sure we have at least one fragment shader.
+    if (fragmentSourceFiles.size() == 0) {
+        logWarning("GLSL fragment source file(s) must be supplied for shader compilation.");
+        this->bInitialized = false;
+    }
+
+    // Make sure everything went all right and build.
+    if (this->bInitialized) {
+        this->bInitialized = build();
+    }
+
+    // Make sure build worked.
+    if (this->bInitialized == false) {
+        logWarning("Shader build failed. Ignoring shader.");
+        // Clean up.
+        deleteProgram();
+    }
+
+    // A little strange, but we are going to return true
+    // because shaders can be ignored when drawing.
+    this->bInitialized = true;
+    return true;
 }
 
 void CShader::addVertexSourceFile(QString vertexFile) {
@@ -112,12 +140,16 @@ bool CShader::build() {
     char *buffer[1];
     QFile file;
 
+    // Make shader objects. Two for now. Better add more in the furture.
+    // One for each source file.
     vs = glCreateShader(GL_VERTEX_SHADER);
     fs = glCreateShader(GL_FRAGMENT_SHADER);
 
+    // Load all vertex files. Concatinate them into one string and give them to OGL.
     QList<QString>::iterator vertexSourceFilesIt = vertexSourceFiles.begin();
     for (; vertexSourceFilesIt != vertexSourceFiles.end(); ++vertexSourceFilesIt) {
-        file.setFileName(*vertexSourceFilesIt);
+        QString filePath = getWorkingPath().append(*vertexSourceFilesIt);
+        file.setFileName(filePath);
         file.open(QIODevice::ReadOnly);
 
         if (file.isOpen()) {
@@ -127,13 +159,21 @@ bool CShader::build() {
             allVertexSource.append("\n");
             file.close();
         }
+        else {
+            logWarning(QString("Could not open vertex shader for reading. '") + filePath + QString("'."));
+        }
     }
-    buffer[0] = (char *)allVertexSource.toStdString().c_str();
+    // Leave it up to the C Standard Libarary to come to the rescue.
+    buffer[0] = (char *)calloc(allVertexSource.size() + 1, sizeof (char));
+    memcpy(buffer[0], allVertexSource.toStdString().c_str(), allVertexSource.size());
     glShaderSource(vs, 1, buffer, NULL);
+    free(buffer[0]);
 
+    // Load all fragment files. Concatinate them into one string and give them to OGL.
     QList<QString>::iterator fragmentSourceFilesIt = fragmentSourceFiles.begin();
     for (; fragmentSourceFilesIt != fragmentSourceFiles.end(); ++fragmentSourceFilesIt) {
-        file.setFileName(*fragmentSourceFilesIt);
+        QString filePath = getWorkingPath().append(*fragmentSourceFilesIt);
+        file.setFileName(filePath);
         file.open(QIODevice::ReadOnly);
 
         if (file.isOpen()) {
@@ -143,11 +183,18 @@ bool CShader::build() {
             allFragmentSource.append("\n");
             file.close();
         }
+        else {
+            logWarning(QString("Could not open fragment shader for reading. '") + filePath + QString("'."));
+        }
+
     }
-
-    buffer[0] = (char *)allFragmentSource.toStdString().c_str();
+    // Leave it up to the C Standard Libarary to come to the rescue.
+    buffer[0] = (char *)calloc(allFragmentSource.size() + 1, sizeof (char));
+    memcpy(buffer[0], allFragmentSource.toStdString().c_str(), allFragmentSource.size());
     glShaderSource(fs, 1, buffer, NULL);
+    free(buffer[0]);
 
+    // Compile shaders.
     glCompileShader(vs);
     printShaderInfoLog(vs);
     glCompileShader(fs);
@@ -158,38 +205,119 @@ bool CShader::build() {
     glAttachShader(program, vs);
     glAttachShader(program, fs);
 
+    // Make the shader program.
     glLinkProgram(program);
     printProgramInfoLog(program);
+
+    // Make sure everything worked. Again.
+    GLint success = GL_FALSE;
+    glGetProgramiv(program, GL_LINK_STATUS, &success);
+
+    // If the build failed, return false.
+    if (success == GL_FALSE) {
+        return false;
+    }
 
     return true;
 }
 
-bool CShader::useProgram() {
-    if (!program) {
-        build();
+// Does not build it for you.
+bool CShader::useProgram(bool bUse) {
+    if (bUse) {
+        if (program) {
+            glUseProgram(program);
+            return true;
+        }
+        else {
+            return false;
+        }
     }
-
-    if (program) {
-        glUseProgram(program);
+    else {
+        glUseProgram(0);
+        return true;
     }
 }
 
 void CShader::deleteProgram() {
-    if (program) {
-        glDeleteProgram(program);
-    }
-    if (vs) {
-        glDeleteShader(vs);
-    }
-    if (fs) {
-        glDeleteShader(fs);
-    }
+    // We should not need to make sure they "exist."
+    glDeleteProgram(program);
+    glDeleteShader(vs);
+    glDeleteShader(fs);
 
     program = 0;
     vs = 0;
     fs = 0;
 }
 
+void CShader::uniform1f(QString uniform, float x) {
+    // Our shader program needs to be active.
+    if (program) {
+        if (useProgram(true)) {
+            GLint uniformLocation = glGetUniformLocation(program, uniform.toStdString().c_str());
+            glUniform1f(uniformLocation, x);
+        }
+    }
+}
+
+void CShader::uniform2f(QString uniform, float x, float y) {
+    // Our shader program needs to be active.
+    if (program) {
+        if (useProgram(true)) {
+            GLint uniformLocation = glGetUniformLocation(program, uniform.toStdString().c_str());
+            glUniform2f(uniformLocation, x, y);
+        }
+    }
+}
+
+void CShader::uniform3f(QString uniform, float x, float y, float z) {
+    // Our shader program needs to be active.
+    if (program) {
+        if (useProgram(true)) {
+            GLint uniformLocation = glGetUniformLocation(program, uniform.toStdString().c_str());
+            glUniform3f(uniformLocation, x, y, z);
+        }
+    }
+}
+
+void CShader::uniform4f(QString uniform, float x, float y, float z, float w) {
+    // Our shader program needs to be active.
+    if (program) {
+        if (useProgram(true)) {
+            GLint uniformLocation = glGetUniformLocation(program, uniform.toStdString().c_str());
+            glUniform4f(uniformLocation, x, y, z, w);
+        }
+    }
+}
+
+void CShader::uniformMat4(QString uniform, glm::mat4 mat) {
+    // Our shader program needs to be active.
+    if (program) {
+        if (useProgram(true)) {
+            GLint uniformLocation = glGetUniformLocation(program, uniform.toStdString().c_str());
+            glUniformMatrix4fv(program, 1, GL_FALSE, glm::value_ptr(mat));
+        }
+    }
+}
+
+void CShader::uniform1ui(QString uniform, GLuint index) {
+    // Our shader program needs to be active.
+    if (program) {
+        if (useProgram(true)) {
+            GLint uniformLocation = glGetUniformLocation(program, uniform.toStdString().c_str());
+            glUniform1ui(uniformLocation, index);
+        }
+    }
+}
+
 GLuint CShader::getProgram() {
+    // Zero basically means it does not exist.
     return program;
+}
+
+// Updates in the shader whether you like it or not.
+// Given to us by the project object.
+void CShader::setRunTime(float fRunTime) {
+    // Load in time to our shader.
+    // Even if it does not exist, we will be fine.
+    uniform1f("time", fRunTime);
 }

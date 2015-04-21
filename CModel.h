@@ -14,6 +14,7 @@ private:
 
     QList<CTexture *> textureList;
     CShader *drawShader;
+
 public:
     CModel();
     CModel(QString modelFile);
@@ -21,7 +22,9 @@ public:
     ~CModel();
 
     bool initialize();
+
     void draw();
+    CShader *getDrawShader();
 };
 
 #endif // CMODEL_H

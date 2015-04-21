@@ -18,6 +18,10 @@ private:
     // Whole project stuffs.
     QMap<QString, IProjectObject *> projectList;
 
+    // Holds the projects shaders for quick access.
+    // Used by setRunTime() since all shaders can have 'uniform float time'.
+    QList<CShader *> shaderList;
+
 private:
     // User JSON stuffs.
     QList<CStage *> stageList;
@@ -25,6 +29,9 @@ private:
     QString projectPath;
     QString cameraType;
     float fSpeedMultiplier;
+
+    float fRunTime;
+    bool bRunTimeListPopulated;
 
 private:
     void _loadValuesFromUserJson();
@@ -54,6 +61,7 @@ public:
     void setViewPort(int iWidth, int iHeight);
     void setCamera(CCamera *camera);
     void setProjectList(QMap<QString, IProjectObject *> *lpProjectList);
+    void setRunTime(float fRunTime);
 };
 
 #endif /* !CPROJECT_H */

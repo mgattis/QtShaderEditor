@@ -1,0 +1,13 @@
+{
+    "itemName": "floorstreets.texture",
+    "itemType": "texture",
+
+    "imageFile": "FloorStreets.png",
+
+    "textureParameters": {
+        "internalFormat": "auto",
+        "channelType": "auto"
+    },
+
+	"uniformName": "floorstreets"
+}
