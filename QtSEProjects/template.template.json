@@ -166,6 +166,7 @@
         {
             "key": "generateProjectionMatrixPerspective",
             "type": "generateProjectionMatrixPerspective",
+            "valueList": "generateProjectionMatrixPerspective:generateProjectionMatrixOrtho",
             "guiInsert": true
         },
         {
@@ -174,7 +175,8 @@
         },
 		{
 			"key": "viewTransforms",
-			"type": "transforms"
+			"type": "transforms",
+			"indexable": true
 		},
         {
             "key": "inputFramebufferList",
@@ -292,7 +294,8 @@
         },
 		{
 			"key": "modelTransform",
-			"type": "transforms"
+			"type": "transforms",
+			"indexable": true
 		},
         {
             "key": "textureList",

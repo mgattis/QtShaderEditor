@@ -2,7 +2,7 @@
     "itemName": "stage1.stage",
     "itemType": "stage",
 
-    "generatePerspectiveMatrixPerspective": {
+    "generateProjectionMatrixPerspective": {
         "fovy": 80.0,
         "aspect": {
             "windowWidth": 1.0,
@@ -14,15 +14,13 @@
 
     "viewTransforms": [
         {
-            "operation": "loadIdentity"
+            "loadIdentity": true
         },
         {
-            "operation": "rotate",
-            "arguements": [ 45.0, 0.0, 0.0, 1.0 ]
+            "rotate": [ 45.0, 0.0, 0.0, 1.0 ]
         },
         {
-            "operation": "translate",
-            "arguments": [ 1.0, 1.0, 1.0 ]
+            "translate": [ 1.0, 1.0, 1.0 ]
         }
     ],
 

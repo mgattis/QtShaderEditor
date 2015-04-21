@@ -1,0 +1,15 @@
+{
+    "itemName": "texture1.texture",
+    "itemType": "texture",
+
+    "imageFile": "texture1.png",
+
+    "textureParameters": {
+        "internalFormat": "auto",
+        "channelType": "auto"
+    },
+
+    "shaderList": [
+        "shader1.shader"
+    ]
+}
