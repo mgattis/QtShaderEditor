@@ -53,6 +53,13 @@ bool CModel::initialize() {
             }
         }
 
+        if (userJson.value("modelTransforms").isArray()) {
+            QJsonArray modelTransformArray = userJson.value("modelTransforms").toArray();
+            if (modelTransformArray.size()) {
+                modelMatrix.userJsonTransform(modelTransformArray);
+            }
+        }
+
         if (userJson.value("drawShader").isString()) {
             QString drawShaderName = userJson.value("drawShader").toString();
             if (lpProjectList->contains(drawShaderName)) {
@@ -73,6 +80,8 @@ bool CModel::initialize() {
 
 void CModel::draw() {
     drawShader->useProgram(true);
+    drawShader->uniformMat4("ModelMatrix", modelMatrix.getMatrix());
+
     glColor3f(1.0, 1.0, 1.0);
     glBegin(GL_TRIANGLE_STRIP);
     glVertex3f(-1.0, -1.0, 0.0);

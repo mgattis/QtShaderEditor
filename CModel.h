@@ -4,6 +4,7 @@
 #include "IProjectObject.h"
 #include "CTexture.h"
 #include "CShader.h"
+#include "CModelViewMatrix.h"
 
 #include <QJsonArray>
 
@@ -14,6 +15,8 @@ private:
 
     QList<CTexture *> textureList;
     CShader *drawShader;
+
+    CModelViewMatrix modelMatrix;
 
 public:
     CModel();

@@ -9,8 +9,8 @@ CFramebuffer::CFramebuffer() {
     framebufferTexture = 0;
     framebufferDepth = 0;
 
-    iPhysicalBufferWidth = 0;
-    iPhysicalBufferHeight = 0;
+    iPhysicalBufferWidth = 256;
+    iPhysicalBufferHeight = 256;
 }
 
 CFramebuffer::CFramebuffer(QString framebufferFile) : IProjectObject(framebufferFile) {
@@ -22,8 +22,8 @@ CFramebuffer::CFramebuffer(QString framebufferFile) : IProjectObject(framebuffer
     framebufferTexture = 0;
     framebufferDepth = 0;
 
-    iPhysicalBufferWidth = 0;
-    iPhysicalBufferHeight = 0;
+    iPhysicalBufferWidth = 256;
+    iPhysicalBufferHeight = 256;
 }
 
 CFramebuffer::CFramebuffer(QString framebufferFile, QJsonObject framebufferJson) : IProjectObject(framebufferFile, framebufferJson) {
@@ -35,8 +35,8 @@ CFramebuffer::CFramebuffer(QString framebufferFile, QJsonObject framebufferJson)
     framebufferTexture = 0;
     framebufferDepth = 0;
 
-    iPhysicalBufferWidth = 0;
-    iPhysicalBufferHeight = 0;
+    iPhysicalBufferWidth = 256;
+    iPhysicalBufferHeight = 256;
 }
 
 CFramebuffer::~CFramebuffer()
@@ -156,6 +156,7 @@ void CFramebuffer::setViewPort(int iWidth, int iHeight) {
     iViewPortWidth = iWidth;
     iViewPortHeight = iHeight;
 
+    // Make a new framebuffer if the window size haas changed.
     aspect.getAspectRatio(iWidth, iHeight);
     iWidth = aspect.getViewWidth();
     iHeight = aspect.getViewHeight();

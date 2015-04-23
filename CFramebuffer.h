@@ -10,7 +10,6 @@ class CFramebuffer : public IProjectObject {
     bool bColorBuffer;
     bool bDepthBuffer;
     QString uniformName;
-    // Something here to handle aspect ratios.
 
     GLuint framebufferObject;
     GLuint framebufferTexture;

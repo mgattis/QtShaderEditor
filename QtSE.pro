@@ -57,7 +57,8 @@ SOURCES += main.cpp\
     CPerspective.cpp \
     CModel.cpp \
     CTexture.cpp \
-    CShader.cpp
+    CShader.cpp \
+    CModelViewMatrix.cpp
 
 HEADERS  += QtSE.h \
     CResourceManager.h \
@@ -87,7 +88,8 @@ HEADERS  += QtSE.h \
     CPerspective.h \
     CModel.h \
     CTexture.h \
-    CShader.h
+    CShader.h \
+    CModelViewMatrix.h
 
 DISTFILES += \
     .gitignore
