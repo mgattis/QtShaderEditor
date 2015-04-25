@@ -9,6 +9,7 @@
 class CModelViewMatrix {
 private:
     glm::mat4 matrix;
+    bool bLoadIdentity;
 
 public:
     CModelViewMatrix();
@@ -26,6 +27,10 @@ public:
     glm::mat4 rotate(float angle, float x, float y, float z);
     glm::mat4 translate(float x, float y, float z);
     glm::mat4 scale(float x, float y, float z);
+
+    bool identityFlag();
+    void setIdentityFlag();
+    void clearIdentityFlag();
 };
 
 #endif // CMODELVIEWMATRIX_H

@@ -67,3 +67,24 @@ void COrtho::setZFar(float zFar) {
     this->zFar = zFar;
     bChanged = true;
 }
+
+void COrtho::userJsonProjection(QJsonObject projection) {
+    if (projection.value("left").isDouble()) {
+        setLeft(projection.value("left").toDouble());
+    }
+    if (projection.value("right").isDouble()) {
+        setRight(projection.value("right").toDouble());
+    }
+    if (projection.value("bottom").isDouble()) {
+        setBottom(projection.value("bottom").toDouble());
+    }
+    if (projection.value("top").isDouble()) {
+        setTop(projection.value("top").toDouble());
+    }
+    if (projection.value("nearVal").isDouble()) {
+        setZNear(projection.value("nearVal").toDouble());
+    }
+    if (projection.value("farVal").isDouble()) {
+        setZFar(projection.value("farVal").toDouble());
+    }
+}

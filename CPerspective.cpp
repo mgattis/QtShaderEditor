@@ -41,7 +41,7 @@ glm::mat4 CPerspective::getProjectionMatrix(int iWidth, int iHeight) {
 }
 
 glm::mat4 CPerspective::getProjectionMatrix() {
-    if (bChanged) {
+    if (bChanged || aspect.isAspectChanged()) {
         float fAspect = aspect.getAspectRatio(iWidth, iHeight);
         bChanged = false;
 
@@ -73,6 +73,35 @@ void CPerspective::setzFar(float zFar) {
 }
 
 CAspectRatio *CPerspective::getAspectRatio() {
-    // No longer assume it was changed. We will check for changes in getProjectionMatrix();
     return &aspect;
+}
+
+void CPerspective::userJsonProjection(QJsonObject projection) {
+    if (projection.value("fovy").isDouble()) {
+        setfovy(projection.value("fovy").toDouble());
+    }
+    if (projection.value("aspect").isObject()) {
+        QJsonObject userAspect = projection.value("aspect").toObject();
+        if (userAspect.value("windowWidth").isDouble()) {
+            aspect.setWindowWidth(userAspect.value("windowWidth").toDouble());
+        }
+        else if (userAspect.value("pixelWidth").isDouble()) {
+            aspect.setPixelWidth(userAspect.value("pixelWidth").toDouble());
+        }
+        if (userAspect.value("windowHeight").isDouble()) {
+            aspect.setWindowHeight(userAspect.value("windowHeight").toDouble());
+        }
+        else if (userAspect.value("pixelHeight").toDouble()) {
+            aspect.setPixelHeight(userAspect.value("pixelHeight").toDouble());
+        }
+        if (userAspect.value("multiplier").isDouble()) {
+            aspect.setMultiplier(userAspect.value("multiplier").toDouble());
+        }
+    }
+    if (projection.value("zNear").isDouble()) {
+        setzNear(projection.value("zNear").toDouble());
+    }
+    if (projection.value("zFar").isDouble()) {
+        setzFar(projection.value("zFar").toDouble());
+    }
 }

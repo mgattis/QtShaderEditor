@@ -28,6 +28,8 @@ public:
     void setTop(float top);
     void setZNear(float zNear);
     void setZFar(float zFar);
+
+    void userJsonProjection(QJsonObject projection);
 };
 
 #endif // CORTHO_H

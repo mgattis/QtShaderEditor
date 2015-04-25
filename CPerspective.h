@@ -26,6 +26,8 @@ public:
     void setzNear(float zNear);
     void setzFar(float zFar);
     CAspectRatio *getAspectRatio();
+
+    void userJsonProjection(QJsonObject projection);
 };
 
 #endif // CPERSPECTIVE_H

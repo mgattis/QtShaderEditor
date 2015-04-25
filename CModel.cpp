@@ -83,11 +83,18 @@ void CModel::draw() {
     drawShader->uniformMat4("ModelMatrix", modelMatrix.getMatrix());
 
     glColor3f(1.0, 1.0, 1.0);
+
     glBegin(GL_TRIANGLE_STRIP);
-    glVertex3f(-1.0, -1.0, 0.0);
-    glVertex3f(-1.0, 1.0, 0.0);
-    glVertex3f(1.0, -1.0, 0.0);
-    glVertex3f(1.0, 1.0, 0.0);
+
+    glVertex3f(-1.0, -1.0, -1.0);
+    glVertex3f(-1.0, 1.0, -1.0);
+    glVertex3f(1.0, -1.0, -1.0);
+    glVertex3f(1.0, 1.0, -1.0);
+    glVertex3f(-1.0, -1.0, 1.0);
+    glVertex3f(-1.0, 1.0, 1.0);
+    glVertex3f(1.0, -1.0, 1.0);
+    glVertex3f(1.0, 1.0, 1.0);
+
     glEnd();
 }
 

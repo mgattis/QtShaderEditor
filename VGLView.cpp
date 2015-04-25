@@ -44,8 +44,7 @@ void VGLView::initializeGL( void )
         repaintTimer.setInterval( 33 );
 		//repaintTimer.start();
 
-        project = new CProject("./QtSEProjects/testProject/testProject.project.json");
-        project->setViewPort(this->width(), this->height());
+        //openProject("./QtSEProjects/testProject/testProject.project.json");
 
         complete = true;
     }
@@ -64,9 +63,34 @@ void VGLView::paintGL( void )
     lastFrameTime = frameTimer.restart() / 1000.0;
     totalTime += lastFrameTime;
 
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     //updateCamera(lastFrameTime);
-    //drawScene();
+
+    //project->run(lastFrameTime);
+
+    glUseProgram(0);
+
+    glEnable( GL_DEPTH_TEST );
+    glClearColor( 0.0 , 0.0 , 0.0, 0.0 );
+    glDepthFunc( GL_LEQUAL );
+    glEnable( GL_ALWAYS );
+
+    glViewport( 0 , 0 , (GLint)this->width() , (GLint)this->height() );
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+    gluPerspective( 80.0 , (double)this->width()/(double)this->height() , 0.1 , 100.0 );
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();
+
+    glRotatef(totalTime*50.0, 0.0, 1.0, 0.0);
+
+    glBegin( GL_TRIANGLES );
+        glColor3f( 1.0 , 0.0 , 0.0 );
+        glVertex3f( -0.5 , -0.5 , -2.0 );
+        glColor3f( 1.0 , 1.0 , 0.0 );
+        glVertex3f( 0.5 , -0.5 , -2.0 );
+        glColor3f( 0.0 , 0.0 , 1.0 );
+        glVertex3f( 0.0 , 0.5 , -2.0 );
+    glEnd();
 }
 
 void VGLView::updateCamera(float lastFrameTime) {
@@ -150,12 +174,13 @@ void VGLView::openProject(QString projectFile) {
         closeProject();
     }
 
-    project = new CProject();
-    project->openProject(projectFile);
+    project = new CProject(projectFile);
+    project->setViewPort(this->width(), this->height());
+    project->setCamera(&camera);
 }
 
 void VGLView::closeProject() {
-    //CResourceManager::instance()->clearLists();
+    delete project;
     project = NULL;
 }
 
@@ -174,7 +199,9 @@ void VGLView::resizeGL( int width , int height )
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 
-    project->setViewPort(width, height);
+    if (project) {
+        project->setViewPort(width, height);
+    }
 }
 
 void VGLView::enterEvent( QEvent *event )

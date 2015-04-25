@@ -18,6 +18,8 @@ class CFramebuffer : public IProjectObject {
     int iPhysicalBufferWidth;
     int iPhysicalBufferHeight;
 
+    bool bResized;
+
 public:
     CFramebuffer();
     CFramebuffer(QString framebufferFile);
@@ -33,6 +35,15 @@ public:
     bool makeBuffer(int iWidth, int iHeight);
     void deleteBuffer();
     bool useBuffer(bool bUse);
+
+    QString getUniformName();
+    GLuint getFrameBufferObject();
+    GLuint getFrameBufferTexture();
+    GLuint getFrameBufferDepth();
+
+    bool resizedFlag();
+    void setResizedFlag();
+    void clearResizedFlag();
 };
 
 #endif // CFRAMEBUFFER_H

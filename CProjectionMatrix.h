@@ -2,8 +2,8 @@
 #define CPROJECTIONMATRIX_H
 
 #include <glm/gtc/matrix_transform.hpp>
-
 #include <QString>
+#include <QJsonObject>
 
 class CProjectionMatrix {
 protected:
@@ -21,6 +21,9 @@ public:
 
     // Type of matrix.
     virtual QString getType();
+
+    // Loads user JSON parameters
+    virtual void userJsonProjection(QJsonObject projection) = 0;
 };
 
 #endif // CPROJECTIONMATRIX_H

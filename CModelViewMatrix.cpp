@@ -3,10 +3,12 @@
 CModelViewMatrix::CModelViewMatrix()
 {
     matrix = glm::mat4();
+    bLoadIdentity = false;
 }
 
 CModelViewMatrix::CModelViewMatrix(glm::mat4 matrix) {
     this->matrix = matrix;
+    bLoadIdentity = false;
 }
 
 CModelViewMatrix::~CModelViewMatrix()
@@ -89,6 +91,7 @@ void CModelViewMatrix::userJsonTransform(QJsonArray transforms) {
 // Loads the identity matrix.
 glm::mat4 CModelViewMatrix::loadIdentity() {
     matrix = glm::mat4();
+    setIdentityFlag();
     return matrix;
 }
 
@@ -107,4 +110,16 @@ glm::mat4 CModelViewMatrix::translate(float x, float y, float z) {
 // Scales.
 glm::mat4 CModelViewMatrix::scale(float x, float y, float z) {
     matrix = glm::scale(matrix, glm::vec3(x, y, z));
+}
+
+bool CModelViewMatrix::identityFlag() {
+    return bLoadIdentity;
+}
+
+void CModelViewMatrix::setIdentityFlag() {
+    bLoadIdentity = true;
+}
+
+void CModelViewMatrix::clearIdentityFlag() {
+    bLoadIdentity = false;
 }

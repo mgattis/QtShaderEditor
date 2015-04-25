@@ -185,6 +185,12 @@ bool CProject::closeProject() {
 void CProject::run(float fFrameDelay) {
     fRunTime += fFrameDelay;
     setRunTime(fRunTime);
+
+    QList<CStage *>::iterator stageListIt = stageList.begin();
+    for (;stageListIt != stageList.end(); ++stageListIt) {
+        CStage *stage = (*stageListIt);
+        stage->run();
+    }
 }
 
 

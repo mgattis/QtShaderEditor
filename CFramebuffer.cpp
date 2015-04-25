@@ -11,6 +11,8 @@ CFramebuffer::CFramebuffer() {
 
     iPhysicalBufferWidth = 256;
     iPhysicalBufferHeight = 256;
+
+    bResized = false;
 }
 
 CFramebuffer::CFramebuffer(QString framebufferFile) : IProjectObject(framebufferFile) {
@@ -24,6 +26,8 @@ CFramebuffer::CFramebuffer(QString framebufferFile) : IProjectObject(framebuffer
 
     iPhysicalBufferWidth = 256;
     iPhysicalBufferHeight = 256;
+
+    bResized = false;
 }
 
 CFramebuffer::CFramebuffer(QString framebufferFile, QJsonObject framebufferJson) : IProjectObject(framebufferFile, framebufferJson) {
@@ -37,6 +41,8 @@ CFramebuffer::CFramebuffer(QString framebufferFile, QJsonObject framebufferJson)
 
     iPhysicalBufferWidth = 256;
     iPhysicalBufferHeight = 256;
+
+    bResized = false;
 }
 
 CFramebuffer::~CFramebuffer()
@@ -152,6 +158,42 @@ bool CFramebuffer::useBuffer(bool bUse) {
     return false;
 }
 
+int CFramebuffer::getBufferWidth() {
+    return this->iPhysicalBufferWidth;
+}
+
+int CFramebuffer::getBufferHeight() {
+    return this->iPhysicalBufferHeight;
+}
+
+QString CFramebuffer::getUniformName() {
+    return this->uniformName;
+}
+
+GLuint CFramebuffer::getFrameBufferObject() {
+    return this->framebufferObject;
+}
+
+GLuint CFramebuffer::getFrameBufferTexture() {
+    return this->framebufferTexture;
+}
+
+GLuint CFramebuffer::getFrameBufferDepth() {
+    return this->framebufferDepth;
+}
+
+bool CFramebuffer::resizedFlag() {
+    return this->bResized;
+}
+
+void CFramebuffer::setResizedFlag() {
+    bResized = true;
+}
+
+void CFramebuffer::clearResizedFlag() {
+    bResized = false;
+}
+
 void CFramebuffer::setViewPort(int iWidth, int iHeight) {
     iViewPortWidth = iWidth;
     iViewPortHeight = iHeight;
@@ -166,6 +208,7 @@ void CFramebuffer::setViewPort(int iWidth, int iHeight) {
 
         if (this->bInitialized) {
             makeBuffer(iWidth, iHeight);
+            setResizedFlag();
         }
     }
 }
