@@ -163,10 +163,13 @@ bool CShader::build() {
             logWarning(QString("Could not open vertex shader for reading. '") + filePath + QString("'."));
         }
     }
-    // Leave it up to the C Standard Libarary to come to the rescue.
     buffer[0] = (char *)calloc(allVertexSource.size() + 1, sizeof (char));
-    memcpy(buffer[0], allVertexSource.toStdString().c_str(), allVertexSource.size());
+    QByteArray temp1 = allVertexSource.toLatin1();
+    memcpy(buffer[0], temp1.data(), allVertexSource.size());
     glShaderSource(vs, 1, buffer, NULL);
+
+    glCompileShader(vs);
+    printShaderInfoLog(vs);
     free(buffer[0]);
 
     // Load all fragment files. Concatinate them into one string and give them to OGL.
@@ -188,18 +191,16 @@ bool CShader::build() {
         }
 
     }
-    // Leave it up to the C Standard Libarary to come to the rescue.
     buffer[0] = (char *)calloc(allFragmentSource.size() + 1, sizeof (char));
-    memcpy(buffer[0], allFragmentSource.toStdString().c_str(), allFragmentSource.size());
+    QByteArray temp2 = allFragmentSource.toLatin1();
+    memcpy(buffer[0], temp2.data(), allFragmentSource.size());
     glShaderSource(fs, 1, buffer, NULL);
-    free(buffer[0]);
 
-    // Compile shaders.
-    glCompileShader(vs);
-    printShaderInfoLog(vs);
     glCompileShader(fs);
     printShaderInfoLog(fs);
+    free(buffer[0]);
 
+    // Link the program.
     program = glCreateProgram();
 
     glAttachShader(program, vs);
@@ -293,8 +294,9 @@ void CShader::uniformMat4(QString uniform, glm::mat4 mat) {
     // Our shader program needs to be active.
     if (program) {
         if (useProgram(true)) {
-            GLint uniformLocation = glGetUniformLocation(program, uniform.toStdString().c_str());
-            glUniformMatrix4fv(program, 1, GL_FALSE, glm::value_ptr(mat));
+            QByteArray temp = uniform.toLatin1();
+            GLuint uniformLocation = glGetUniformLocation(program, temp.data());
+            glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(mat));
         }
     }
 }
@@ -319,5 +321,5 @@ GLuint CShader::getProgram() {
 void CShader::setRunTime(float fRunTime) {
     // Load in time to our shader.
     // Even if it does not exist, we will be fine.
-    uniform1f("time", fRunTime);
+    uniform1f("Time", fRunTime);
 }

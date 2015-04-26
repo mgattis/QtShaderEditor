@@ -102,7 +102,7 @@ bool CFramebuffer::makeBuffer(int iWidth, int iHeight) {
     iPhysicalBufferWidth = iWidth;
     iPhysicalBufferHeight = iHeight;
 
-    glGenFramebuffers(1, &framebufferObject);
+    /*glGenFramebuffers(1, &framebufferObject);
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferObject);
 
     glGenTextures(1, &framebufferTexture);
@@ -130,7 +130,7 @@ bool CFramebuffer::makeBuffer(int iWidth, int iHeight) {
 
         deleteBuffer();
         return false;
-    }
+    }*/
 
     // We will handle all of this in CStage.
     //useBuffer(true);

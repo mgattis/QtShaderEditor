@@ -42,9 +42,9 @@ void VGLView::initializeGL( void )
 
         connect( &repaintTimer , SIGNAL(timeout()) , this , SLOT(updateGL()) );
         repaintTimer.setInterval( 33 );
-		//repaintTimer.start();
+        repaintTimer.start();
 
-        //openProject("./QtSEProjects/testProject/testProject.project.json");
+        openProject("./QtSEProjects/testProject/testProject.project.json");
 
         complete = true;
     }
@@ -63,16 +63,18 @@ void VGLView::paintGL( void )
     lastFrameTime = frameTimer.restart() / 1000.0;
     totalTime += lastFrameTime;
 
-    //updateCamera(lastFrameTime);
+    if (project) {
+        updateCamera(lastFrameTime);
+        project->run(lastFrameTime);
+    }
 
-    //project->run(lastFrameTime);
+    /*glUseProgram(0);
 
-    glUseProgram(0);
-
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable( GL_DEPTH_TEST );
-    glClearColor( 0.0 , 0.0 , 0.0, 0.0 );
+    glClearColor( 1.0 , 0.0 , 0.0, 0.0 );
     glDepthFunc( GL_LEQUAL );
-    glEnable( GL_ALWAYS );
+    glEnable( GL_DEPTH_TEST );
 
     glViewport( 0 , 0 , (GLint)this->width() , (GLint)this->height() );
     glMatrixMode( GL_PROJECTION );
@@ -81,7 +83,7 @@ void VGLView::paintGL( void )
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 
-    glRotatef(totalTime*50.0, 0.0, 1.0, 0.0);
+    //glRotatef(totalTime*360.0, 1.0, 0.0, 0.0);
 
     glBegin( GL_TRIANGLES );
         glColor3f( 1.0 , 0.0 , 0.0 );
@@ -90,7 +92,7 @@ void VGLView::paintGL( void )
         glVertex3f( 0.5 , -0.5 , -2.0 );
         glColor3f( 0.0 , 0.0 , 1.0 );
         glVertex3f( 0.0 , 0.5 , -2.0 );
-    glEnd();
+    glEnd();*/
 }
 
 void VGLView::updateCamera(float lastFrameTime) {
@@ -187,7 +189,7 @@ void VGLView::closeProject() {
 
 void VGLView::resizeGL( int width , int height )
 {
-    glEnable( GL_DEPTH_TEST );
+    /*glEnable( GL_DEPTH_TEST );
     glClearColor( 0.0 , 0.0 , 0.0, 0.0 );
     glDepthFunc( GL_LEQUAL );
     glEnable( GL_BLEND );
@@ -197,7 +199,7 @@ void VGLView::resizeGL( int width , int height )
     glLoadIdentity();
     gluPerspective( 80.0 , (double)width/(double)height , 0.1 , 100.0 );
     glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
+    glLoadIdentity();*/
 
     if (project) {
         project->setViewPort(width, height);
