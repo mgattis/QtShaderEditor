@@ -33,8 +33,11 @@ public:
 
     void uniform1f(QString uniform, float x);
     void uniform2f(QString uniform, float x, float y);
+    void uniform2f(QString uniform, glm::vec2 v1);
     void uniform3f(QString uniform, float x, float y, float z);
+    void uniform3f(QString uniform, glm::vec3 v1);
     void uniform4f(QString uniform, float x, float y, float z, float w);
+    void uniform4f(QString uniform, glm::vec4 v1);
     void uniform1ui(QString uniform, GLuint index);
     void uniformMat4(QString uniform, glm::mat4 mat);
 

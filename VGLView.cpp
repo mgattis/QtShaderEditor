@@ -8,7 +8,7 @@ VGLView::VGLView( QWidget *parent /* = NULL */ )
     maxAcceleration = 8.0;
     maxVelocity = 1.0;
     friction = 2.0;
-    speedMultiplier = 1.0;
+    speedMultiplier = 16.0;
 
     project = NULL;
 
@@ -97,6 +97,9 @@ void VGLView::paintGL( void )
 
 void VGLView::updateCamera(float lastFrameTime) {
     // Walk on the XY plane.
+    float maxAcceleration = this->maxAcceleration * speedMultiplier;
+    float maxVelocity = this->maxVelocity * speedMultiplier;
+    float friction = this->friction * speedMultiplier;
 
     // Apply friction.
     glm::vec2 velocity = glm::vec2(camera.velocity);

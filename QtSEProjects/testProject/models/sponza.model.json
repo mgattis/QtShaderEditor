@@ -1,19 +1,16 @@
 {
-    "itemName": "model1.model",
+    "itemName": "sponza.model",
     "itemType": "model",
 
     "wavefront": {
-        "objectFile": "sponza.obj",
+        "objectFile": "dabrovic-sponza/sponza.obj",
         "materialTemplateLibraryPath": "dabrovic-sponza"
     },
 
-	"modelTranform": [
-		{
-			"rotate": [45.0, 0.0, 0.0, 1.0]
-		},
-		{
-			"translate": [0.0, 0.0, 1.0]
-		}
+	"modelTransforms": [
+        { 
+            "loadIdentity": true
+        }
 	],
 
 	"textureList": [

@@ -80,48 +80,70 @@ bool CWavefrontObj::generateBuffers() {
 
     // Fill the draw buffers with data.
     for (int i = 0; i < tshapes.size(); i++) {
-        // Not sure if 3 component faces are guaranteed by Tiny Object Loader.
-        if (tshapes[i].mesh.indices.size() % 3 != 0) {
-            return false;
-        }
-        for (int f = 0; f < tshapes[i].mesh.indices.size() / 3; f++) {
-            // vertex/texCoord/normal
-            int vID = tshapes[i].mesh.indices[3 * f + 0];
-            int tID = tshapes[i].mesh.indices[3 * f + 1];
-            int nID = tshapes[i].mesh.indices[3 * f + 2];
-            int mat = tshapes[i].mesh.material_ids[f];
+        // It is possible that our indices may be missing some values.
+        // We need to check and make sure they are there!
+        // We will exploit the fact that if one of the following are zero,
+        // that attribute is missing.
+        int sizePosition = tshapes[i].mesh.positions.size();
+        int sizeTexcoords = tshapes[i].mesh.texcoords.size();
+        int sizeNormals = tshapes[i].mesh.normals.size();
+        int actualAttribsPerIndex = 0;
+        if (sizePosition) { actualAttribsPerIndex++; }
+        if (sizeTexcoords) { actualAttribsPerIndex++; }
+        if (sizeNormals) { actualAttribsPerIndex++; }
 
-            // Get the vertex and add to appropriate buffer.
-            int sizePosition = tshapes[i].mesh.positions.size();
-            int sizeTexcoords = tshapes[i].mesh.texcoords.size();
-            int sizeNormals = tshapes[i].mesh.normals.size();
+        int totalIndices = tshapes[i].mesh.indices.size() / actualAttribsPerIndex;
+
+        for (int f = 0; f < totalIndices; f++) {
+            int indexInc = 0;
+            int vID = 0;
+            int tID = 0;
+            int nID = 0;
+
+            if (sizePosition) { vID = tshapes[i].mesh.indices[actualAttribsPerIndex * f + indexInc]; indexInc++; }
+            if (sizeTexcoords) { tID = tshapes[i].mesh.indices[actualAttribsPerIndex * f + indexInc]; indexInc++; }
+            if (sizeNormals) { nID = tshapes[i].mesh.indices[actualAttribsPerIndex * f + indexInc]; indexInc++; }
+
+            int matSize = tshapes[i].mesh.material_ids.size();
+            int mat = tshapes[i].mesh.material_ids[f / 3];
+
             SBufferData vertexData;
-            for (int j = 0; j < 3; j++) {
-                if (3 * vID + j < sizePosition) {
-                    vertexData.position[j] = tshapes[i].mesh.positions[3 * vID + j];
-                }
-                else {
-                    vertexData.position[j] = 0.0;
-                }
 
-                if (3 * nID + j < sizeNormals) {
-                    vertexData.normal[j] = tshapes[i].mesh.normals[3 * nID + j];
-                }
-                else {
-                    vertexData.normal[j] = 0.0;
-                }
-
-                if (j < 2) {
-                    if (3 * tID + j < sizeTexcoords) {
-                        vertexData.texCoord[j] = tshapes[i].mesh.texcoords[2 * tID + j];
-                    }
-                    else {
-                        vertexData.texCoord[j] = 0.0;
-                    }
-                }
+            if (3 * vID + 2 < sizePosition) {
+                vertexData.x = tshapes[i].mesh.positions[3 * vID + 0];
+                vertexData.y = tshapes[i].mesh.positions[3 * vID + 1];
+                vertexData.z = tshapes[i].mesh.positions[3 * vID + 2];
             }
+            else {
+                vertexData.x = 0.0;
+                vertexData.y = 0.0;
+                vertexData.z = 0.0;
+            }
+            if (2 * tID + 1 < sizeTexcoords) {
+                vertexData.u = tshapes[i].mesh.texcoords[2 * tID + 0];
+                vertexData.v = tshapes[i].mesh.texcoords[2 * tID + 1];
+            }
+            else {
+                vertexData.u = 0.0;
+                vertexData.v = 0.0;
+            }
+            if (3 * nID + 2 < sizeNormals) {
+                vertexData.nx = tshapes[i].mesh.normals[3 * nID + 0];
+                vertexData.ny = tshapes[i].mesh.normals[3 * nID + 1];
+                vertexData.nz = tshapes[i].mesh.normals[3 * nID + 2];
+            }
+            else {
+                vertexData.nx = 0.0;
+                vertexData.ny = 0.0;
+                vertexData.nz = 0.0;
+            }
+
             drawBuffers[mat].bufferData.push_back(vertexData);
         }
+    }
+
+    for (int i = 0; i < drawBuffers.size(); i++) {
+        drawBuffers[i].count = drawBuffers[i].bufferData.size();
     }
 
     return true;
@@ -135,7 +157,7 @@ bool CWavefrontObj::loadBuffers() {
         glGenBuffers(1, &drawBuffers[i].vbo);
         glBindBuffer(GL_ARRAY_BUFFER, drawBuffers[i].vbo);
 
-        glBufferData(GL_ARRAY_BUFFER, drawBuffers[i].bufferData.size() * sizeof (SBufferData), drawBuffers[i].bufferData.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 8 * drawBuffers[i].count * sizeof (GLfloat), &(drawBuffers[i].bufferData[0]), GL_STATIC_DRAW);
 
         // This is best called when assigning attributes.
         drawShader->useProgram(true);
@@ -143,33 +165,34 @@ bool CWavefrontObj::loadBuffers() {
         GLint positionAttrib = glGetAttribLocation(drawShader->getProgram(), "Position");
         if (positionAttrib != -1) {
             glEnableVertexAttribArray(positionAttrib);
-            glVertexAttribPointer(positionAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof (GLfloat), 0);
+            glVertexAttribPointer(positionAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof (GLfloat), (void *)(0));
         }
 
         GLint texcoordAttrib = glGetAttribLocation(drawShader->getProgram(), "Texcoord");
         if (texcoordAttrib != -1) {
             glEnableVertexAttribArray(texcoordAttrib);
-            glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof (GLfloat), (void *)(3 * sizeof (GLfloat)));
+            glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof (GLfloat), (void *)(3 * sizeof (GLfloat)));
         }
 
         GLint normalAttrib = glGetAttribLocation(drawShader->getProgram(), "Normal");
         if (normalAttrib != -1) {
             glEnableVertexAttribArray(normalAttrib);
-            glVertexAttribPointer(normalAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof (GLfloat), (void *)(5 * sizeof (GLfloat)));
+            glVertexAttribPointer(normalAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof (GLfloat), (void *)(5 * sizeof (GLfloat)));
         }
 
         // Our buffers are now safe and secure with OpenGL.
-        drawBuffers[i].bufferData.clear();
+        // drawBuffers[i].bufferData.clear();
     }
 
     return true;
 }
 
 bool CWavefrontObj::loadMaterials() {
-    if (tmaterials.size() == drawBuffers.size()) {
+    if (tmaterials.size()) {
         for (int i = 0; i < drawBuffers.size(); i++) {
             glBindVertexArray(drawBuffers[i].vao);
 
+            // Get material properties from Tiny Object Loader.
             for (int j = 0; j < 3; j++) {
                 drawBuffers[i].matAmbient[j] = tmaterials[i].ambient[j];
                 drawBuffers[i].matDiffuse[j] = tmaterials[i].diffuse[j];
@@ -183,40 +206,90 @@ bool CWavefrontObj::loadMaterials() {
             drawBuffers[i].matDissolve = tmaterials[i].dissolve;
             drawBuffers[i].matIllum = tmaterials[i].illum;
 
+            // Get textures from Tiny Object Loader.
             QString textureMaps[4];
             textureMaps[0] = tmaterials[i].ambient_texname.c_str();
             textureMaps[1] = tmaterials[i].diffuse_texname.c_str();
             textureMaps[2] = tmaterials[i].specular_texname.c_str();
             textureMaps[3] = tmaterials[i].normal_texname.c_str();
 
+            // Load in textures, or look them up if they have already been loaded.
             GLuint *drawTextureMaps[4] = {&drawBuffers[i].ambientMap, &drawBuffers[i].diffuseMap, &drawBuffers[i].specularMap, &drawBuffers[i].normalMap};
             for (int j = 0; j < 4; j++) {
                 if (textureMaps[j].size()) {
-                    QImage *image = new QImage(materialPath + textureMaps[j]);
-                    if (!image->isNull()) {
-                        *image = image->convertToFormat(QImage::Format_RGBA8888);
+                    if (allTextures.contains(textureMaps[j])) {
+                        *drawTextureMaps[j] = allTextures[textureMaps[j]];
 
-                        // Make sure this does what I think it does.
                         glActiveTexture(GL_TEXTURE0 + j);
-
-                        glGenTextures(1, drawTextureMaps[j]);
                         glBindTexture(GL_TEXTURE_2D, *drawTextureMaps[j]);
+                    }
+                    else {
+                        QImage *image = new QImage(materialPath + textureMaps[j]);
+                        if (!image->isNull()) {
+                            *image = image->convertToFormat(QImage::Format_RGBA8888);
 
-                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->width(), image->height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, ((const QImage *)image)->bits());
+                            // Make sure this does what I think it does.
+                            glActiveTexture(GL_TEXTURE0 + j);
 
-                        delete image;
+                            glGenTextures(1, drawTextureMaps[j]);
+                            glBindTexture(GL_TEXTURE_2D, *drawTextureMaps[j]);
 
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->width(), image->height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, ((const QImage *)image)->bits());
 
-                        glGenerateMipmap(GL_TEXTURE_2D);
+                            delete image;
+
+                            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+                            glGenerateMipmap(GL_TEXTURE_2D);
+
+                            allTextures.insert(textureMaps[j], *drawTextureMaps[j]);
+                        }
                     }
                 }
             }
+
+            glBindVertexArray(0);
         }
     }
 
     return true;
+}
+
+void CWavefrontObj::drawArrays() {
+    glEnable(GL_TEXTURE_2D);
+
+    for (int i = 0; i < drawBuffers.size(); i++) {
+        glBindVertexArray(drawBuffers[i].vao);
+        drawShader->useProgram(true);
+
+        drawShader->uniform3f("MatAmbient", drawBuffers[i].matAmbient);
+        drawShader->uniform3f("MatDiffuse", drawBuffers[i].matDiffuse);
+        drawShader->uniform3f("MatSpecular", drawBuffers[i].matSpecular);
+        drawShader->uniform3f("MatTransmittance", drawBuffers[i].matTransmittance);
+        drawShader->uniform3f("MatEmission", drawBuffers[i].matEmission);
+
+        drawShader->uniform1f("MatShininess", drawBuffers[i].matShininess);
+        drawShader->uniform1f("MatIor", drawBuffers[i].matIor);
+        drawShader->uniform1f("MatDissolve", drawBuffers[i].matDissolve);
+        drawShader->uniform1f("MatIllum", drawBuffers[i].matIllum);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, drawBuffers[i].ambientMap);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, drawBuffers[i].diffuseMap);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, drawBuffers[i].specularMap);
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, drawBuffers[i].normalMap);
+
+        drawShader->uniform1ui("AmbientMap", 0);
+        drawShader->uniform1ui("DiffuseMap", 1);
+        drawShader->uniform1ui("SpecularMap", 2);
+        drawShader->uniform1ui("NormalMap", 3);
+
+        glDrawArrays(GL_TRIANGLES, 0, drawBuffers[i].count);
+    }
 }
 
 void CWavefrontObj::deleteModel() {
@@ -231,4 +304,6 @@ void CWavefrontObj::deleteModel() {
         glDeleteBuffers(1, &drawBuffers[i].vbo);
         glDeleteVertexArrays(1, &drawBuffers[i].vao);
     }
+
+    allTextures.clear();
 }

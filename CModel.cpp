@@ -91,14 +91,7 @@ void CModel::draw() {
     drawShader->useProgram(true);
     drawShader->uniformMat4("ModelMatrix", modelMatrix.getMatrix());
 
-    glBegin( GL_TRIANGLES );
-        glColor3f( 1.0 , 0.0 , 0.0 );
-        glVertex3f( -0.5 , -0.5 , -2.0 );
-        glColor3f( 1.0 , 1.0 , 0.0 );
-        glVertex3f( 0.5 , -0.5 , -2.0 );
-        glColor3f( 0.0 , 0.0 , 1.0 );
-        glVertex3f( 0.0 , 0.5 , -2.0 );
-    glEnd();
+    object.drawArrays();
 }
 
 bool CModel::loadModel() {
@@ -117,6 +110,9 @@ bool CModel::loadModel() {
         hasValidModel = bResult;
         return bResult;
     }
+
+    hasValidModel = false;
+    return false;
 }
 
 CShader *CModel::getDrawShader() {

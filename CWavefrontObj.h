@@ -4,25 +4,31 @@
 #include "CShader.h"
 #include "tinyobjloader/tiny_obj_loader.h"
 
-#include <QString>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
+#include <QString>
+#include <QMap>
 #include <QImage>
 #include <QImageReader>
 
 #pragma pack(0)
 
 struct SBufferData {
-    GLfloat position[3];
-    GLfloat texCoord[2];
-    GLfloat normal[3];
+    float x, y, z;
+    float u, v;
+    float nx, ny, nz;
+
+    //GLfloat position[3];
+    //GLfloat texCoord[2];
+    //GLfloat normal[3];
 };
 
 struct SDrawBuffer {
     GLuint vao;
     GLuint vbo;
+    GLint count;
 
     glm::vec3 matAmbient;
     glm::vec3 matDiffuse;
@@ -54,6 +60,9 @@ private:
 
     QString wavefrontFile;
     QString materialPath;
+
+    // Need to reduce redundant texture loading.
+    QMap<QString, GLint> allTextures;
 
 private:
     bool generateBuffers();

@@ -270,6 +270,15 @@ void CShader::uniform2f(QString uniform, float x, float y) {
     }
 }
 
+void CShader::uniform2f(QString uniform, glm::vec2 v1) {
+    if (program) {
+        if (useProgram(true)) {
+            GLint uniformLocation = glGetUniformLocation(program, uniform.toStdString().c_str());
+            glUniform2fv(uniformLocation, 1, glm::value_ptr(v1));
+        }
+    }
+}
+
 void CShader::uniform3f(QString uniform, float x, float y, float z) {
     // Our shader program needs to be active.
     if (program) {
@@ -280,6 +289,16 @@ void CShader::uniform3f(QString uniform, float x, float y, float z) {
     }
 }
 
+void CShader::uniform3f(QString uniform, glm::vec3 v1) {
+    if (program) {
+        if (useProgram(true)) {
+            GLint uniformLocation = glGetUniformLocation(program, uniform.toStdString().c_str());
+            glUniform3fv(uniformLocation, 1, glm::value_ptr(v1));
+        }
+    }
+}
+
+
 void CShader::uniform4f(QString uniform, float x, float y, float z, float w) {
     // Our shader program needs to be active.
     if (program) {
@@ -289,6 +308,16 @@ void CShader::uniform4f(QString uniform, float x, float y, float z, float w) {
         }
     }
 }
+
+void CShader::uniform4f(QString uniform, glm::vec4 v1) {
+    if (program) {
+        if (useProgram(true)) {
+            GLint uniformLocation = glGetUniformLocation(program, uniform.toStdString().c_str());
+            glUniform4fv(uniformLocation, 1, glm::value_ptr(v1));
+        }
+    }
+}
+
 
 void CShader::uniformMat4(QString uniform, glm::mat4 mat) {
     // Our shader program needs to be active.
