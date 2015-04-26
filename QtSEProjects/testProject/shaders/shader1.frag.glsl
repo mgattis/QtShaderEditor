@@ -1,15 +1,23 @@
+#version 150
+
 uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ProjectionMatrix;
 uniform float Time;
 
+uniform sampler2D AmbientMap;
 uniform sampler2D DiffuseMap;
 
-varying vec2 FragTexCoord;
+smooth in vec2 FragTexCoord;
 
 void main()
 {
-    vec3 color = texture2D(DiffuseMap, FragTexCoord.xy).rgb;
-    //vec3 color = vec3(1.0, 1.0, 1.0);
-    gl_FragColor = vec4(color, 1.0);
+    //vec3 ambientColor = texture2D(AmbientMap, FragTexCoord.xy).rgb;
+    vec4 diffuseColor = texture2D(DiffuseMap, FragTexCoord.xy).rgba;
+
+    if (diffuseColor.a == 0.0) {
+        discard;
+    }
+
+    gl_FragColor = vec4(diffuseColor);
 }

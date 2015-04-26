@@ -8,7 +8,7 @@ VGLView::VGLView( QWidget *parent /* = NULL */ )
     maxAcceleration = 8.0;
     maxVelocity = 1.0;
     friction = 2.0;
-    speedMultiplier = 16.0;
+    speedMultiplier = 256.0;
 
     project = NULL;
 

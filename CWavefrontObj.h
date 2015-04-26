@@ -19,10 +19,6 @@ struct SBufferData {
     float x, y, z;
     float u, v;
     float nx, ny, nz;
-
-    //GLfloat position[3];
-    //GLfloat texCoord[2];
-    //GLfloat normal[3];
 };
 
 struct SDrawBuffer {

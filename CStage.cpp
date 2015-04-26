@@ -169,6 +169,12 @@ void CStage::run() {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
 
+        glEnable( GL_BLEND );
+        glEnable( GL_COLOR_MATERIAL );
+        glColorMaterial( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
+        glBlendEquation( GL_FUNC_ADD );
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
         // Cycle through our models.
         QList<CModel *>::iterator modelListIt = modelList.begin();
         for (; modelListIt != modelList.end(); ++modelListIt) {

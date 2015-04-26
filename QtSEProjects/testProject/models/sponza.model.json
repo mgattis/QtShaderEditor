@@ -3,15 +3,18 @@
     "itemType": "model",
 
     "wavefront": {
-        "objectFile": "dabrovic-sponza/sponza.obj",
-        "materialTemplateLibraryPath": "dabrovic-sponza"
+        "objectFile": "crytek-sponza/sponza.obj",
+        "materialTemplateLibraryPath": "crytek-sponza"
     },
 
-	"modelTransforms": [
-        { 
+    "modelTransforms": [
+        {
             "loadIdentity": true
+        },
+        {
+            "rotate": [ 90.0, 1.0, 0.0, 0.0 ]
         }
-	],
+    ],
 
 	"textureList": [
 		 "floorstreets.texture"

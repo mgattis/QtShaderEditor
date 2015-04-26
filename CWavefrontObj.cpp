@@ -74,71 +74,64 @@ bool CWavefrontObj::generateBuffers() {
 
     // One mesh per material.
     for (int i = 0; i < numberOfMaterials; i++) {
-        SDrawBuffer dBuffer = {0};
-        drawBuffers.push_back(dBuffer);
+        SDrawBuffer drawBuffer;
+        drawBuffers.push_back(drawBuffer);
     }
 
     // Fill the draw buffers with data.
-    for (int i = 0; i < tshapes.size(); i++) {
+    for (int shapeIt = 0; shapeIt < tshapes.size(); shapeIt++) {
         // It is possible that our indices may be missing some values.
         // We need to check and make sure they are there!
         // We will exploit the fact that if one of the following are zero,
         // that attribute is missing.
-        int sizePosition = tshapes[i].mesh.positions.size();
-        int sizeTexcoords = tshapes[i].mesh.texcoords.size();
-        int sizeNormals = tshapes[i].mesh.normals.size();
+        int sizePosition = tshapes[shapeIt].mesh.positions.size();
+        int sizeTexcoords = tshapes[shapeIt].mesh.texcoords.size();
+        int sizeNormals = tshapes[shapeIt].mesh.normals.size();
         int actualAttribsPerIndex = 0;
-        if (sizePosition) { actualAttribsPerIndex++; }
-        if (sizeTexcoords) { actualAttribsPerIndex++; }
-        if (sizeNormals) { actualAttribsPerIndex++; }
 
-        int totalIndices = tshapes[i].mesh.indices.size() / actualAttribsPerIndex;
+        // Iterate through all triangles.
+        int totalTriangles = tshapes[shapeIt].mesh.indices.size() / 3;
+        for (int face = 0; face < totalTriangles; face++) {
+            int mat = tshapes[shapeIt].mesh.material_ids[face];
+            int matCount = tshapes[shapeIt].mesh.material_ids.size();
 
-        for (int f = 0; f < totalIndices; f++) {
-            int indexInc = 0;
-            int vID = 0;
-            int tID = 0;
-            int nID = 0;
+            // Iterate through vertex
+            for (int index = 0; index < 3; index++) {
+                int lookup = tshapes[shapeIt].mesh.indices[3 * face + index];
 
-            if (sizePosition) { vID = tshapes[i].mesh.indices[actualAttribsPerIndex * f + indexInc]; indexInc++; }
-            if (sizeTexcoords) { tID = tshapes[i].mesh.indices[actualAttribsPerIndex * f + indexInc]; indexInc++; }
-            if (sizeNormals) { nID = tshapes[i].mesh.indices[actualAttribsPerIndex * f + indexInc]; indexInc++; }
+                SBufferData vertexData;
 
-            int matSize = tshapes[i].mesh.material_ids.size();
-            int mat = tshapes[i].mesh.material_ids[f / 3];
+                if (3 * lookup + 2 < sizePosition) {
+                    vertexData.x = tshapes[shapeIt].mesh.positions[3 * lookup + 0];
+                    vertexData.y = tshapes[shapeIt].mesh.positions[3 * lookup + 1];
+                    vertexData.z = tshapes[shapeIt].mesh.positions[3 * lookup + 2];
+                }
+                else {
+                    vertexData.x = 0.0;
+                    vertexData.y = 0.0;
+                    vertexData.z = 0.0;
+                }
+                if (2 * lookup + 1 < sizeTexcoords) {
+                    vertexData.u = tshapes[shapeIt].mesh.texcoords[2 * lookup + 0];
+                    vertexData.v = tshapes[shapeIt].mesh.texcoords[2 * lookup + 1];
+                }
+                else {
+                    vertexData.u = 0.0;
+                    vertexData.v = 0.0;
+                }
+                if (3 * lookup + 2 < sizeNormals) {
+                    vertexData.nx = tshapes[shapeIt].mesh.normals[3 * lookup + 0];
+                    vertexData.ny = tshapes[shapeIt].mesh.normals[3 * lookup + 1];
+                    vertexData.nz = tshapes[shapeIt].mesh.normals[3 * lookup + 2];
+                }
+                else {
+                    vertexData.nx = 0.0;
+                    vertexData.ny = 0.0;
+                    vertexData.nz = 0.0;
+                }
 
-            SBufferData vertexData;
-
-            if (3 * vID + 2 < sizePosition) {
-                vertexData.x = tshapes[i].mesh.positions[3 * vID + 0];
-                vertexData.y = tshapes[i].mesh.positions[3 * vID + 1];
-                vertexData.z = tshapes[i].mesh.positions[3 * vID + 2];
+                drawBuffers[mat].bufferData.push_back(vertexData);
             }
-            else {
-                vertexData.x = 0.0;
-                vertexData.y = 0.0;
-                vertexData.z = 0.0;
-            }
-            if (2 * tID + 1 < sizeTexcoords) {
-                vertexData.u = tshapes[i].mesh.texcoords[2 * tID + 0];
-                vertexData.v = tshapes[i].mesh.texcoords[2 * tID + 1];
-            }
-            else {
-                vertexData.u = 0.0;
-                vertexData.v = 0.0;
-            }
-            if (3 * nID + 2 < sizeNormals) {
-                vertexData.nx = tshapes[i].mesh.normals[3 * nID + 0];
-                vertexData.ny = tshapes[i].mesh.normals[3 * nID + 1];
-                vertexData.nz = tshapes[i].mesh.normals[3 * nID + 2];
-            }
-            else {
-                vertexData.nx = 0.0;
-                vertexData.ny = 0.0;
-                vertexData.nz = 0.0;
-            }
-
-            drawBuffers[mat].bufferData.push_back(vertexData);
         }
     }
 
@@ -168,7 +161,7 @@ bool CWavefrontObj::loadBuffers() {
             glVertexAttribPointer(positionAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof (GLfloat), (void *)(0));
         }
 
-        GLint texcoordAttrib = glGetAttribLocation(drawShader->getProgram(), "Texcoord");
+        GLint texcoordAttrib = glGetAttribLocation(drawShader->getProgram(), "TexCoord");
         if (texcoordAttrib != -1) {
             glEnableVertexAttribArray(texcoordAttrib);
             glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof (GLfloat), (void *)(3 * sizeof (GLfloat)));
@@ -181,7 +174,7 @@ bool CWavefrontObj::loadBuffers() {
         }
 
         // Our buffers are now safe and secure with OpenGL.
-        // drawBuffers[i].bufferData.clear();
+        drawBuffers[i].bufferData.clear();
     }
 
     return true;

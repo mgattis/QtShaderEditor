@@ -1,3 +1,5 @@
+#version 150
+
 uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ProjectionMatrix;
@@ -6,7 +8,7 @@ uniform float Time;
 in vec3 Position;
 in vec2 TexCoord;
 
-varying vec2 FragTexCoord;
+smooth out vec2 FragTexCoord;
 
 void main()
 {
