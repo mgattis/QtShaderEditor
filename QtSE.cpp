@@ -141,9 +141,7 @@ void QtSE::open( void )
 	//return;
 
 	// TODO: Load json and verify that it is a project
-	//QDir::setCurrent( QCoreApplication::applicationDirPath() + "/QtSEProjects/experimental/" );
-	QDir::setCurrent( QCoreApplication::applicationDirPath() + "/QtSEProjects/testProject/" );
-	//QDir::setCurrent( QDir::homePath() + "/Projects/QtShaderEditor/QtSEProjects/experimental/" );
+	QDir::setCurrent( QCoreApplication::applicationDirPath() + "/QtSEProjects/experimental/" );
 
 	fsModel->setRootPath( QDir::currentPath() );
 
@@ -167,6 +165,10 @@ void QtSE::save( void )
 			jsonForm->save();
 		else if( VGLSLEdit *glslEdit = dynamic_cast< VGLSLEdit* >( focus ) )
 			glslEdit->save();
+		else
+			return;
+
+		viewWidget->openProject( QString( "%1/%2" ).arg( QDir::currentPath() ).arg( jsonProjectName ) );
 	}
 }
 

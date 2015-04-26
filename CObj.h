@@ -9,6 +9,7 @@
 #include "tinyobjloader/tiny_obj_loader.h"
 
 #include <QByteArray>
+#include <QDir>
 #include <QFile>
 #include <QImage>
 #include <QImageReader>
@@ -83,7 +84,7 @@ public:
 		if( !texturePath.isEmpty() && !texturePath.endsWith( '/'  ) )
 			texturePath += "/";
 
-		CObj *obj = new CObj;
+        CObj *obj = new CObj;
 
 		std::vector< tinyobj::shape_t > shapes;
 		std::vector< tinyobj::material_t > materials;

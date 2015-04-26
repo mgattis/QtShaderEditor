@@ -14,26 +14,19 @@
 
     "viewTransforms": [
         {
-            "loadIdentity": true
-        },
-        {
-            "rotate": [ 45.0, 0.0, 0.0, 1.0 ]
-        },
-        {
-            "translate": [ 1.0, 1.0, 1.0 ]
+            "loadIdentity": false
         }
     ],
 
 	"inputFramebufferList": [
-		"framebuffer1.framebuffer"
+
 	],
 
-	"outputFrameBuffer": "context",
+	"outputFramebuffer": "context",
 
     "modelList": [
-        "model1.model"
+        "sponza.model"
     ],
 
 	"runOnce": false
 }
-

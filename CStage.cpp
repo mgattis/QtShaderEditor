@@ -145,6 +145,7 @@ void CStage::run() {
             outputFramebuffer->useBuffer(true);
         }
         else {
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
             glViewport(0, 0, iViewPortWidth, iViewPortHeight);
         }
 
@@ -163,9 +164,16 @@ void CStage::run() {
         }
 
         // About to start drawing. Ready the buffer.
+        glClearColor(1.0, 0.0, 0.0, 0.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
+
+        glEnable( GL_BLEND );
+        glEnable( GL_COLOR_MATERIAL );
+        glColorMaterial( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
+        glBlendEquation( GL_FUNC_ADD );
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
         // Cycle through our models.
         QList<CModel *>::iterator modelListIt = modelList.begin();
@@ -173,9 +181,9 @@ void CStage::run() {
             CModel *model = (*modelListIt);
             CShader *drawShader = model->getDrawShader();
 
-            // Give two of our matricies to the shader.
+			// Give two of our matrices to the shader.
             drawShader->uniformMat4("ViewMatrix", viewMatrix);
-            glm::mat4 projectionMatrix = this->projectionMatrix->getProjectionMatrix(iBufferWidth, iBufferWidth);
+            glm::mat4 projectionMatrix = this->projectionMatrix->getProjectionMatrix(iBufferWidth, iBufferHeight);
             drawShader->uniformMat4("ProjectionMatrix", projectionMatrix);
 
             // Give our input framebuffers to the shader.

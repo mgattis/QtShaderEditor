@@ -97,7 +97,7 @@ glm::mat4 CModelViewMatrix::loadIdentity() {
 
 // Rotates.
 glm::mat4 CModelViewMatrix::rotate(float angle, float x, float y, float z) {
-    matrix = glm::rotate(matrix, angle, glm::vec3(x, y, z));
+    matrix = glm::rotate(matrix, (float)(angle * (M_PI/180.0)), glm::vec3(x, y, z));
     return matrix;
 }
 

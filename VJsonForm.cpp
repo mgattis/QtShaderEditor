@@ -113,24 +113,26 @@ void VJsonForm::save( void )
 			this->setWindowTitle( filePath.mid( filePath.lastIndexOf( '/' ) + 1 ) + "[*]" );
 	}
 
+#if 0
 	QJsonObject obj = toObject();
-	//obj.insert( "itemType"  , type );
+	obj.insert( "itemType"  , type );
 
 	QJsonDocument doc( obj );
 	std::cout << doc.toJson().data() << std::endl;
 
 	setUnmodified();
 	return;
-
+#else
 	QFile file( filePath );
 
 	if( file.open( QIODevice::WriteOnly | QIODevice::Truncate ) )
 	{
-		//QJsonObject obj = toObject();
+		QJsonObject obj = toObject();
+		obj.insert( "itemType"  , type );
 
-		//QJsonDocument doc( obj );
+		QJsonDocument doc( obj );
 		//std::cout << doc.toJson().data() << std::endl;
-		QByteArray contents;
+		QByteArray contents = doc.toJson();
 
 		if( file.write( contents ) != -1 )
 			setUnmodified();
@@ -139,6 +141,7 @@ void VJsonForm::save( void )
 	}
 	else
 		slog::log( "Unable to open file" , file.errorString() );
+#endif
 }
 
 #if 0

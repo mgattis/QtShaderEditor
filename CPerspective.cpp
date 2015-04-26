@@ -6,7 +6,7 @@ CPerspective::CPerspective()
     aspect.setWindowWidth(1.0);
     aspect.setWindowHeight(1.0);
     zNear = 0.1;
-    zFar = 80.0;
+	zFar = 80.0;
 
     iWidth = 800;
     iHeight = 600;

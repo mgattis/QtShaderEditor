@@ -58,7 +58,8 @@ SOURCES += main.cpp\
     CModel.cpp \
     CTexture.cpp \
     CShader.cpp \
-    CModelViewMatrix.cpp
+    CModelViewMatrix.cpp \
+    CWavefrontObj.cpp
 
 HEADERS  += QtSE.h \
     CResourceManager.h \
@@ -89,7 +90,8 @@ HEADERS  += QtSE.h \
     CModel.h \
     CTexture.h \
     CShader.h \
-    CModelViewMatrix.h
+    CModelViewMatrix.h \
+    CWavefrontObj.h
 
 DISTFILES += \
     .gitignore

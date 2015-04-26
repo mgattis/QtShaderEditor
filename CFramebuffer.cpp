@@ -123,6 +123,8 @@ bool CFramebuffer::makeBuffer(int iWidth, int iHeight) {
     GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
     glDrawBuffers(1, DrawBuffers);
 
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     // If any of that above failed, clean up and report failure.
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         iPhysicalBufferWidth = 0;
@@ -154,6 +156,9 @@ bool CFramebuffer::useBuffer(bool bUse) {
         glBindFramebuffer(GL_FRAMEBUFFER, framebufferObject);
         glViewport(0, 0, iPhysicalBufferWidth, iPhysicalBufferHeight);
         return true;
+    }
+    else {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     return false;
 }

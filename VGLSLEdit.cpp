@@ -311,7 +311,7 @@ void VGLSLEdit::save( void )
 	}
 
 	setUnmodified();
-	return;
+	//return;
 
 	QFile file( filePath );
 

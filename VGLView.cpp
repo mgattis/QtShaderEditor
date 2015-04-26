@@ -8,7 +8,7 @@ VGLView::VGLView( QWidget *parent /* = NULL */ )
     maxAcceleration = 8.0;
     maxVelocity = 1.0;
     friction = 2.0;
-    speedMultiplier = 1.0;
+    speedMultiplier = 256.0;
 
     project = NULL;
 
@@ -44,7 +44,8 @@ void VGLView::initializeGL( void )
         repaintTimer.setInterval( 33 );
 		repaintTimer.start();
 
-        //openProject("./QtSEProjects/testProject/testProject.project.json");
+		//openProject("./QtSEProjects/testProject/testProject.project.json");
+		openProject( QDir::currentPath() + "/testProject.project.json");
 
         complete = true;
     }
@@ -63,17 +64,18 @@ void VGLView::paintGL( void )
     lastFrameTime = frameTimer.restart() / 1000.0;
     totalTime += lastFrameTime;
 
-    //updateCamera(lastFrameTime);
+    if (project) {
+        updateCamera(lastFrameTime);
+        project->run(lastFrameTime);
+    }
 
-    //project->run(lastFrameTime);
-
-    glUseProgram(0);
+    /*glUseProgram(0);
 
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glEnable( GL_DEPTH_TEST );
-    glClearColor( 0.0 , 0.0 , 0.0, 0.0 );
+    glClearColor( 1.0 , 0.0 , 0.0, 0.0 );
     glDepthFunc( GL_LEQUAL );
-    glEnable( GL_ALWAYS );
+    glEnable( GL_DEPTH_TEST );
 
     glViewport( 0 , 0 , (GLint)this->width() , (GLint)this->height() );
     glMatrixMode( GL_PROJECTION );
@@ -83,6 +85,7 @@ void VGLView::paintGL( void )
     glLoadIdentity();
 
 	glRotatef(totalTime*50.0, 0.0, 1.0, 0.0);
+	//glRotatef(totalTime*360.0, 1.0, 0.0, 0.0);
 
     glBegin( GL_TRIANGLES );
         glColor3f( 1.0 , 0.0 , 0.0 );
@@ -91,11 +94,14 @@ void VGLView::paintGL( void )
         glVertex3f( 0.5 , -0.5 , -2.0 );
         glColor3f( 0.0 , 0.0 , 1.0 );
         glVertex3f( 0.0 , 0.5 , -2.0 );
-    glEnd();
+    glEnd();*/
 }
 
 void VGLView::updateCamera(float lastFrameTime) {
     // Walk on the XY plane.
+    float maxAcceleration = this->maxAcceleration * speedMultiplier;
+    float maxVelocity = this->maxVelocity * speedMultiplier;
+    float friction = this->friction * speedMultiplier;
 
     // Apply friction.
     glm::vec2 velocity = glm::vec2(camera.velocity);
@@ -118,7 +124,8 @@ void VGLView::updateCamera(float lastFrameTime) {
         acceleration = glm::normalize(acceleration);
     }
     // Apply acceleration rotation.
-    acceleration = glm::vec2(glm::rotate(glm::mat4(), (float)(camera.angle.z * (M_PI / 180.0)), glm::vec3(0.0, 0.0, -1.0)) * glm::vec4(acceleration, 0.0, 0.0));
+    float cameraRotation = camera.angle.z * (M_PI/180.0);
+    acceleration = glm::vec2(glm::rotate(glm::mat4(), cameraRotation, glm::vec3(0.0, 0.0, -1.0)) * glm::vec4(acceleration, 0.0, 0.0));
     // Apply acceleration to velocity.
     camera.velocity += lastFrameTime * maxAcceleration * glm::vec4(acceleration, 0.0, 0.0);
 
@@ -138,8 +145,8 @@ void VGLView::updateCamera(float lastFrameTime) {
     }
 
     float zacc = 0.0;
-    zacc += keyBits & KEY_SPACE ? 1.0 : 0.0;
-    zacc -= keyBits & KEY_LSHIFT ? 1.0 : 0.0;
+    zacc -= keyBits & KEY_SPACE ? 1.0 : 0.0;
+    zacc += keyBits & KEY_LSHIFT ? 1.0 : 0.0;
 
     camera.velocity.z += maxAcceleration * zacc * lastFrameTime;
 
@@ -151,10 +158,10 @@ void VGLView::updateCamera(float lastFrameTime) {
     // apply velocity
     camera.position += lastFrameTime * camera.velocity;
 
-    glLoadIdentity();
-    glRotatef(camera.angle.x, 1.0, 0.0, 0.0);
-    glRotatef(camera.angle.z, 0.0, 0.0, 1.0);
-    glTranslatef(-camera.position.x, -camera.position.y, -camera.position.z);
+    //glLoadIdentity();
+    //glRotatef(camera.angle.x, 1.0, 0.0, 0.0);
+    //glRotatef(camera.angle.z, 0.0, 0.0, 1.0);
+    //glTranslatef(-camera.position.x, -camera.position.y, -camera.position.z);
 
     camera.viewMatrix = camera.getMatrixFromPosition();
 }
@@ -188,7 +195,7 @@ void VGLView::closeProject() {
 
 void VGLView::resizeGL( int width , int height )
 {
-    glEnable( GL_DEPTH_TEST );
+    /*glEnable( GL_DEPTH_TEST );
     glClearColor( 0.0 , 0.0 , 0.0, 0.0 );
     glDepthFunc( GL_LEQUAL );
     glEnable( GL_BLEND );
@@ -198,7 +205,7 @@ void VGLView::resizeGL( int width , int height )
     glLoadIdentity();
     gluPerspective( 80.0 , (double)width/(double)height , 0.1 , 100.0 );
     glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
+    glLoadIdentity();*/
 
     if (project) {
         project->setViewPort(width, height);
@@ -243,7 +250,7 @@ void VGLView::mouseMoveEvent( QMouseEvent *event )
             // FPS Style
 
             camera.angle.z += ( event->pos().x() - lastCursorPos.x() ) / mouseSensitivity;
-            camera.angle.x += ( event->pos().y() - lastCursorPos.y() ) / mouseSensitivity;
+            camera.angle.x -= ( event->pos().y() - lastCursorPos.y() ) / mouseSensitivity;
 
             if( camera.angle.x < -90.0 ) {
                 camera.angle.x = -90.0;

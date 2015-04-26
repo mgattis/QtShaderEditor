@@ -115,7 +115,7 @@ protected:
 			VLogger *coutEdit;
 
 protected:
-	CPath jsonProjectName;
+	QString jsonProjectName;
 	QMap< QString , QWidget* > openFiles;
 	CProjectTreeItem *activeProjectItem;
 	QModelIndex fsContextIndex;

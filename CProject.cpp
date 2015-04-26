@@ -96,6 +96,8 @@ void CProject::_loadProjectObject(QString userJsonFile) {
                 itemType = userJsonObject["itemType"].toString();
             }
             else {
+				QJsonValue value = userJsonObject.value("itemType");
+				value.isString();
                 logWarning(QString("Invalid project format. '") + userJsonFile + QString("'."));
             }
 
@@ -241,7 +243,18 @@ bool CProject::initialize() {
                 this->bInitialized = false;
             }
             else {
-                logInfo(QString("Initialization successfull. '") + projectObject->getFullIdentifier() + QString("'."));
+				logInfo(QString("Initialization successful. '") + projectObject->getFullIdentifier() + QString("'."));
+            }
+        }
+
+        // We will take a second step to load all models because they need
+        // valid shaders
+        projectListIt = projectList.begin();
+        for (; projectListIt != projectList.end(); ++projectListIt) {
+            IProjectObject *projectObject = (*projectListIt);
+            if (projectObject->getItemType().compare("model") == 0) {
+                CModel *model = (CModel *)projectObject;
+                model->loadModel();
             }
         }
 

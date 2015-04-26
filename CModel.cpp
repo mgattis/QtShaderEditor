@@ -5,18 +5,24 @@ CModel::CModel()
     objectFile = "";
     MTLPath = ".";
     drawShader = NULL;
+
+    hasValidModel = false;
 }
 
 CModel::CModel(QString modelFile) : IProjectObject(modelFile) {
     objectFile = "";
     MTLPath = ".";
     drawShader = NULL;
+
+    hasValidModel = false;
 }
 
 CModel::CModel(QString modelFile, QJsonObject modelJson) : IProjectObject(modelFile, modelJson) {
     objectFile = "";
 	MTLPath = ".";
 	drawShader = NULL;
+
+    hasValidModel = false;
 }
 
 CModel::~CModel()
@@ -34,6 +40,7 @@ bool CModel::initialize() {
             if (wavefront.value("materialTemplateLibraryPath").isString()) {
                 MTLPath = wavefront.value("materialTemplateLibraryPath").toString();
             }
+
         }
 
         if (userJson.value("textureList").isArray()) {
@@ -75,6 +82,8 @@ bool CModel::initialize() {
         return false;
     }
 
+    // We need to call loadModel after all shaders have been built.c:
+
     return true;
 }
 
@@ -82,20 +91,28 @@ void CModel::draw() {
     drawShader->useProgram(true);
     drawShader->uniformMat4("ModelMatrix", modelMatrix.getMatrix());
 
-    glColor3f(1.0, 1.0, 1.0);
+    object.drawArrays();
+}
 
-    glBegin(GL_TRIANGLE_STRIP);
+bool CModel::loadModel() {
+    if (objectFile.size() && MTLPath.size()) {
+        objectFile = QDir(workingPath + objectFile).absolutePath();
+        MTLPath = QDir(workingPath + MTLPath).absolutePath();
+        bool bResult = object.loadWavefront(objectFile, QDir(MTLPath).absolutePath(), drawShader);
 
-    glVertex3f(-1.0, -1.0, -1.0);
-    glVertex3f(-1.0, 1.0, -1.0);
-    glVertex3f(1.0, -1.0, -1.0);
-    glVertex3f(1.0, 1.0, -1.0);
-    glVertex3f(-1.0, -1.0, 1.0);
-    glVertex3f(-1.0, 1.0, 1.0);
-    glVertex3f(1.0, -1.0, 1.0);
-    glVertex3f(1.0, 1.0, 1.0);
+        if (bResult == false) {
+            logWarning(QString("Unable to load model. '") + objectFile + QString("'."));
+        }
+        else {
+            logInfo(QString("Model loaded. '") + objectFile + QString("'."));
+        }
 
-    glEnd();
+        hasValidModel = bResult;
+        return bResult;
+    }
+
+    hasValidModel = false;
+    return false;
 }
 
 CShader *CModel::getDrawShader() {

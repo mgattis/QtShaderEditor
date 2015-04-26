@@ -5,7 +5,10 @@
 #include "CTexture.h"
 #include "CShader.h"
 #include "CModelViewMatrix.h"
+#include "CWavefrontObj.h"
 
+#include <iostream>
+#include <string>
 #include <QJsonArray>
 
 class CModel : public IProjectObject {
@@ -18,6 +21,10 @@ private:
 
     CModelViewMatrix modelMatrix;
 
+    bool hasValidModel;
+    CWavefrontObj object;
+
+
 public:
     CModel();
     CModel(QString modelFile);
@@ -26,7 +33,9 @@ public:
 
     bool initialize();
 
+    bool loadModel();
     void draw();
+
     CShader *getDrawShader();
 };
 
