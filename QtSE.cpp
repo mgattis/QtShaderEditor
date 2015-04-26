@@ -87,8 +87,8 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	projectTree->expandAll();
 
 	itemsTab = new QTabWidget( NULL );
-	itemsTab->addTab( projectTree , "Project" );
 	itemsTab->addTab( fsProjectTree2 , "Filesystem" );
+	itemsTab->addTab( projectTree , "Project" );
 	//itemsTab->addTab( fsProjectTree , "Filesystem" );
 	itemsTab->setTabPosition( QTabWidget::East );
 	itemsTab->setTabsClosable( false );
@@ -179,10 +179,12 @@ void QtSE::openPath( const QString path )
 {
 	QString relPath = path;
 	std::cout << path.toLatin1().data() << std::endl;
+
 	if( path.startsWith( '/' ) )
 	{
 		relPath = path.mid( QDir::currentPath().size() + 1 );
 	}
+
 	std::cout << relPath.toLatin1().data() << std::endl;
 	relPath.prepend( '/' );
 
@@ -509,41 +511,92 @@ void QtSE::addFolder( void )
 #endif
 }
 
+void QtSE::addProjectFile( QFileInfo &info , const QString &itemName , const QString &typeName )
+{
+	bool ok = false;
+	QString name = QInputDialog::getText( this , this->windowTitle() , itemName + " Name:" , QLineEdit::Normal , "" , &ok );
+
+	if( ok )
+	{
+		//std::cout << info.absoluteFilePath().toLatin1().data() << std::endl;
+		QString path = info.absoluteFilePath() + "/" + name + ".json";
+		QDir dir( path );
+		std::cout << path.toLatin1().data() << std::endl;
+
+		if( !dir.exists( path ) )
+		{
+			QFile file( path );
+
+			if( file.open( QIODevice::WriteOnly ) )
+			{
+				QJsonObject obj = CJsonTemplate::get()->createTree( typeName , true );
+				obj.insert( "itemName" , "itemname" );
+				obj.insert( "itemType" , typeName );
+				QJsonDocument doc( obj );
+				file.write( doc.toJson() );
+			}
+		}
+	}
+}
+
 void QtSE::addStage( void )
 {
-	//
+	QFileInfo info = fsModel->fileInfo( fsContextIndex );
+
+	if( info.isDir() )
+		addProjectFile( info , "Stage" , "stage" );
 }
 
 void QtSE::addFramebuffer( void )
 {
-	//
+	QFileInfo info = fsModel->fileInfo( fsContextIndex );
+
+	if( info.isDir() )
+		addProjectFile( info , "Framebuffer" , "framebuffer" );
 }
 
 void QtSE::addShader( void )
 {
-	//
+	QFileInfo info = fsModel->fileInfo( fsContextIndex );
+
+	if( info.isDir() )
+		addProjectFile( info , "Shader" , "shader" );
 }
 
 void QtSE::addModel( void )
 {
-	//
+	QFileInfo info = fsModel->fileInfo( fsContextIndex );
+
+	if( info.isDir() )
+		addProjectFile( info , "Model" , "model" );
 }
 
 void QtSE::addTexture( void )
 {
-	//
+	QFileInfo info = fsModel->fileInfo( fsContextIndex );
+
+	if( info.isDir() )
+		addProjectFile( info , "Texture" , "texture" );
 }
 
 void QtSE::deleteItem( void )
 {
 	QFileInfo info = fsModel->fileInfo( fsContextIndex );
 
-	if( info.isDir() )
+	if( QMessageBox::Yes == QMessageBox::question( this , this->windowTitle() , "Are you sure?\nThis action cannot be undone." ) )
 	{
-		QDir dir( info.absoluteFilePath() );
-		QString rmName = dir.dirName();
-		dir.cdUp();
-		dir.rmdir( rmName );
+		if( info.isDir() )
+		{
+			QDir dir( info.absoluteFilePath() );
+			QString rmName = dir.dirName();
+			dir.cdUp();
+			dir.rmdir( rmName );
+		}
+		else
+		{
+			QDir dir( info.absolutePath() );
+			dir.remove( info.fileName() );
+		}
 	}
 
 	//if( activeProjectItem )

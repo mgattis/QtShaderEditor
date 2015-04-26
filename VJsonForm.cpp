@@ -86,7 +86,7 @@ void VJsonForm::closeEvent( QCloseEvent *event )
 
 void VJsonForm::load( const QString &path )
 {
-	QString type;
+	//QString type;
 	QJsonObject obj = CJsonTemplate::get()->loadUserJson( path , type );
 
 	if( !type.isEmpty() )
@@ -114,6 +114,7 @@ void VJsonForm::save( void )
 	}
 
 	QJsonObject obj = toObject();
+	//obj.insert( "itemType"  , type );
 
 	QJsonDocument doc( obj );
 	std::cout << doc.toJson().data() << std::endl;
@@ -221,11 +222,12 @@ QJsonObject VJsonForm::toObject( void )
 void VJsonForm::showContextMenu( QPoint point )
 {
 	VJsonFormItem *item = lastContextItem = (VJsonFormItem*)this->itemAt( point );
+	QMenu *menu = new QMenu( this );
+	menu->setAttribute( Qt::WA_DeleteOnClose );
 
 	if( item )
 	{
-		QMenu *menu = new QMenu( this );
-		menu->setAttribute( Qt::WA_DeleteOnClose );
+		contextItemType = item->lastValue.toString();
 
 		if( item->isArray )
 			menu->addAction( "Add" , this , SLOT(addArrayItem()) );
@@ -262,9 +264,27 @@ void VJsonForm::showContextMenu( QPoint point )
 			delete menu;
 			return;
 		}
-
-		menu->popup( this->mapToGlobal( point ) );
 	}
+	else
+	{
+		contextItemType = type;
+		QTreeWidgetItem *item = lastContextItem = invisibleRootItem();
+		QStringList itemKeys , keys = CJsonTemplate::get()->getKeysForStructure( type );
+
+		for( int index = 0 ; index < item->childCount() ; index++ )
+			itemKeys.append( item->child( index )->text( 0 ) );
+
+		for( int index = 0 ; index < keys.size() ; index++ )
+		{
+			QAction *action = menu->addAction( keys.at( index ) , this , SLOT(toggleStructureItem()) );
+			action->setCheckable( true );
+
+			if( itemKeys.contains( keys.at( index ) ) )
+				action->setChecked( true );
+		}
+	}
+
+	menu->popup( this->mapToGlobal( point ) );
 }
 
 void VJsonForm::addArrayItem( void )
@@ -320,7 +340,7 @@ void VJsonForm::toggleStructureItem( void )
 	if( checked )
 	{
 		QTreeWidgetItem *parentItem = new QTreeWidgetItem( (QTreeWidgetItem*)NULL );
-		CJsonTemplate::get()->createTree( lastContextItem->lastValue.toString() , parentItem );
+		CJsonTemplate::get()->createTree( contextItemType , parentItem , true );
 
 		for( int index = 0 ; index < parentItem->childCount() ; index++ )
 			if( !key.compare( parentItem->child( index )->text( 0 ) , Qt::CaseInsensitive ) )

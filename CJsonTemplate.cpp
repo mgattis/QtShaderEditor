@@ -419,7 +419,7 @@ QJsonObject CJsonTemplate::createTree( const QString &name , bool gui ) const
 	return obj;
 }
 
-void CJsonTemplate::createTree( const QString &name , QTreeWidgetItem *parent ) const
+void CJsonTemplate::createTree( const QString &name , QTreeWidgetItem *parent , bool guiOnly ) const
 {
 	QVector< CJsonKeyvalueData* > *keyvalues = ( QVector< CJsonKeyvalueData* >* )structMap.value( name , NULL );
 
@@ -430,7 +430,7 @@ void CJsonTemplate::createTree( const QString &name , QTreeWidgetItem *parent ) 
 			const CJsonKeyvalueData *data = keyvalues->at( index );
 			//std::cout << data->key.toLatin1().data() << std::endl;
 
-			//if( data->guiInsert )
+			if( guiOnly ? data->guiInsert : true )
 			{
 				if( data->indexable )
 				{
@@ -444,7 +444,7 @@ void CJsonTemplate::createTree( const QString &name , QTreeWidgetItem *parent ) 
 						item->setText( 0 , "[0]" );
 						item->setText( 1 , data->getValueName() );
 
-						createTree( data->value.toString() , item );
+						createTree( data->value.toString() , item , guiOnly );
 					}
 					else
 					{
@@ -465,7 +465,7 @@ void CJsonTemplate::createTree( const QString &name , QTreeWidgetItem *parent ) 
 					item->setText( 1 , data->getValueName().toUpper() );
 
 					if( data->type == CJsonKeyvalueData::structure )
-						createTree( data->value.toString() , item );
+						createTree( data->value.toString() , item , guiOnly );
 					else
 						item->setData( 2 , Qt::DisplayRole , data->value );
 				}
@@ -487,91 +487,93 @@ void CJsonTemplate::createTree( const QString &name , const QJsonObject &obj , Q
 
 			// Some keys are optional or mutually exclusive with others
 			// Don't attempt to parse something we don't have
-			//if( data->guiInsert )
-			if( obj.contains( data->key ) )
+			//if( guiOnly ? data->guiInsert : true )
 			{
-				if( data->indexable )
+				if( obj.contains( data->key ) )
 				{
-					// NOTE: Iterating over the array does not return items in alphabetical order
-					QJsonArray objArray = obj.value( data->key ).toArray();
-
-					if( data->type == CJsonKeyvalueData::structure )
+					if( data->indexable )
 					{
-						VJsonFormItem *array = new VJsonFormItem( parent , data->type , true , data->value );
-						array->setText( 0 , data->key );
-						array->setText( 1 , "ARRAY" );
+						// NOTE: Iterating over the array does not return items in alphabetical order
+						QJsonArray objArray = obj.value( data->key ).toArray();
 
-						for( int arrayIndex = 0 ; arrayIndex < objArray.size() ; arrayIndex++ )
+						if( data->type == CJsonKeyvalueData::structure )
 						{
-							VJsonFormItem *item = new VJsonFormItem( array , data->type , false , data->value );
-							item->setText( 0 , QString( "[%1]" ).arg( arrayIndex ) );
-							item->setText( 1 , data->getValueName() );
+							VJsonFormItem *array = new VJsonFormItem( parent , data->type , true , data->value );
+							array->setText( 0 , data->key );
+							array->setText( 1 , "ARRAY" );
 
-							QJsonObject arrayObject = objArray.at( arrayIndex ).toObject();
-							createTree( data->value.toString() , arrayObject , item );
+							for( int arrayIndex = 0 ; arrayIndex < objArray.size() ; arrayIndex++ )
+							{
+								VJsonFormItem *item = new VJsonFormItem( array , data->type , false , data->value );
+								item->setText( 0 , QString( "[%1]" ).arg( arrayIndex ) );
+								item->setText( 1 , data->getValueName() );
+
+								QJsonObject arrayObject = objArray.at( arrayIndex ).toObject();
+								createTree( data->value.toString() , arrayObject , item );
+							}
+						}
+						else
+						{
+							VJsonFormItem *array = new VJsonFormItem( parent , data->type , true , data->value );
+							array->setText( 0 , data->key );
+							array->setText( 1 , "ARRAY" );
+
+							for( int arrayIndex = 0 ; arrayIndex < objArray.size() ; arrayIndex++ )
+							{
+								VJsonFormItem *item = new VJsonFormItem( array , data->type , false , data->value );
+								item->setText( 0 , QString( "[%1]" ).arg( arrayIndex ) );
+								item->setText( 1 , data->getValueName().toUpper() );
+								item->setData( 2 , Qt::DisplayRole , objArray.at( arrayIndex ).toVariant() );
+							}
 						}
 					}
-					else
+					else // data not indexable
 					{
-						VJsonFormItem *array = new VJsonFormItem( parent , data->type , true , data->value );
-						array->setText( 0 , data->key );
-						array->setText( 1 , "ARRAY" );
+						VJsonFormItem *item = new VJsonFormItem( parent , data->type , false , data->value );
+						item->setText( 0 , data->key );
+						item->setText( 1 , data->getValueName().toUpper() );
+						item->valueList = data->valueList;
 
-						for( int arrayIndex = 0 ; arrayIndex < objArray.size() ; arrayIndex++ )
+						if( data->type == CJsonKeyvalueData::structure )
 						{
-							VJsonFormItem *item = new VJsonFormItem( array , data->type , false , data->value );
-							item->setText( 0 , QString( "[%1]" ).arg( arrayIndex ) );
-							item->setText( 1 , data->getValueName().toUpper() );
-							item->setData( 2 , Qt::DisplayRole , objArray.at( arrayIndex ).toVariant() );
+							//std::cout << "toString() " << data->key.toLatin1().data() << " = " << data->value.toString().toLatin1().data() << "" << std::endl;
+
+							QJsonValue strValue = obj.value( data->key );
+
+							//if( strValue.isObject() )
+								//std::cout << "Type: " << (int)strValue.type() << std::endl;
+
+							QJsonObject strObject = strValue.toObject();
+							//QStringList keys = strObject.keys();
+							//for( int index2 = 0 ; index2 < keys.size() ; index2++ )
+								//std::cout << "Key: " << keys.at( index2 ).toLatin1().data() << std::endl;
+							createTree( data->value.toString() , strObject , item );
 						}
-					}
-				}
-				else // data not indexable
-				{
-					VJsonFormItem *item = new VJsonFormItem( parent , data->type , false , data->value );
-					item->setText( 0 , data->key );
-					item->setText( 1 , data->getValueName().toUpper() );
-					item->valueList = data->valueList;
-
-					if( data->type == CJsonKeyvalueData::structure )
-					{
-						//std::cout << "toString() " << data->key.toLatin1().data() << " = " << data->value.toString().toLatin1().data() << "" << std::endl;
-
-						QJsonValue strValue = obj.value( data->key );
-
-						//if( strValue.isObject() )
-							//std::cout << "Type: " << (int)strValue.type() << std::endl;
-
-						QJsonObject strObject = strValue.toObject();
-						//QStringList keys = strObject.keys();
-						//for( int index2 = 0 ; index2 < keys.size() ; index2++ )
-							//std::cout << "Key: " << keys.at( index2 ).toLatin1().data() << std::endl;
-						createTree( data->value.toString() , strObject , item );
-					}
-					else
-					{
-						switch( data->type )
+						else
 						{
-							case CJsonKeyvalueData::boolean:
-								item->setData( 2 , Qt::EditRole , obj.value( data->key ).toVariant() );
-								//item->setText( 2 , obj.value( data->key ).toString( "false" ) == "true" ? "true" : "false" );
-								break;
-							case CJsonKeyvalueData::floating:
-								item->setText( 2 , QString::number( obj.value( data->key ).toDouble() ) );
-								break;
-							case CJsonKeyvalueData::integer:
-								item->setText( 2 , QString::number( obj.value( data->key ).toInt() ) );
-								break;
-							case CJsonKeyvalueData::string:
-								if( item->valueList )
-									item->setData( 2 , Qt::DisplayRole , obj.value( data->key ).toString() );
-								else
-									item->setText( 2 , obj.value( data->key ).toString() );
-								break;
-							default: {}
-						}
+							switch( data->type )
+							{
+								case CJsonKeyvalueData::boolean:
+									item->setData( 2 , Qt::EditRole , obj.value( data->key ).toVariant() );
+									//item->setText( 2 , obj.value( data->key ).toString( "false" ) == "true" ? "true" : "false" );
+									break;
+								case CJsonKeyvalueData::floating:
+									item->setText( 2 , QString::number( obj.value( data->key ).toDouble() ) );
+									break;
+								case CJsonKeyvalueData::integer:
+									item->setText( 2 , QString::number( obj.value( data->key ).toInt() ) );
+									break;
+								case CJsonKeyvalueData::string:
+									if( item->valueList )
+										item->setData( 2 , Qt::DisplayRole , obj.value( data->key ).toString() );
+									else
+										item->setText( 2 , obj.value( data->key ).toString() );
+									break;
+								default: {}
+							}
 
-						//item->setData( 2 , Qt::EditRole , obj.value( data->key ).toVariant() );
+							//item->setData( 2 , Qt::EditRole , obj.value( data->key ).toVariant() );
+						}
 					}
 				}
 			}

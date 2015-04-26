@@ -167,6 +167,7 @@ protected slots:
 	void loadProject( const QString &path = QString() );
 	void generateProjectTree( const QString &path , QTreeWidgetItem *dirItem );
 
+	void addProjectFile( QFileInfo &info , const QString &itemName , const QString &typeName );
 	void addFolder( void );
 	void addStage( void );
 	void addFramebuffer( void );
