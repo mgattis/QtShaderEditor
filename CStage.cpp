@@ -145,6 +145,7 @@ void CStage::run() {
             outputFramebuffer->useBuffer(true);
         }
         else {
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
             glViewport(0, 0, iViewPortWidth, iViewPortHeight);
         }
 
@@ -176,7 +177,7 @@ void CStage::run() {
 
             // Give two of our matricies to the shader.
             drawShader->uniformMat4("ViewMatrix", viewMatrix);
-            glm::mat4 projectionMatrix = this->projectionMatrix->getProjectionMatrix(iBufferWidth, iBufferWidth);
+            glm::mat4 projectionMatrix = this->projectionMatrix->getProjectionMatrix(iBufferWidth, iBufferHeight);
             drawShader->uniformMat4("ProjectionMatrix", projectionMatrix);
 
             // Give our input framebuffers to the shader.

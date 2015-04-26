@@ -119,7 +119,8 @@ void VGLView::updateCamera(float lastFrameTime) {
         acceleration = glm::normalize(acceleration);
     }
     // Apply acceleration rotation.
-    acceleration = glm::vec2(glm::rotate(glm::mat4(), (float)(camera.angle.z * (M_PI / 180.0)), glm::vec3(0.0, 0.0, -1.0)) * glm::vec4(acceleration, 0.0, 0.0));
+    float cameraRotation = camera.angle.z * (M_PI/180.0);
+    acceleration = glm::vec2(glm::rotate(glm::mat4(), cameraRotation, glm::vec3(0.0, 0.0, -1.0)) * glm::vec4(acceleration, 0.0, 0.0));
     // Apply acceleration to velocity.
     camera.velocity += lastFrameTime * maxAcceleration * glm::vec4(acceleration, 0.0, 0.0);
 
@@ -139,8 +140,8 @@ void VGLView::updateCamera(float lastFrameTime) {
     }
 
     float zacc = 0.0;
-    zacc += keyBits & KEY_SPACE ? 1.0 : 0.0;
-    zacc -= keyBits & KEY_LSHIFT ? 1.0 : 0.0;
+    zacc -= keyBits & KEY_SPACE ? 1.0 : 0.0;
+    zacc += keyBits & KEY_LSHIFT ? 1.0 : 0.0;
 
     camera.velocity.z += maxAcceleration * zacc * lastFrameTime;
 
@@ -152,10 +153,10 @@ void VGLView::updateCamera(float lastFrameTime) {
     // apply velocity
     camera.position += lastFrameTime * camera.velocity;
 
-    glLoadIdentity();
-    glRotatef(camera.angle.x, 1.0, 0.0, 0.0);
-    glRotatef(camera.angle.z, 0.0, 0.0, 1.0);
-    glTranslatef(-camera.position.x, -camera.position.y, -camera.position.z);
+    //glLoadIdentity();
+    //glRotatef(camera.angle.x, 1.0, 0.0, 0.0);
+    //glRotatef(camera.angle.z, 0.0, 0.0, 1.0);
+    //glTranslatef(-camera.position.x, -camera.position.y, -camera.position.z);
 
     camera.viewMatrix = camera.getMatrixFromPosition();
 }
@@ -244,7 +245,7 @@ void VGLView::mouseMoveEvent( QMouseEvent *event )
             // FPS Style
 
             camera.angle.z += ( event->pos().x() - lastCursorPos.x() ) / mouseSensitivity;
-            camera.angle.x += ( event->pos().y() - lastCursorPos.y() ) / mouseSensitivity;
+            camera.angle.x -= ( event->pos().y() - lastCursorPos.y() ) / mouseSensitivity;
 
             if( camera.angle.x < -90.0 ) {
                 camera.angle.x = -90.0;

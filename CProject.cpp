@@ -245,6 +245,17 @@ bool CProject::initialize() {
             }
         }
 
+        // We will take a second step to load all models because they need
+        // valid shaders
+        projectListIt = projectList.begin();
+        for (; projectListIt != projectList.end(); ++projectListIt) {
+            IProjectObject *projectObject = (*projectListIt);
+            if (projectObject->getItemType().compare("model") == 0) {
+                CModel *model = (CModel *)projectObject;
+                model->loadModel();
+            }
+        }
+
         // Initialize project object.
         if (userJson.value("stageList").isArray()) {
             QJsonArray userStageList = userJson.value("stageList").toArray();
