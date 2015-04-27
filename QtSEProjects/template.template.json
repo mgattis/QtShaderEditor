@@ -15,8 +15,14 @@
     ],
 
     "project": [
+    	{
+            "key": "itemName",
+            "value": "",
+            "type": "string",
+            "guiInsert": true
+        },
         {
-            "key": "version",
+            "key": "projectVersion",
             "value": "v1.0b",
             "type": "string",
             "guiInsert": true
@@ -163,6 +169,11 @@
 	],
 
     "stage": [
+		{
+            "key": "itemName",
+            "type": "string",
+            "guiInsert": true
+        },
         {
             "key": "generateProjectionMatrixPerspective",
             "type": "generateProjectionMatrixPerspective",
@@ -209,6 +220,11 @@
     ],
 
     "framebuffer": [
+		{
+            "key": "itemName",
+            "type": "string",
+            "guiInsert": true
+        },
         {
             "key": "colorBuffer",
             "value": true,
@@ -250,6 +266,11 @@
     ],
 
     "texture": [
+    	{
+            "key": "itemName",
+            "type": "string",
+            "guiInsert": true
+        },
         {
             "key": "imageFile",
             "value": "image.png",
@@ -288,6 +309,11 @@
     ],
 
     "model": [
+    	{
+            "key": "itemName",
+            "type": "string",
+            "guiInsert": true
+        },
         {
             "key": "wavefront",
             "type": "wavefront",
@@ -342,6 +368,11 @@
     ],
 
     "shader": [
+    	{
+            "key": "itemName",
+            "type": "string",
+            "guiInsert": true
+        },
         {
             "key": "vertexSourceFiles",
             "value": "shader.vert.glsl",
