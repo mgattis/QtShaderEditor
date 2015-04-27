@@ -171,6 +171,7 @@
     "stage": [
 		{
             "key": "itemName",
+            "value": "",
             "type": "string",
             "guiInsert": true
         },
@@ -222,6 +223,7 @@
     "framebuffer": [
 		{
             "key": "itemName",
+            "value": "",
             "type": "string",
             "guiInsert": true
         },
@@ -268,6 +270,7 @@
     "texture": [
     	{
             "key": "itemName",
+            "value": "",
             "type": "string",
             "guiInsert": true
         },
@@ -311,6 +314,7 @@
     "model": [
     	{
             "key": "itemName",
+            "value": "",
             "type": "string",
             "guiInsert": true
         },
@@ -370,6 +374,7 @@
     "shader": [
     	{
             "key": "itemName",
+            "value": "",
             "type": "string",
             "guiInsert": true
         },
