@@ -40,6 +40,7 @@ public:
     void uniform4f(QString uniform, glm::vec4 v1);
     void uniform1ui(QString uniform, GLuint index);
     void uniformMat4(QString uniform, glm::mat4 mat);
+    void uniformMat3(QString uniform1f, glm::mat3 mat);
 
     GLuint getProgram();
 

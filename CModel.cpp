@@ -89,8 +89,6 @@ bool CModel::initialize() {
 
 void CModel::draw() {
     drawShader->useProgram(true);
-    drawShader->uniformMat4("ModelMatrix", modelMatrix.getMatrix());
-
     object.drawArrays();
 }
 
@@ -117,4 +115,8 @@ bool CModel::loadModel() {
 
 CShader *CModel::getDrawShader() {
     return drawShader;
+}
+
+glm::mat4 CModel::getModelMatrix() {
+    return modelMatrix.getMatrix();
 }

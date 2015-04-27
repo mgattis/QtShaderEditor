@@ -219,6 +219,7 @@ bool CWavefrontObj::loadMaterials() {
                     else {
                         QImage *image = new QImage(materialPath + textureMaps[j]);
                         if (!image->isNull()) {
+                            *image = image->mirrored( 0 , 1 );
                             *image = image->convertToFormat(QImage::Format_RGBA8888);
 
                             // Make sure this does what I think it does.
