@@ -115,7 +115,7 @@ protected:
 			VLogger *coutEdit;
 
 protected:
-	CPath jsonProjectName;
+	QString jsonProjectName;
 	QMap< QString , QWidget* > openFiles;
 	CProjectTreeItem *activeProjectItem;
 	QModelIndex fsContextIndex;
@@ -167,6 +167,7 @@ protected slots:
 	void loadProject( const QString &path = QString() );
 	void generateProjectTree( const QString &path , QTreeWidgetItem *dirItem );
 
+	void addProjectFile( QFileInfo &info , const QString &itemName , const QString &typeName );
 	void addFolder( void );
 	void addStage( void );
 	void addFramebuffer( void );

@@ -58,9 +58,10 @@ protected:
 	//void generateChildren( QTreeWidgetItem *parent , QJsonObject &object );
 
 protected:
-	QString filePath;
+	QString filePath , type;
 	ComboBoxDelegate *delegate;
-	VJsonFormItem *lastContextItem;
+	QString contextItemType;
+	QTreeWidgetItem *lastContextItem;
 
 public slots:
 	void showContextMenu( QPoint point );

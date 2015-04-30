@@ -12,6 +12,7 @@
 #include <QDir>
 #include <QFile>
 #include <QImage>
+#include <QImageReader>
 #include <QMap>
 #include <QString>
 #include <QVector>
@@ -54,8 +55,6 @@ struct CGLMesh
 	GLint normalMapLoc;
 	GLuint *normalMapID;
 };
-
-#include <QImageReader>
 
 class CObj
 {
@@ -148,11 +147,11 @@ public:
 								QImage *image = new QImage( path );
 								if( image->isNull() )
 								{
-									QImage test;
-									QImageReader reader;
-									reader.setFileName( path );
-									reader.read( &test );
-									std::cout << reader.errorString().toLatin1().data() << std::endl;
+									//QImage test;
+									//QImageReader reader;
+									//reader.setFileName( path );
+									//reader.read( &test );
+									//std::cout << reader.errorString().toLatin1().data() << std::endl;
 
 									std::cout << "Error: Failed to load" << std::endl;
 								}

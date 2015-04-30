@@ -21,7 +21,7 @@ VGLView.cpp__
 
 assets
 debug
-#QtSEProjects
+QtSEProjects/experimental
 release
 resources
 tinyobjloader

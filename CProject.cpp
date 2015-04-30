@@ -96,6 +96,8 @@ void CProject::_loadProjectObject(QString userJsonFile) {
                 itemType = userJsonObject["itemType"].toString();
             }
             else {
+				QJsonValue value = userJsonObject.value("itemType");
+				value.isString();
                 logWarning(QString("Invalid project format. '") + userJsonFile + QString("'."));
             }
 
@@ -241,7 +243,7 @@ bool CProject::initialize() {
                 this->bInitialized = false;
             }
             else {
-                logInfo(QString("Initialization successfull. '") + projectObject->getFullIdentifier() + QString("'."));
+				logInfo(QString("Initialization successful. '") + projectObject->getFullIdentifier() + QString("'."));
             }
         }
 

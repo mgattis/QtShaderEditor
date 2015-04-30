@@ -42,9 +42,10 @@ void VGLView::initializeGL( void )
 
         connect( &repaintTimer , SIGNAL(timeout()) , this , SLOT(updateGL()) );
         repaintTimer.setInterval( 33 );
-        repaintTimer.start();
+		repaintTimer.start();
 
-        openProject("./QtSEProjects/testProject/testProject.project.json");
+		//openProject("./QtSEProjects/testProject/testProject.project.json");
+		openProject( QDir::currentPath() + "/testProject.project.json");
 
         complete = true;
     }
@@ -70,7 +71,7 @@ void VGLView::paintGL( void )
 
     /*glUseProgram(0);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glEnable( GL_DEPTH_TEST );
     glClearColor( 1.0 , 0.0 , 0.0, 0.0 );
     glDepthFunc( GL_LEQUAL );
@@ -83,7 +84,8 @@ void VGLView::paintGL( void )
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 
-    //glRotatef(totalTime*360.0, 1.0, 0.0, 0.0);
+	glRotatef(totalTime*50.0, 0.0, 1.0, 0.0);
+	//glRotatef(totalTime*360.0, 1.0, 0.0, 0.0);
 
     glBegin( GL_TRIANGLES );
         glColor3f( 1.0 , 0.0 , 0.0 );
