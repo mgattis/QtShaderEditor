@@ -283,6 +283,25 @@ VGLSLEdit::~VGLSLEdit()
 	delete highlighter;
 }
 
+void VGLSLEdit::closeEvent( QCloseEvent *event )
+{
+	if( this->isWindowModified() )
+	{
+		switch( QMessageBox::question( this , this->windowTitle() , "Save changes?" , QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel , QMessageBox::Cancel ) )
+		{
+			case QMessageBox::Yes:
+				save();
+			case QMessageBox::No:
+				break;
+			default:
+				event->ignore();
+				return;
+		}
+	}
+
+	event->accept();
+}
+
 void VGLSLEdit::load( const QString &path )
 {
 	QFile file( path );
@@ -300,30 +319,33 @@ void VGLSLEdit::load( const QString &path )
 
 void VGLSLEdit::save( void )
 {
-	if( filePath.isEmpty() )
+	if( this->isWindowModified() )
 	{
-		filePath = QFileDialog::getSaveFileName( this , "Save File As" , "." , "GLSL File (*.glsl)" );
-
 		if( filePath.isEmpty() )
-			return;
+		{
+			filePath = QFileDialog::getSaveFileName( this , "Save File As" , "." , "GLSL File (*.glsl)" );
+
+			if( filePath.isEmpty() )
+				return;
+			else
+				this->setWindowTitle( filePath.mid( filePath.lastIndexOf( '/' ) + 1 ) + "[*]" );
+		}
+
+		setUnmodified();
+		//return;
+
+		QFile file( filePath );
+
+		if( file.open( QIODevice::WriteOnly | QIODevice::Truncate ) )
+		{
+			QByteArray contents = this->toPlainText().toLatin1();
+
+			if( file.write( contents ) != -1 )
+				setUnmodified();
+			else
+				slog::log( "Unable to write file" , file.errorString() );
+		}
 		else
-			this->setWindowTitle( filePath.mid( filePath.lastIndexOf( '/' ) + 1 ) + "[*]" );
+			slog::log( "Unable to open file" , file.errorString() );
 	}
-
-	setUnmodified();
-	//return;
-
-	QFile file( filePath );
-
-	if( file.open( QIODevice::WriteOnly | QIODevice::Truncate ) )
-	{
-		QByteArray contents = this->toPlainText().toLatin1();
-
-		if( file.write( contents ) != -1 )
-			setUnmodified();
-		else
-			slog::log( "Unable to write file" , file.errorString() );
-	}
-	else
-		slog::log( "Unable to open file" , file.errorString() );
 }

@@ -103,45 +103,48 @@ void VJsonForm::load( const QString &path )
 
 void VJsonForm::save( void )
 {
-	if( filePath.isEmpty() )
+	if( this->isWindowModified() )
 	{
-		filePath = QFileDialog::getSaveFileName( this , "Save File As" , "." , "JSON File (*.json)" );
-
 		if( filePath.isEmpty() )
-			return;
-		else
-			this->setWindowTitle( filePath.mid( filePath.lastIndexOf( '/' ) + 1 ) + "[*]" );
-	}
+		{
+			filePath = QFileDialog::getSaveFileName( this , "Save File As" , "." , "JSON File (*.json)" );
+
+			if( filePath.isEmpty() )
+				return;
+			else
+				this->setWindowTitle( filePath.mid( filePath.lastIndexOf( '/' ) + 1 ) + "[*]" );
+		}
 
 #if 0
-	QJsonObject obj = toObject();
-	obj.insert( "itemType"  , type );
-
-	QJsonDocument doc( obj );
-	std::cout << doc.toJson().data() << std::endl;
-
-	setUnmodified();
-	return;
-#else
-	QFile file( filePath );
-
-	if( file.open( QIODevice::WriteOnly | QIODevice::Truncate ) )
-	{
 		QJsonObject obj = toObject();
 		obj.insert( "itemType"  , type );
 
 		QJsonDocument doc( obj );
-		//std::cout << doc.toJson().data() << std::endl;
-		QByteArray contents = doc.toJson();
+		std::cout << doc.toJson().data() << std::endl;
 
-		if( file.write( contents ) != -1 )
-			setUnmodified();
+		setUnmodified();
+		return;
+#else
+		QFile file( filePath );
+
+		if( file.open( QIODevice::WriteOnly | QIODevice::Truncate ) )
+		{
+			QJsonObject obj = toObject();
+			obj.insert( "itemType"  , type );
+
+			QJsonDocument doc( obj );
+			//std::cout << doc.toJson().data() << std::endl;
+			QByteArray contents = doc.toJson();
+
+			if( file.write( contents ) != -1 )
+				setUnmodified();
+			else
+				slog::log( "Unable to write file" , file.errorString() );
+		}
 		else
-			slog::log( "Unable to write file" , file.errorString() );
-	}
-	else
-		slog::log( "Unable to open file" , file.errorString() );
+			slog::log( "Unable to open file" , file.errorString() );
 #endif
+	}
 }
 
 #if 0
@@ -301,19 +304,19 @@ void VJsonForm::addArrayItem( void )
 		//std::cout << CJsonKeyvalueData::getValueName( parent->type ).toLatin1().data() << std::endl;
 		//std::cout << parent->defaultValue.toString().toLatin1().data() << std::endl;
 
+		// Common init
+		VJsonFormItem *item = new VJsonFormItem( parent , parent->type , false , parent->defaultValue );
+		item->setText( 0 , QString( "[%1]" ).arg( parent->childCount() - 1 ) );
+
 		if( parent->type == CJsonKeyvalueData::structure )
 		{
-			VJsonFormItem *item = new VJsonFormItem( parent , parent->type , false , parent->defaultValue );
-			item->setText( 0 , QString( "[%1]" ).arg( parent->childCount() - 1 ) );
 			item->setText( 1 , parent->defaultValue.toString() );
 
-			CJsonTemplate::get()->createTree( parent->defaultValue.toString() , item );
+			CJsonTemplate::get()->createTree( parent->defaultValue.toString() , item , CJsonTemplate::GUI );
 			UTIL_expandTreeItems( this , item );
 		}
 		else
 		{
-			VJsonFormItem *item = new VJsonFormItem( parent , parent->type , false , parent->defaultValue );
-			item->setText( 0 , QString( "[%1]" ).arg( parent->childCount() - 1 ) );
 			item->setText( 1 , CJsonKeyvalueData::getValueName( parent->type ).toUpper() );
 			item->setData( 2 , Qt::DisplayRole , parent->defaultValue );
 		}
@@ -343,7 +346,7 @@ void VJsonForm::toggleStructureItem( void )
 	if( checked )
 	{
 		QTreeWidgetItem *parentItem = new QTreeWidgetItem( (QTreeWidgetItem*)NULL );
-		CJsonTemplate::get()->createTree( contextItemType , parentItem , true );
+		CJsonTemplate::get()->createTree( contextItemType , parentItem , CJsonTemplate::CopyGUI );
 
 		for( int index = 0 ; index < parentItem->childCount() ; index++ )
 			if( !key.compare( parentItem->child( index )->text( 0 ) , Qt::CaseInsensitive ) )
@@ -364,7 +367,9 @@ void VJsonForm::toggleStructureItem( void )
 							break;
 						}
 
-				lastContextItem->insertChild( pos + 1 , parentItem->takeChild( index ) );
+				QTreeWidgetItem *addItem = parentItem->takeChild( index );
+				lastContextItem->insertChild( pos + 1 , addItem );
+				UTIL_expandTreeItems( this , addItem );
 				setModified();
 				break;
 			}
@@ -414,12 +419,29 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 				{
 					QString structureType = formItem->text( 2 );
 
-					// setText in this block indirectly calls this function again. Avoid
-					if( !( structureType.isEmpty() || structureType == formItem->lastValue.toString() ) )
+					if( !structureType.isEmpty() )
 					{
+						// setText in this block indirectly calls this function again. Avoid
+						if( structureType == formItem->lastValue.toString() )
+						{
+							formItem->setText( 2 , "" );
+							return;
+						}
+
+						QTreeWidgetItem *parentItem = formItem->parent();
+
+						// Don't change into a structure already present
+						if( parentItem || ( parentItem = this->invisibleRootItem() ) )
+							for( int index = 0 ; index < parentItem->childCount() ; index++ )
+								if( structureType == parentItem->child( index )->text( 0 ) )
+								{
+									formItem->setText( 2 , "" );
+									return;
+								}
+
 						// Make new structure
-						QTreeWidgetItem *parentItem = new QTreeWidgetItem( (QTreeWidgetItem*)NULL );
-						CJsonTemplate::get()->createTree( formItem->text( 2 ) , parentItem );
+						parentItem = new QTreeWidgetItem( (QTreeWidgetItem*)NULL );
+						CJsonTemplate::get()->createTree( formItem->text( 2 ) , parentItem , CJsonTemplate::GUI );
 
 						// Clean up old structure
 						while( formItem->child( 0 ) )
@@ -434,10 +456,11 @@ void VJsonForm::itemTextChanged( QTreeWidgetItem *item , int column )
 						formItem->lastValue = structureType;
 						// Perhaps modify formItem's valueList pointer
 						formItem->setText( 0 , structureType );
-						formItem->setText( 1 , structureType.toUpper() );
+						formItem->setText( 1 , structureType );
 						formItem->setText( 2 , "" );
 
 						setModified();
+						UTIL_expandTreeItems( this , formItem );
 					}
 
 					break;

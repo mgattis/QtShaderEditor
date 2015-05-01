@@ -390,8 +390,6 @@ QJsonObject CJsonTemplate::createTree( const QString &name , bool gui ) const
 		{
 			CJsonKeyvalueData *data = keyvalues->at( index );
 
-			// TODO: What was the difference again?
-			// This is important for validation purposes. Ask mgattis
 			if( gui ? data->guiInsert : true )
 			{
 				if( data->indexable )
@@ -419,7 +417,7 @@ QJsonObject CJsonTemplate::createTree( const QString &name , bool gui ) const
 	return obj;
 }
 
-void CJsonTemplate::createTree( const QString &name , QTreeWidgetItem *parent , bool guiOnly ) const
+void CJsonTemplate::createTree( const QString &name , QTreeWidgetItem *parent , CreationMode mode ) const
 {
 	QVector< CJsonKeyvalueData* > *keyvalues = ( QVector< CJsonKeyvalueData* >* )structMap.value( name , NULL );
 
@@ -430,7 +428,7 @@ void CJsonTemplate::createTree( const QString &name , QTreeWidgetItem *parent , 
 			const CJsonKeyvalueData *data = keyvalues->at( index );
 			//std::cout << data->key.toLatin1().data() << std::endl;
 
-			if( guiOnly ? data->guiInsert : true )
+			if( mode != GUI ? true : data->guiInsert )
 			{
 				if( data->indexable )
 				{
@@ -441,10 +439,11 @@ void CJsonTemplate::createTree( const QString &name , QTreeWidgetItem *parent , 
 						array->setText( 1 , "ARRAY" );
 
 						VJsonFormItem *item = new VJsonFormItem( array , data->type , false , data->value );
+						item->valueList = data->valueList;
 						item->setText( 0 , "[0]" );
 						item->setText( 1 , data->getValueName() );
 
-						createTree( data->value.toString() , item , guiOnly );
+						createTree( data->value.toString() , item , mode == Everything ? Everything : GUI );
 					}
 					else
 					{
@@ -461,11 +460,12 @@ void CJsonTemplate::createTree( const QString &name , QTreeWidgetItem *parent , 
 				else
 				{
 					VJsonFormItem *item = new VJsonFormItem( parent , data->type , false , data->value );
+					item->valueList = data->valueList;
 					item->setText( 0 , data->key );
-					item->setText( 1 , data->getValueName().toUpper() );
+					item->setText( 1 , data->type == CJsonKeyvalueData::structure ? data->getValueName() : data->getValueName().toUpper() );
 
 					if( data->type == CJsonKeyvalueData::structure )
-						createTree( data->value.toString() , item , guiOnly );
+						createTree( data->value.toString() , item , mode == Everything ? Everything : GUI );
 					else
 						item->setData( 2 , Qt::DisplayRole , data->value );
 				}
@@ -531,7 +531,7 @@ void CJsonTemplate::createTree( const QString &name , const QJsonObject &obj , Q
 					{
 						VJsonFormItem *item = new VJsonFormItem( parent , data->type , false , data->value );
 						item->setText( 0 , data->key );
-						item->setText( 1 , data->getValueName().toUpper() );
+						item->setText( 1 , data->type == CJsonKeyvalueData::structure ? data->getValueName() : data->getValueName().toUpper() );
 						item->valueList = data->valueList;
 
 						if( data->type == CJsonKeyvalueData::structure )
@@ -606,35 +606,41 @@ QJsonObject CJsonTemplate::loadUserJson( const QString &path , QString &type ) c
 		if( error.error == QJsonParseError::NoError && doc.isObject() )
 		{
 			userObject = doc.object();
-			type = userObject.value( "itemType" ).toString();
-			//std::cout << userObject.value( "itemType" ).toString().toLatin1().data() << std::endl;
-			//std::cout << userObject.value( "itemName" ).toString().toLatin1().data() << std::endl;
+			QJsonValue value = userObject.value( "itemType" );
+			if( value.isString() )
+			{
+				type = value.toString();
+				//std::cout << userObject.value( "itemType" ).toString().toLatin1().data() << std::endl;
+				//std::cout << userObject.value( "itemName" ).toString().toLatin1().data() << std::endl;
 
-			// Create a template with all possible values
-			QJsonObject templateObject = createTree( type , false );
-
-#if 0
-			std::cout << "===============================" << std::endl;
-
-			std::cout << "templateObject" << std::endl;
-			QJsonDocument doc2( templateObject );
-			std::cout << doc2.toJson().data() << std::endl;
-
-			std::cout << "userObject" << std::endl;
-			QJsonDocument doc3( userObject );
-			std::cout << doc3.toJson().data() << std::endl;
-#endif
-
-			// Validate the user object against the template
-			validate( userObject , templateObject );
+				// Create a template with all possible values
+				QJsonObject templateObject = createTree( type , false );
 
 #if 0
-			std::cout << "validated" << std::endl;
-			QJsonDocument doc4( userObject );
-			std::cout << doc4.toJson().data() << std::endl;
+				std::cout << "===============================" << std::endl;
 
-			std::cout << "===============================" << std::endl;
+				std::cout << "templateObject" << std::endl;
+				QJsonDocument doc2( templateObject );
+				std::cout << doc2.toJson().data() << std::endl;
+
+				std::cout << "userObject" << std::endl;
+				QJsonDocument doc3( userObject );
+				std::cout << doc3.toJson().data() << std::endl;
 #endif
+
+				// Validate the user object against the template
+				validate( userObject , templateObject );
+
+#if 0
+				std::cout << "validated" << std::endl;
+				QJsonDocument doc4( userObject );
+				std::cout << doc4.toJson().data() << std::endl;
+
+				std::cout << "===============================" << std::endl;
+#endif
+			}
+			else
+				userObject = QJsonObject();
 		}
 		else
 			std::cout << error.errorString().toLatin1().data() << std::endl;

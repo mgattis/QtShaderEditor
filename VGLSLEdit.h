@@ -69,6 +69,9 @@ public:
 	VGLSLEdit( const QString &initialData = QString() , QWidget *parent = NULL );
 	~VGLSLEdit();
 
+protected:
+	void closeEvent( QCloseEvent *event );
+
 public:
 	void load( const QString &path );
 	void save( void );

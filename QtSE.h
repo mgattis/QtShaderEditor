@@ -14,6 +14,7 @@
 #include <QDir>
 #include <QDirIterator>
 #include <QFileDialog>
+#include <QIcon>
 #include <QInputDialog>
 #include <QFileSystemModel>
 #include <QStack>
@@ -32,15 +33,14 @@
 #include <QTextEdit>
 #include <QList>
 #include <QScrollBar>
-
-static QTextEdit *g_coutEdit;
-static QListWidget *g_coutList;
+#include <QSettings>
 
 class QtSE : public QMainWindow
 {
     Q_OBJECT
 
 public:
+#if 1
 	class CProjectTreeItem : public QTreeWidgetItem
 	{
 	public:
@@ -83,32 +83,43 @@ public:
 	protected:
 		Type partType;
 	};
+#endif
 
 public:
 	QtSE( QWidget *parent = NULL );
     ~QtSE();
 
 protected:
+	void closeEvent( QCloseEvent *event );
+
+protected:
 	QMenu *menuFile;
-		QAction *actionLoad;
+		QAction *actionNew;
+		QAction *actionOpen;
+		QMenu *menuRecentProjects;
 		QAction *actionSave;
+		QAction *actionSaveAll;
 		QAction *actionQuit;
 
 	QMenu *menuView;
+		QAction *actionReloadProject;
 		QAction *actionSplitHorizontally;
 		QAction *actionSplitVertically;
 		QAction *actionSplitCollapse;
 
+	QMenu *menuSettings;
+		QAction *actionPreferences;
+
 	QMenu *menuHelp;
 		QAction *actionAbout;
+		QAction *actionAboutQt;
 
 	QSplitter *windowSplitter;
 		QSplitter *viewSplitter;
 			VGLView *viewWidget;
 			QTabWidget *itemsTab;
 				QTreeWidget *projectTree;
-				//QTreeWidget *fsProjectTree;
-				QTreeView *fsProjectTree2;
+				QTreeView *fsProjectTree;
 					QFileSystemModel *fsModel;
 		QSplitter *editSplitter;
 			VTabWidgetArea *tabArea;
@@ -117,33 +128,36 @@ protected:
 protected:
 	QString jsonProjectName;
 	QMap< QString , QWidget* > openFiles;
-	CProjectTreeItem *activeProjectItem;
+	//CProjectTreeItem *activeProjectItem;
 	QModelIndex fsContextIndex;
 
 	StdRedirector<> *redirector;
 
 protected:
-	VJsonForm* makeVJsonForm( void );
-
-	void addArrayToSave( QJsonArray &array , const VJsonFormItem *item );
+	//void addArrayToSave( QJsonArray &array , const VJsonFormItem *item );
+	bool save( QWidget *widget ); // Returns true if the file was modified, not if it was saved
+	void updateRecentProjects( const QString &path = QString() );
 
 protected slots:
+	void newProject( void );
 	void open( void );
+	void openRecent( void );
 	void save( void );
+	void saveAll( void );
 
 	void openPath( const QString path );
+	void reloadProject( void );
 
 	void about( void );
 
 	// Managed widget slots
 	
 	void projectTreeContextMenu( QPoint point );
-	//void fsProjectTreeContextMenu( QPoint point );
 	void itemsTabTreeContextMenu( QPoint point );
 
+	void fsProjectTreeContextMenu( QPoint point );
+	void fsProjectTreeItemClicked( QModelIndex index );
 	//void fsProjectTreeItemDoubleClicked( QTreeWidgetItem *item , int column );
-	void fsProjectTree2ContextMenu( QPoint point );
-	void fsProjectTree2ItemClicked( QModelIndex index );
 
 	inline void split( Qt::Orientation orientation ) { tabArea->split( orientation ); }
 	inline void splitHorizontally( void ) { tabArea->split( Qt::Vertical ); }
@@ -160,12 +174,10 @@ protected slots:
 	//void removeTabWidgetFromLayout( QObject *tabWidget ) { removeTabWidgetFromLayout( (VDraggableTabWidget*)tabWidget ); }
 	//void removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget );
 
-	void fsRefresh( void );
-
 	// Managed file slots
 
 	void loadProject( const QString &path = QString() );
-	void generateProjectTree( const QString &path , QTreeWidgetItem *dirItem );
+	//void generateProjectTree( const QString &path , QTreeWidgetItem *dirItem );
 
 	void addProjectFile( QFileInfo &info , const QString &itemName , const QString &typeName );
 	void addFolder( void );
@@ -175,7 +187,6 @@ protected slots:
 	void addModel( void );
 	void addTexture( void );
 	void deleteItem( void );
-	//bool deleteItem( CProjectTreeItem *curItem /* = NULL */ );
 };
 
 #endif // QTSE_H

@@ -30,6 +30,7 @@ QMAKE_CXXFLAGS += -msse -msse2 -mfpmath=sse -fpermissive -ggdb
 # Warnings
 QMAKE_CXXFLAGS += -Wno-unused-variable -Wno-unused-parameter -Wno-sign-compare
 
+RESOURCES += QtSE.qrc
 SOURCES += main.cpp\
         QtSE.cpp \
     CResourceManager.cpp \
