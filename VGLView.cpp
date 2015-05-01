@@ -98,11 +98,11 @@ void VGLView::paintGL( void )
 }
 
 void VGLView::updateCamera(float lastFrameTime) {
-    // Walk on the XY plane.
     float maxAcceleration = this->maxAcceleration * speedMultiplier;
     float maxVelocity = this->maxVelocity * speedMultiplier;
     float friction = this->friction * speedMultiplier;
 
+    // Walk on the XY plane.
     // Apply friction.
     glm::vec2 velocity = glm::vec2(camera.velocity);
     if (glm::length(velocity) <= lastFrameTime * friction) {

@@ -181,10 +181,14 @@ void CStage::run() {
             CModel *model = (*modelListIt);
             CShader *drawShader = model->getDrawShader();
 
-			// Give two of our matrices to the shader.
+            // Give our matricies to the shader.
             drawShader->uniformMat4("ViewMatrix", viewMatrix);
             glm::mat4 projectionMatrix = this->projectionMatrix->getProjectionMatrix(iBufferWidth, iBufferHeight);
             drawShader->uniformMat4("ProjectionMatrix", projectionMatrix);
+            glm::mat4 modelMatrix = model->getModelMatrix();
+            drawShader->uniformMat4("ModelMatrix", modelMatrix);
+            glm::mat3 normalMatrix = glm::inverseTranspose(glm::mat3(viewMatrix * modelMatrix));
+            drawShader->uniformMat3("NormalMatrix", normalMatrix);
 
             // Give our input framebuffers to the shader.
             QList<CFramebuffer *>::iterator framebufferListIt = inputFramebuffersList.begin();

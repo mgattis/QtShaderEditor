@@ -330,6 +330,16 @@ void CShader::uniformMat4(QString uniform, glm::mat4 mat) {
     }
 }
 
+void CShader::uniformMat3(QString uniform, glm::mat3 mat) {
+    if (program) {
+        if (useProgram(true)) {
+            QByteArray temp = uniform.toLatin1();
+            GLuint uniformLocation = glGetUniformLocation(program, temp.data());
+            glUniformMatrix3fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(mat));
+        }
+    }
+}
+
 void CShader::uniform1ui(QString uniform, GLuint index) {
     // Our shader program needs to be active.
     if (program) {

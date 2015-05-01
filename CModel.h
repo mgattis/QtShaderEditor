@@ -37,6 +37,7 @@ public:
     void draw();
 
     CShader *getDrawShader();
+    glm::mat4 getModelMatrix();
 };
 
 #endif // CMODEL_H
