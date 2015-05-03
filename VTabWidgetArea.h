@@ -41,6 +41,8 @@ public:
 	inline QWidget* getActiveWidget( void ) { return getActiveTabWidget() ? activeTabWidget->currentWidget() : NULL; }
 	VDraggableTabWidget* getActiveTabWidget( void );
 
+	bool closeAll( void );
+
 protected:
 	VDraggableTabWidget* makeVDraggableTabWidget( void );
 	VDraggableTabWidget* getFirstTabWidget( QSplitter *splitter ) const;

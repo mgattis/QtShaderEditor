@@ -107,6 +107,14 @@ struct CJsonStructure
 
 class CJsonTemplate
 {
+public:
+	enum CreationMode
+	{
+		Everything = 0, // What it says on the tin
+		GUI, // Only items marked as GUI insert
+		CopyGUI // Same as GUI insert, but doesn't apply to base structure recursion
+	};
+
 private:
 	CJsonTemplate( const QString &path = QString() );
 	~CJsonTemplate();
@@ -123,7 +131,7 @@ protected:
 
 public:
 	QJsonObject createTree( const QString &name , bool gui ) const;
-	void createTree( const QString &name , QTreeWidgetItem *parent , bool guiOnly ) const;
+	void createTree( const QString &name , QTreeWidgetItem *parent , CreationMode mode ) const;
 	void createTree( const QString &name , const QJsonObject &obj , QTreeWidgetItem *parent ) const;
 	QStringList getKeysForStructure( const QString name );
 

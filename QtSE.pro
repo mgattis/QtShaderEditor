@@ -30,6 +30,7 @@ QMAKE_CXXFLAGS += -msse -msse2 -mfpmath=sse -fpermissive -ggdb
 # Warnings
 QMAKE_CXXFLAGS += -Wno-unused-variable -Wno-unused-parameter -Wno-sign-compare
 
+RESOURCES += QtSE.qrc
 SOURCES += main.cpp\
         QtSE.cpp \
     CResourceManager.cpp \
@@ -59,7 +60,8 @@ SOURCES += main.cpp\
     CTexture.cpp \
     CShader.cpp \
     CModelViewMatrix.cpp \
-    CWavefrontObj.cpp
+    CWavefrontObj.cpp \
+    VPreferences.cpp
 
 HEADERS  += QtSE.h \
     CResourceManager.h \
@@ -91,7 +93,8 @@ HEADERS  += QtSE.h \
     CTexture.h \
     CShader.h \
     CModelViewMatrix.h \
-    CWavefrontObj.h
+    CWavefrontObj.h \
+    VPreferences.h
 
 DISTFILES += \
     .gitignore
