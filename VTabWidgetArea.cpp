@@ -74,6 +74,25 @@ VDraggableTabWidget* VTabWidgetArea::getActiveTabWidget( void )
 	return activeTabWidget;
 }
 
+bool VTabWidgetArea::closeAll( void )
+{
+	QWidgetList widgets = tabMap.keys();
+
+	if( widgets.size() )
+	{
+		for( int index = 0 ; index < widgets.size() ; index++ )
+			if( !widgets.at( index )->close() )
+				return false;
+	}
+	else // Don't make another tab widget if nothing was closed
+		return true;
+
+	activeTabWidget = makeVDraggableTabWidget();
+	this->addWidget( activeTabWidget );
+
+	return true;
+}
+
 VDraggableTabWidget* VTabWidgetArea::makeVDraggableTabWidget( void )
 {
 	VDraggableTabWidget *newTabWidget = new VDraggableTabWidget();

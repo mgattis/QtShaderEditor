@@ -34,11 +34,13 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	//connect( qApp , SIGNAL(focusChanged(QWidget*,QWidget*)) , this , SLOT(focusChanged(QWidget*,QWidget*)) );
 
 	menuFile = this->menuBar()->addMenu( "File" );
-		actionNew = menuFile->addAction( QIcon( ":/qrc/icons/world_add.png" ) , "New..." , this , SLOT(newProject()) );
+		actionNew = menuFile->addAction( QIcon( ":/qrc/icons/world_add.png" ) , "New Project..." , this , SLOT(newProject()) );
 		menuFile->addSeparator();
-		actionSave = menuFile->addAction( QIcon( ":/qrc/icons/folder_explore.png" ) , "Open..." , this , SLOT(open()) , QKeySequence( Qt::CTRL | Qt::Key_O ) );
+		actionSave = menuFile->addAction( QIcon( ":/qrc/icons/folder_explore.png" ) , "Open Project..." , this , SLOT(open()) , QKeySequence( Qt::CTRL | Qt::Key_O ) );
 		menuRecentProjects = menuFile->addMenu( QIcon( ":/qrc/icons/timeline_marker.png" ) , "Recent Projects" );
 		updateRecentProjects();
+		actionCloseProject = menuFile->addAction( QIcon( ":/qrc/icons/broom.png" ) , "Close Project" , this , SLOT(closeProject()) );
+		actionCloseProject->setDisabled( true );
 		menuFile->addSeparator();
 		actionSave = menuFile->addAction( QIcon( ":/qrc/icons/disk.png" ) , "Save" , this , SLOT(save()) , QKeySequence( Qt::CTRL | Qt::Key_S ) );
 		actionSave->setDisabled( true );
@@ -113,6 +115,7 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	viewSplitter->setStretchFactor( 1 , 4 );
 
 	tabArea = new VTabWidgetArea();
+	tabArea->setDisabled( true );
 	connect( tabArea , SIGNAL(widgetDeleted(QWidget*)) , this , SLOT(tabWidgetDeleted(QWidget*)) );
 
 	editSplitter = new QSplitter( Qt::Vertical , NULL );
@@ -239,6 +242,34 @@ void QtSE::openRecent( void )
 	loadProject( sender->text() );
 }
 
+void QtSE::closeProject( void )
+{
+	// Don't close if user cancelled the save of a modified file
+	if( tabArea->closeAll() )
+	{
+		// Reset things
+		// TODO: Stop viewWidget
+
+		jsonProjectName.clear();
+		QDir::setCurrent( qApp->applicationDirPath() );
+
+		// Set up file system tree
+		fsModel->setRootPath( QDir::currentPath() );
+		fsProjectTree->setModel( NULL );
+
+		// Disable things
+		actionReloadProject->setDisabled( true );
+		actionSave->setDisabled( true );
+		actionSaveAll->setDisabled( true );
+		actionCloseProject->setDisabled( true );
+		actionSplitHorizontally->setDisabled( true );
+		actionSplitVertically->setDisabled( true );
+		actionSplitCollapse->setDisabled( true );
+		fsProjectTree->setDisabled( true );
+		tabArea->setDisabled( true );
+	}
+}
+
 void QtSE::save( void )
 {
 	if( save( this->focusWidget() ) )
@@ -335,7 +366,8 @@ void QtSE::open( const QString path )
 
 void QtSE::reloadProject( void )
 {
-	viewWidget->openProject( QString( "%1/%2" ).arg( QDir::currentPath() ).arg( jsonProjectName ) );
+	if( !jsonProjectName.isEmpty() )
+		viewWidget->openProject( QString( "%1/%2" ).arg( QDir::currentPath() ).arg( jsonProjectName ) );
 }
 
 void QtSE::projectTreeContextMenu( QPoint point )
@@ -501,13 +533,15 @@ void QtSE::loadProject( const QString &path /* = QString() */ )
 			updateRecentProjects( path );
 
 			// Enable things
+			actionReloadProject->setEnabled( true );
 			actionSave->setEnabled( true );
 			actionSaveAll->setEnabled( true );
-			actionReloadProject->setEnabled( true );
+			actionCloseProject->setEnabled( true );
 			actionSplitHorizontally->setEnabled( true );
 			actionSplitVertically->setEnabled( true );
 			actionSplitCollapse->setEnabled( true );
 			fsProjectTree->setEnabled( true );
+			tabArea->setEnabled( true );
 		}
 		else
 			QMessageBox::critical( this , this->windowTitle() , "Error: Not a project file." );

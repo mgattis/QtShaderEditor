@@ -100,6 +100,7 @@ protected:
 		QMenu *menuRecentProjects;
 		QAction *actionSave;
 		QAction *actionSaveAll;
+		QAction *actionCloseProject;
 		QAction *actionQuit;
 
 	QMenu *menuView;
@@ -148,6 +149,7 @@ protected slots:
 	void openRecent( void );
 	void save( void );
 	void saveAll( void );
+	void closeProject( void );
 
 	void reloadProject( void );
 

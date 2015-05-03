@@ -7,6 +7,7 @@
 		<file>qrc/icons/qtcreator_logo_16.png</file>
 		<file>qrc/icons/textfield_rename.png</file>
 		<file>qrc/icons/page_white_delete.png</file>
+		<file>qrc/icons/broom.png</file>
 		<file>qrc/icons/arrow_refresh.png</file>
 		<file>qrc/icons/arrow_join.png</file>
 		<file>qrc/icons/application_tile_horizontal.png</file>
