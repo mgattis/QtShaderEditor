@@ -6,7 +6,7 @@ CModel::CModel()
     MTLPath = ".";
     drawShader = NULL;
 
-    hasValidModel = false;
+    bHasValidModel = false;
 }
 
 CModel::CModel(QString modelFile) : IProjectObject(modelFile) {
@@ -14,7 +14,7 @@ CModel::CModel(QString modelFile) : IProjectObject(modelFile) {
     MTLPath = ".";
     drawShader = NULL;
 
-    hasValidModel = false;
+    bHasValidModel = false;
 }
 
 CModel::CModel(QString modelFile, QJsonObject modelJson) : IProjectObject(modelFile, modelJson) {
@@ -22,7 +22,7 @@ CModel::CModel(QString modelFile, QJsonObject modelJson) : IProjectObject(modelF
 	MTLPath = ".";
 	drawShader = NULL;
 
-    hasValidModel = false;
+    bHasValidModel = false;
 }
 
 CModel::~CModel()
@@ -74,12 +74,17 @@ bool CModel::initialize() {
                 if (projectObject->getItemType().compare("shader") == 0) {
                     drawShader = (CShader *)projectObject;
                 }
+                else {
+                    logWarning(QString("Specified draw shader is not a shader object. '") + drawShaderName + QString("'."));
+                }
+            }
+            else {
+                logWarning(QString("Draw shader not found. '") + drawShaderName + QString("'."));
             }
         }
     }
 
     if (!drawShader) {
-        return false;
     }
 
     // We need to call loadModel after all shaders have been built.c:
@@ -88,12 +93,11 @@ bool CModel::initialize() {
 }
 
 void CModel::draw() {
-    drawShader->useProgram(true);
     object.drawArrays();
 }
 
 bool CModel::loadModel() {
-    if (objectFile.size() && MTLPath.size()) {
+    if (objectFile.size() && MTLPath.size() && drawShader) {
         objectFile = QDir(workingPath + objectFile).absolutePath();
         MTLPath = QDir(workingPath + MTLPath).absolutePath();
         bool bResult = object.loadWavefront(objectFile, QDir(MTLPath).absolutePath(), drawShader);
@@ -105,11 +109,11 @@ bool CModel::loadModel() {
             logInfo(QString("Model loaded. '") + objectFile + QString("'."));
         }
 
-        hasValidModel = bResult;
+        bHasValidModel = bResult;
         return bResult;
     }
 
-    hasValidModel = false;
+    bHasValidModel = false;
     return false;
 }
 
@@ -119,4 +123,8 @@ CShader *CModel::getDrawShader() {
 
 glm::mat4 CModel::getModelMatrix() {
     return modelMatrix.getMatrix();
+}
+
+bool CModel::hasValidModel() {
+    return bHasValidModel;
 }

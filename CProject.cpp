@@ -11,6 +11,8 @@ CProject::CProject() {
     // Total project run time.
     bRunTimeListPopulated = false;
     fRunTime = 0.0;
+
+    bHasValidProject = false;
 }
 
 CProject::CProject(QString projectFile) : IProjectObject(projectFile) {
@@ -22,6 +24,8 @@ CProject::CProject(QString projectFile) : IProjectObject(projectFile) {
     // Total project run time.
     bRunTimeListPopulated = false;
     fRunTime = 0.0;
+
+    bHasValidProject = false;
 
     openProject(projectFile);
 }
@@ -63,7 +67,7 @@ void CProject::_loadEveryoneElse(QString directory) {
         QString dirName = directoryIt.fileInfo().fileName();
         QString dirPath = directoryIt.fileInfo().filePath();
         bool bIsDir = directoryIt.fileInfo().isDir();
-        bool bIsFile = directoryIt.fileInfo().isDir();
+        bool bIsFile = directoryIt.fileInfo().isFile();
 
         if (bIsDir) {
             if (!(dirName.compare(".") == 0 || dirName.compare("..") == 0)) {
@@ -170,6 +174,7 @@ bool CProject::openProject(QString projectFile) {
         logError(QString("Unable to open project '") + projectFile + QString("'."));
     }
 
+    bHasValidProject = bResult;
     return bResult;
 }
 
@@ -241,9 +246,7 @@ bool CProject::initialize() {
             if (bResult == false) {
                 logError(QString("Initialization failed. '") + projectObject->getFullIdentifier() + QString("'."));
                 this->bInitialized = false;
-            }
-            else {
-				logInfo(QString("Initialization successful. '") + projectObject->getFullIdentifier() + QString("'."));
+                return false;
             }
         }
 
@@ -254,7 +257,9 @@ bool CProject::initialize() {
             IProjectObject *projectObject = (*projectListIt);
             if (projectObject->getItemType().compare("model") == 0) {
                 CModel *model = (CModel *)projectObject;
-                model->loadModel();
+                if (model->getDrawShader()) {
+                    model->loadModel();
+                }
             }
         }
 
@@ -288,6 +293,10 @@ bool CProject::initialize() {
     logError("Project identifiers not loaded.");
     closeProject();
     return false;
+}
+
+bool CProject::hasValidProject() {
+    return bHasValidProject;
 }
 
 void CProject::setViewPort(int iWidth, int iHeight) {

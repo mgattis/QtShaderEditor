@@ -102,28 +102,23 @@ bool CFramebuffer::makeBuffer(int iWidth, int iHeight) {
     iPhysicalBufferWidth = iWidth;
     iPhysicalBufferHeight = iHeight;
 
+    glGenTextures(1, &framebufferTexture);
+    glBindTexture(GL_TEXTURE_2D, framebufferTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iWidth, iHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+    glGenTextures(1, &framebufferDepth);
+    glBindTexture(GL_TEXTURE_2D, framebufferDepth);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, iWidth, iHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
     glGenFramebuffers(1, &framebufferObject);
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferObject);
 
-    glGenTextures(1, &framebufferTexture);
-    glBindTexture(GL_TEXTURE_2D, framebufferTexture);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iPhysicalBufferWidth, iPhysicalBufferHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-    glGenRenderbuffers(1, &framebufferDepth);
-    glBindRenderbuffer(GL_RENDERBUFFER, framebufferDepth);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, iPhysicalBufferWidth, iPhysicalBufferHeight);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, framebufferDepth);
-
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, framebufferTexture, 0);
-    GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
-    glDrawBuffers(1, DrawBuffers);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, framebufferDepth, 0);
 
     // If any of that above failed, clean up and report failure.
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
@@ -144,8 +139,8 @@ bool CFramebuffer::makeBuffer(int iWidth, int iHeight) {
 // Delete everything.
 void CFramebuffer::deleteBuffer() {
     glDeleteFramebuffers(1, &framebufferObject);
+    glDeleteTextures(1, &framebufferDepth);
     glDeleteTextures(1, &framebufferTexture);
-    glDeleteRenderbuffers(1, &framebufferDepth);
     framebufferObject = 0;
     framebufferTexture = 0;
     framebufferDepth = 0;
@@ -154,7 +149,12 @@ void CFramebuffer::deleteBuffer() {
 bool CFramebuffer::useBuffer(bool bUse) {
     if (framebufferObject) {
         glBindFramebuffer(GL_FRAMEBUFFER, framebufferObject);
+
+        GLuint attachments[] = {GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT};
+        glDrawBuffers(2, attachments);
+
         glViewport(0, 0, iPhysicalBufferWidth, iPhysicalBufferHeight);
+
         return true;
     }
     else {

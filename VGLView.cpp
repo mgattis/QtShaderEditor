@@ -45,7 +45,7 @@ void VGLView::initializeGL( void )
 		repaintTimer.start();
 
 		//openProject("./QtSEProjects/testProject/testProject.project.json");
-		openProject( QDir::currentPath() + "/testProject.project.json");
+        openProject( QDir::currentPath() + "/debug/QtSEProjects/testProject/testProject.project.json");
 
         complete = true;
     }
@@ -183,8 +183,13 @@ void VGLView::openProject(QString projectFile) {
     }
 
     project = new CProject(projectFile);
-    project->setViewPort(this->width(), this->height());
-    project->setCamera(&camera);
+    if (project->hasValidProject()) {
+        project->setViewPort(this->width(), this->height());
+        project->setCamera(&camera);
+    }
+    else {
+        closeProject();
+    }
 }
 
 void VGLView::closeProject() {
@@ -195,6 +200,8 @@ void VGLView::closeProject() {
 
 void VGLView::resizeGL( int width , int height )
 {
+    makeCurrent();
+
     /*glEnable( GL_DEPTH_TEST );
     glClearColor( 0.0 , 0.0 , 0.0, 0.0 );
     glDepthFunc( GL_LEQUAL );

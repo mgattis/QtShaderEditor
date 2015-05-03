@@ -9,6 +9,7 @@
 #include "CTexture.h"
 #include "CPath.h"
 
+#include <QGLWidget>
 #include <QDir>
 #include <QDirIterator>
 #include <QJsonArray>
@@ -32,6 +33,9 @@ private:
 
     float fRunTime;
     bool bRunTimeListPopulated;
+
+    bool bHasValidProject;
+    QGLWidget *contextWidget;
 
 private:
     void _loadValuesFromUserJson();
@@ -57,6 +61,8 @@ public:
 
 public:
     bool initialize();
+
+    bool hasValidProject();
 
     void setViewPort(int iWidth, int iHeight);
     void setCamera(CCamera *camera);

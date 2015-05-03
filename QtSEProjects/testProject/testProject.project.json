@@ -11,6 +11,7 @@
     },
 
     "stageList": [
-        "stage1.stage"
+        "stage1.stage",
+        "stage2.stage"
     ]
 }

@@ -169,7 +169,7 @@ bool CShader::build() {
     glShaderSource(vs, 1, buffer, NULL);
 
     glCompileShader(vs);
-    printShaderInfoLog(vs);
+    //printShaderInfoLog(vs);
     free(buffer[0]);
 
     // Load all fragment files. Concatinate them into one string and give them to OGL.
@@ -197,7 +197,7 @@ bool CShader::build() {
     glShaderSource(fs, 1, buffer, NULL);
 
     glCompileShader(fs);
-    printShaderInfoLog(fs);
+    //printShaderInfoLog(fs);
     free(buffer[0]);
 
     // Link the program.
@@ -216,8 +216,12 @@ bool CShader::build() {
 
     // If the build failed, return false.
     if (success == GL_FALSE) {
+        printProgramInfoLog(program);
         return false;
     }
+
+    glBindFragDataLocation(program, 0, "ColorOut");
+    glBindFragDataLocation(program, 1, "DepthOut");
 
     return true;
 }
@@ -345,7 +349,7 @@ void CShader::uniform1ui(QString uniform, GLuint index) {
     if (program) {
         if (useProgram(true)) {
             GLint uniformLocation = glGetUniformLocation(program, uniform.toStdString().c_str());
-            glUniform1ui(uniformLocation, index);
+            glUniform1i(uniformLocation, index);
         }
     }
 }

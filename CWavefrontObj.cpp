@@ -65,6 +65,53 @@ bool CWavefrontObj::loadWavefront(QString wavefrontFile, QString materialPath, C
     return true;
 }
 
+void CWavefrontObj::_genNormals(std::vector<SBufferData> *triangle) {
+    glm::vec3 U = glm::vec3(triangle->at(1).x - triangle->at(0).x, triangle->at(1).y - triangle->at(0).y, triangle->at(1).z - triangle->at(0).z);
+    glm::vec3 V = glm::vec3(triangle->at(2).x - triangle->at(0).x, triangle->at(2).y - triangle->at(0).y, triangle->at(2).z - triangle->at(0).z);
+    glm::vec3 normal = glm::normalize(glm::cross(U, V));
+    for (int i = 0; i < 3; i++) {
+        triangle->at(i).nx = normal.x;
+        triangle->at(i).ny = normal.y;
+        triangle->at(i).nz = normal.z;
+    }
+}
+
+// http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-13-normal-mapping/
+void CWavefrontObj::_genTangents(std::vector<SBufferData> *triangle) {
+    glm::vec3 v0 = glm::vec3(triangle->at(0).x, triangle->at(0).y, triangle->at(0).z);
+    glm::vec3 v1 = glm::vec3(triangle->at(1).x, triangle->at(1).y, triangle->at(1).z);
+    glm::vec3 v2 = glm::vec3(triangle->at(2).x, triangle->at(2).y, triangle->at(2).z);
+
+    glm::vec2 uv0 = glm::vec2(triangle->at(0).x, triangle->at(0).y);
+    glm::vec2 uv1 = glm::vec2(triangle->at(1).x, triangle->at(1).y);
+    glm::vec2 uv2 = glm::vec2(triangle->at(2).x, triangle->at(2).y);
+
+    glm::vec3 deltaPos1 = v1 - v0;
+    glm::vec3 deltaPos2 = v2 - v0;
+
+    glm::vec2 deltaUV1 = uv1 - uv0;
+    glm::vec2 deltaUV2 = uv2 - uv0;
+
+    float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+    glm::vec3 tangent = (deltaPos1 * deltaUV2.y  - deltaPos2 * deltaUV1.y)*r;
+    glm::vec3 bitangent = (deltaPos2 * deltaUV1.x  - deltaPos1 * deltaUV2.x)*r;
+
+    for (int i = 0; i < 3; i++) {
+        glm::vec3 n = glm::vec3(triangle->at(i).nx, triangle->at(i).ny, triangle->at(i).nz);
+        glm::vec3 tangentF = glm::normalize(tangent - n * glm::dot(n, tangent));
+
+        float fWind = 1.0;
+        if (glm::dot(glm::cross(n, tangentF), bitangent) < 0.0f) {
+            fWind = -1.0;
+        }
+
+        triangle->at(i).Tx = tangentF.x;
+        triangle->at(i).Ty = tangentF.y;
+        triangle->at(i).Tz = tangentF.z;
+        triangle->at(i).Tw = fWind;
+    }
+}
+
 bool CWavefrontObj::generateBuffers() {
     drawBuffers.clear();
 
@@ -95,10 +142,12 @@ bool CWavefrontObj::generateBuffers() {
             int mat = tshapes[shapeIt].mesh.material_ids[face];
             int matCount = tshapes[shapeIt].mesh.material_ids.size();
 
+            std::vector<SBufferData> triangle;
+            bool bNeedsNormal = false;
+
             // Iterate through vertex
             for (int index = 0; index < 3; index++) {
                 int lookup = tshapes[shapeIt].mesh.indices[3 * face + index];
-
                 SBufferData vertexData;
 
                 if (3 * lookup + 2 < sizePosition) {
@@ -128,10 +177,23 @@ bool CWavefrontObj::generateBuffers() {
                     vertexData.nx = 0.0;
                     vertexData.ny = 0.0;
                     vertexData.nz = 0.0;
+                    bNeedsNormal = true;
                 }
 
-                drawBuffers[mat].bufferData.push_back(vertexData);
+                triangle.push_back(vertexData);
             }
+
+            if (bNeedsNormal) {
+                _genNormals(&triangle);
+            }
+
+            _genTangents(&triangle);
+
+            for (int i = 0; i < 3; i++) {
+                drawBuffers[mat].bufferData.push_back(triangle[i]);
+            }
+
+            triangle.clear();
         }
     }
 
@@ -150,7 +212,7 @@ bool CWavefrontObj::loadBuffers() {
         glGenBuffers(1, &drawBuffers[i].vbo);
         glBindBuffer(GL_ARRAY_BUFFER, drawBuffers[i].vbo);
 
-        glBufferData(GL_ARRAY_BUFFER, 8 * drawBuffers[i].count * sizeof (GLfloat), &(drawBuffers[i].bufferData[0]), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 12 * drawBuffers[i].count * sizeof (GLfloat), &(drawBuffers[i].bufferData[0]), GL_STATIC_DRAW);
 
         // This is best called when assigning attributes.
         drawShader->useProgram(true);
@@ -158,19 +220,25 @@ bool CWavefrontObj::loadBuffers() {
         GLint positionAttrib = glGetAttribLocation(drawShader->getProgram(), "Position");
         if (positionAttrib != -1) {
             glEnableVertexAttribArray(positionAttrib);
-            glVertexAttribPointer(positionAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof (GLfloat), (void *)(0));
+            glVertexAttribPointer(positionAttrib, 3, GL_FLOAT, GL_FALSE, 12 * sizeof (GLfloat), (void *)(0));
         }
 
         GLint texcoordAttrib = glGetAttribLocation(drawShader->getProgram(), "TexCoord");
         if (texcoordAttrib != -1) {
             glEnableVertexAttribArray(texcoordAttrib);
-            glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof (GLfloat), (void *)(3 * sizeof (GLfloat)));
+            glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 12 * sizeof (GLfloat), (void *)(3 * sizeof (GLfloat)));
         }
 
         GLint normalAttrib = glGetAttribLocation(drawShader->getProgram(), "Normal");
         if (normalAttrib != -1) {
             glEnableVertexAttribArray(normalAttrib);
-            glVertexAttribPointer(normalAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof (GLfloat), (void *)(5 * sizeof (GLfloat)));
+            glVertexAttribPointer(normalAttrib, 3, GL_FLOAT, GL_FALSE, 12 * sizeof (GLfloat), (void *)(5 * sizeof (GLfloat)));
+        }
+
+        GLint tangentAttrib = glGetAttribLocation(drawShader->getProgram(), "Tangent");
+        if (normalAttrib != -1) {
+            glEnableVertexAttribArray(tangentAttrib);
+            glVertexAttribPointer(tangentAttrib, 4, GL_FLOAT, GL_FALSE, 12 * sizeof (GLfloat), (void *)(8 * sizeof (GLfloat)));
         }
 
         // Our buffers are now safe and secure with OpenGL.
@@ -222,9 +290,6 @@ bool CWavefrontObj::loadMaterials() {
                             *image = image->mirrored( 0 , 1 );
                             *image = image->convertToFormat(QImage::Format_RGBA8888);
 
-                            // Make sure this does what I think it does.
-                            glActiveTexture(GL_TEXTURE0 + j);
-
                             glGenTextures(1, drawTextureMaps[j]);
                             glBindTexture(GL_TEXTURE_2D, *drawTextureMaps[j]);
 
@@ -254,7 +319,6 @@ void CWavefrontObj::drawArrays() {
     glEnable(GL_TEXTURE_2D);
 
     for (int i = 0; i < drawBuffers.size(); i++) {
-        glBindVertexArray(drawBuffers[i].vao);
         drawShader->useProgram(true);
 
         drawShader->uniform3f("MatAmbient", drawBuffers[i].matAmbient);
@@ -282,6 +346,7 @@ void CWavefrontObj::drawArrays() {
         drawShader->uniform1ui("SpecularMap", 2);
         drawShader->uniform1ui("NormalMap", 3);
 
+        glBindVertexArray(drawBuffers[i].vao);
         glDrawArrays(GL_TRIANGLES, 0, drawBuffers[i].count);
     }
 }

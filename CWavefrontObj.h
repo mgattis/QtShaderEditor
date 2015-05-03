@@ -19,6 +19,7 @@ struct SBufferData {
     float x, y, z;
     float u, v;
     float nx, ny, nz;
+    float Tx, Ty, Tz, Tw;
 };
 
 struct SDrawBuffer {
@@ -66,6 +67,9 @@ private:
     bool loadMaterials();
 
     void setMaterialsForDraw(int iBuffer);
+
+    void _genNormals(std::vector<SBufferData> *triangle);
+    void _genTangents(std::vector<SBufferData> *triangle);
 
 public:
     CWavefrontObj();

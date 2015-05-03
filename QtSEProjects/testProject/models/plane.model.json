@@ -1,10 +1,10 @@
 {
-    "itemName": "sponza.model",
+    "itemName": "ditherplane.model",
     "itemType": "model",
 
     "wavefront": {
-        "objectFile": "crytek-sponza/sponza.obj",
-        "materialTemplateLibraryPath": "crytek-sponza"
+        "objectFile": "plane/plane.obj",
+        "materialTemplateLibraryPath": "plane"
     },
 
     "modelTransforms": [
@@ -20,5 +20,5 @@
 		 "floorstreets.texture"
 	],
 
-    "drawShader": "sponza.shader"
+    "drawShader": "dither.shader"
 }

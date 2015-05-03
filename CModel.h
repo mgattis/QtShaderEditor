@@ -21,9 +21,8 @@ private:
 
     CModelViewMatrix modelMatrix;
 
-    bool hasValidModel;
+    bool bHasValidModel;
     CWavefrontObj object;
-
 
 public:
     CModel();
@@ -35,6 +34,9 @@ public:
 
     bool loadModel();
     void draw();
+    bool hasValidModel();
+    // We kinda need this bound for framebuffer stuff.
+    void bindVAO();
 
     CShader *getDrawShader();
     glm::mat4 getModelMatrix();

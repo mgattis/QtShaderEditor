@@ -72,6 +72,12 @@ bool CStage::initialize() {
                         if (projectObject->getItemType().compare("framebuffer") == 0) {
                             inputFramebuffersList.push_back((CFramebuffer *)projectObject);
                         }
+                        else {
+                            logWarning(QString("Specified object is not a framebuffer. '") + projectObject->getFullIdentifier() + QString("'."));
+                        }
+                    }
+                    else {
+                        logWarning(QString("Framebuffer not found. ") + framebufferName + QString("'."));
                     }
                 }
             }
@@ -85,6 +91,12 @@ bool CStage::initialize() {
                     if (projectObject->getItemType().compare("framebuffer") == 0) {
                         outputFramebuffer = (CFramebuffer *)projectObject;
                     }
+                    else {
+                        logWarning(QString("Specified object is not a framebuffer. Using 'context'. '") + projectObject->getFullIdentifier() + QString("'."));
+                    }
+                }
+                else {
+                    logWarning(QString("Framebuffer not found. Using 'context'. '") + framebufferName + QString("'."));
                 }
             }
         }
@@ -100,6 +112,12 @@ bool CStage::initialize() {
                         if (projectObject->getItemType().compare("model") == 0) {
                             modelList.push_back((CModel *)projectObject);
                         }
+                        else {
+                            logWarning(QString("Specified object is not a model. Ignoring. ") + projectObject->getFullIdentifier() + QString("'."));
+                        }
+                    }
+                    else {
+                        logWarning(QString("Model not found. Ignoring. '") + modelName + QString("'."));
                     }
                 }
             }
@@ -119,9 +137,10 @@ bool CStage::initialize() {
 
 // Executes all of the stages.
 void CStage::run() {
+    GLint framebuffer = 0;
+
     int iBufferWidth = iViewPortWidth;
     int iBufferHeight = iViewPortHeight;
-    GLuint framebuffer = 0;
 
     // Do we need to run once again?
     if (outputFramebuffer) {
@@ -129,26 +148,20 @@ void CStage::run() {
             bRanOnce = false;
             outputFramebuffer->clearResizedFlag();
         }
+        iBufferWidth = outputFramebuffer->getBufferWidth();
+        iBufferHeight = outputFramebuffer->getBufferHeight();
+        // Sets viewport for us.
+        outputFramebuffer->useBuffer(true);
     }
     else {
-        bRunOnce = false;
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(0, 0, iViewPortWidth, iViewPortHeight);
     }
 
     // Has it ran? Has it not ran? Does it need to run again?
     // How many licks does it take to get to the center of a
     // Tootsie Pop?
     if ((bRunOnce && !bRanOnce) || !bRunOnce) {
-        // Grab our output framebuffer info and enable it.
-        if (outputFramebuffer) {
-            iBufferWidth = outputFramebuffer->getBufferWidth();
-            iBufferHeight = outputFramebuffer->getBufferHeight();
-            outputFramebuffer->useBuffer(true);
-        }
-        else {
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            glViewport(0, 0, iViewPortWidth, iViewPortHeight);
-        }
-
         // Get our projection matrix sorted out.
         projectionMatrix->getProjectionMatrix(iBufferWidth, iBufferHeight);
 
@@ -164,44 +177,58 @@ void CStage::run() {
         }
 
         // About to start drawing. Ready the buffer.
-        glClearColor(1.0, 0.0, 0.0, 0.0);
+        glClearColor(0.0, 0.0, 0.0, 0.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
 
-        glEnable( GL_BLEND );
-        glEnable( GL_COLOR_MATERIAL );
-        glColorMaterial( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
-        glBlendEquation( GL_FUNC_ADD );
+        glEnable(GL_TEXTURE_2D);
+        glEnable(GL_BLEND);
+        glBlendEquation(GL_FUNC_ADD);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
         // Cycle through our models.
         QList<CModel *>::iterator modelListIt = modelList.begin();
         for (; modelListIt != modelList.end(); ++modelListIt) {
             CModel *model = (*modelListIt);
-            CShader *drawShader = model->getDrawShader();
 
-            // Give our matricies to the shader.
-            drawShader->uniformMat4("ViewMatrix", viewMatrix);
-            glm::mat4 projectionMatrix = this->projectionMatrix->getProjectionMatrix(iBufferWidth, iBufferHeight);
-            drawShader->uniformMat4("ProjectionMatrix", projectionMatrix);
-            glm::mat4 modelMatrix = model->getModelMatrix();
-            drawShader->uniformMat4("ModelMatrix", modelMatrix);
-            glm::mat3 normalMatrix = glm::inverseTranspose(glm::mat3(viewMatrix * modelMatrix));
-            drawShader->uniformMat3("NormalMatrix", normalMatrix);
+            // Make sure the model is ready to be drawn.
+            if (model->hasValidModel()) {
+                CShader *drawShader = model->getDrawShader();
 
-            // Give our input framebuffers to the shader.
-            QList<CFramebuffer *>::iterator framebufferListIt = inputFramebuffersList.begin();
-            for (; framebufferListIt != inputFramebuffersList.end(); ++framebufferListIt) {
-                CFramebuffer *framebuffer = (*framebufferListIt);
-                QString framebufferName = framebuffer->getUniformName();
-                GLuint framebufferID = framebuffer->getFrameBufferTexture();
-                drawShader->uniform1ui(framebufferName, framebufferID);
+                // Redundancy check.
+                if (drawShader) {
+
+                    // Pass in some uniforms.
+                    drawShader->uniformMat4("ViewMatrix", viewMatrix);
+                    glm::mat4 projectionMatrix = this->projectionMatrix->getProjectionMatrix(iBufferWidth, iBufferHeight);
+                    drawShader->uniformMat4("ProjectionMatrix", projectionMatrix);
+                    glm::mat4 modelMatrix = model->getModelMatrix();
+                    drawShader->uniformMat4("ModelMatrix", modelMatrix);
+                    glm::mat3 normalMatrix = glm::inverseTranspose(glm::mat3(viewMatrix * modelMatrix));
+                    drawShader->uniformMat3("NormalMatrix", normalMatrix);
+                    drawShader->uniform2f("Resolution", glm::vec2(iBufferWidth, iBufferHeight));
+
+                    // Give our input framebuffers to the shader.
+                    int iActiveTexture = 0;
+                    QList<CFramebuffer *>::iterator framebufferListIt = inputFramebuffersList.begin();
+                    for (; framebufferListIt != inputFramebuffersList.end(); ++framebufferListIt) {
+                        CFramebuffer *framebuffer = (*framebufferListIt);
+                        QString framebufferName = framebuffer->getUniformName();
+                        GLuint framebufferID = framebuffer->getFrameBufferTexture();
+
+                        // Textures 3 and below are reserved for model draw functions.
+                        glActiveTexture(GL_TEXTURE4 + iActiveTexture);
+                        glBindTexture(GL_TEXTURE_2D, framebufferID);
+
+                        drawShader->uniform1ui(framebufferName, 4 + iActiveTexture);
+                        iActiveTexture++;
+                    }
+
+                    model->draw();
+                }
             }
-
-            model->draw();
         }
-
-        bRanOnce = true;
     }
+    bRanOnce = true;
 }

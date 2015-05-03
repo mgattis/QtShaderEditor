@@ -1,0 +1,31 @@
+{
+    "itemName": "stage2.stage",
+    "itemType": "stage",
+
+    "generateProjectionMatrixOrtho": {
+        "left": -1.0,
+        "right": 1.0,
+        "bottom": -1.0,
+        "top": 1.0,
+        "nearVal": -1.0,
+        "farVal": 1.0
+    },
+
+    "viewTransforms": [
+        {
+            "loadIdentity": true
+        }
+    ],
+
+	"inputFramebufferList": [
+        "sponza.framebuffer"
+	],
+
+	"outputFramebuffer": "context",
+
+    "modelList": [
+        "ditherplane.model"
+    ],
+
+	"runOnce": false
+}
