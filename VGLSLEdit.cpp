@@ -10,12 +10,12 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 
 	directiveFormat.setForeground( Qt::blue );
 	QStringList directivePatterns;
-	directivePatterns << "\\b#version\\b" << "\\b#extension\\b" << "\\b#line\\b";
+	directivePatterns << "\\B#version\\b" << "\\B#extension\\b" << "\\B#line\\b";
 
 	foreach( const QString &pattern , directivePatterns )
 	{
 		rule.pattern = QRegExp( pattern );
-		rule.format = typeFormat;
+		rule.format = directiveFormat;
 		highlightingRules.append( rule );
 	}
 
@@ -29,7 +29,7 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 	foreach( const QString &pattern , extensionBehaviourPatterns )
 	{
 		rule.pattern = QRegExp( pattern );
-		rule.format = typeFormat;
+		rule.format = extensionBehaviourFormat;
 		highlightingRules.append( rule );
 	}
 
@@ -43,7 +43,7 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 	foreach( const QString &pattern , macroPatterns )
 	{
 		rule.pattern = QRegExp( pattern );
-		rule.format = typeFormat;
+		rule.format = macroFormat;
 		highlightingRules.append( rule );
 	}
 
@@ -56,7 +56,7 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 	foreach( const QString &pattern , reservedNamePatterns )
 	{
 		rule.pattern = QRegExp( pattern );
-		rule.format = typeFormat;
+		rule.format = reservedNameFormat;
 		highlightingRules.append( rule );
 	}
 
@@ -116,20 +116,20 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 	foreach( const QString &pattern , interpolationQualifiersPatterns )
 	{
 		rule.pattern = QRegExp( pattern );
-		rule.format = typeFormat;
+		rule.format = interpolationQualifiersFormat;
 		highlightingRules.append( rule );
 	}
 
 	// Storage Qualifiers
 
 	storageQualifiersFormat.setForeground( yellow );
-	QStringList storageQualifiersFormat;
-	storageQualifiersFormat << "\\bin\\b" << "\\bout\\b" << "\\buniform\\b" << "\\bbuffer\\b";
+	QStringList storageQualifiersPatterns;
+	storageQualifiersPatterns << "\\bin\\b" << "\\bout\\b" << "\\buniform\\b" << "\\bbuffer\\b";
 
-	foreach( const QString &pattern , storageQualifiersFormat )
+	foreach( const QString &pattern , storageQualifiersPatterns )
 	{
 		rule.pattern = QRegExp( pattern );
-		rule.format = typeFormat;
+		rule.format = storageQualifiersFormat;
 		highlightingRules.append( rule );
 	}
 
@@ -143,7 +143,7 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 	foreach( const QString &pattern , memoryQualifiersPatterns )
 	{
 		rule.pattern = QRegExp( pattern );
-		rule.format = typeFormat;
+		rule.format = memoryQualifiersFormat;
 		highlightingRules.append( rule );
 	}
 
@@ -157,7 +157,7 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 	foreach( const QString &pattern , memoryLayoutQualifiersPatterns )
 	{
 		rule.pattern = QRegExp( pattern );
-		rule.format = typeFormat;
+		rule.format = memoryLayoutQualifiersFormat;
 		highlightingRules.append( rule );
 	}
 
@@ -170,7 +170,7 @@ CGLSLHighlighter::CGLSLHighlighter( QTextDocument *parent ) : QSyntaxHighlighter
 	foreach( const QString &pattern , precisionPatterns )
 	{
 		rule.pattern = QRegExp( pattern );
-		rule.format = typeFormat;
+		rule.format = precisionFormat;
 		highlightingRules.append( rule );
 	}
 
@@ -268,8 +268,6 @@ VGLSLEdit::VGLSLEdit( const QString &initialData /* = QString() */ , QWidget *pa
 
 	this->setFont( font );
 	this->setTabStopWidth( 4 * UTIL_getFontWidth( " " , font ) );
-	//textEdit->setText( "#include <test>\n\n// test\n\nvoid thing;\n\nvoid main( int argc , char *argv[] )\n{\n/*\nThis is a long comment\n*/\nstd::cout << \"test\";\n}\n" );
-	//textEdit->setText( "in vec3 fromPrevious;\nin uvec2 fromRange;\n \nconst int foo = 5;\nconst uvec2 range = uvec2(2, 5);\nuniform vec2 pairs;\n \nuniform sampler2D tex;\n \nvoid main()\n{\n\tfoo; //constant expressions are dynamically uniform.\n \n\tuint value = 21; //'value' is dynamically uniform.\n\tvalue = range.x; //still dynamically uniform.\n\tvalue = range.y + fromRange.y; //not dynamically uniform; current contents come from a non-dynamically uniform source.\n\tvalue = 4; //dynamically uniform again.\n\tif(fromPrevious.y < 3.14)\n\t\tvalue = 12;\n\tvalue; //NOT dynamically uniform. Current contents depend on 'fromPrevious', an input variable.\n \n\tfloat number = abs(pairs.x); //'number' is dynamically uniform.\n\tnumber = sin(pairs.y); //still dynamically uniform.\n\tnumber = cos(fromPrevious.x); //not dynamically uniform.\n \n\tvec4 colors = texture(tex, pairs.xy); //dynamically uniform, even though it comes from a texture.\n\t\t\t\t\t\t\t\t\t\t//It uses the same texture coordinate, thus getting the same texel every time.\n\tcolors = texture(tex, fromPrevious.xy); //not dynamically uniform.\n \n\tfor(int i = range.x; i < range.y; ++i)\n\t{\n\t\t\t //loop initialized with, compared against, and incremented by dynamically uniform expressions.\n\t\ti; //Therefore, 'i' is dynamically uniform, even though it changes.\n\t}\n \n\tfor(int i = fromRange.x; i < fromRange.y; ++i)\n\t{\n\t\ti; //'i' is not dynamically uniform; 'fromRange' is not dynamically uniform.\n\t}\n}\n" );
 
 	this->setText( initialData );
 	setUnmodified();

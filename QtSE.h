@@ -8,6 +8,7 @@
 #include "VGLView.h"
 #include "VJsonForm.h"
 #include "VLogger.h"
+#include "VPreferences.h"
 #include "VTabWidgetArea.h"
 
 #include <QAction>
@@ -123,20 +124,23 @@ protected:
 					QFileSystemModel *fsModel;
 		QSplitter *editSplitter;
 			VTabWidgetArea *tabArea;
-			VLogger *coutEdit;
+			VLogger *logger;
 
 protected:
 	QString jsonProjectName;
 	QMap< QString , QWidget* > openFiles;
 	//CProjectTreeItem *activeProjectItem;
-	QModelIndex fsContextIndex;
+	QFileInfo fsContextInfo;
 
 	StdRedirector<> *redirector;
 
 protected:
 	//void addArrayToSave( QJsonArray &array , const VJsonFormItem *item );
+	void open( const QString path );
 	bool save( QWidget *widget ); // Returns true if the file was modified, not if it was saved
+
 	void updateRecentProjects( const QString &path = QString() );
+	bool makeRelativePath( QString &path );
 
 protected slots:
 	void newProject( void );
@@ -145,8 +149,9 @@ protected slots:
 	void save( void );
 	void saveAll( void );
 
-	void openPath( const QString path );
 	void reloadProject( void );
+
+	void preferences( void );
 
 	void about( void );
 
@@ -166,14 +171,6 @@ protected slots:
 
 	void tabWidgetDeleted( QWidget *widget );
 
-	//void tabWidgetTabAdded( QWidget *widget );
-	//void tabWidgetTabDestroyed( QObject *object );
-	//void tabWidgetCountChanged( int count );
-	//void tabCloseRequested( int index );
-	//void removeTabWidgetFromLayout( QObject *tabWidget ) { removeTabWidgetFromLayout( dynamic_cast< VDraggableTabWidget* >( tabWidget ) ); }
-	//void removeTabWidgetFromLayout( QObject *tabWidget ) { removeTabWidgetFromLayout( (VDraggableTabWidget*)tabWidget ); }
-	//void removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget );
-
 	// Managed file slots
 
 	void loadProject( const QString &path = QString() );
@@ -186,6 +183,8 @@ protected slots:
 	void addShader( void );
 	void addModel( void );
 	void addTexture( void );
+
+	void renameItem( void );
 	void deleteItem( void );
 };
 

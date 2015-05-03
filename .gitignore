@@ -9,6 +9,7 @@ QtSE_backend
 qt.cfg
 cppcheck.sh
 PoppyDebugTools.h
+dia.log
 
 # Experimental VGLView backup
 
@@ -25,7 +26,7 @@ QtSEProjects/experimental
 release
 resources
 tinyobjloader
-qrc
+qrc/allicons
 
 # Testing
 
@@ -33,6 +34,10 @@ qrc
 *.obj_frontend
 *.moc_backend
 *.obj_backend
+
+# Other
+
+*.swp
 
 # C++ objects and libs
 

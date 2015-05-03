@@ -140,12 +140,12 @@ bool CShader::build() {
     char *buffer[1];
     QFile file;
 
-    // Make shader objects. Two for now. Better add more in the furture.
+	// Make shader objects. Two for now. Better add more in the future.
     // One for each source file.
     vs = glCreateShader(GL_VERTEX_SHADER);
     fs = glCreateShader(GL_FRAGMENT_SHADER);
 
-    // Load all vertex files. Concatinate them into one string and give them to OGL.
+	// Load all vertex files. Concatenate them into one string and give them to OGL.
     QList<QString>::iterator vertexSourceFilesIt = vertexSourceFiles.begin();
     for (; vertexSourceFilesIt != vertexSourceFiles.end(); ++vertexSourceFilesIt) {
         QString filePath = getWorkingPath().append(*vertexSourceFilesIt);
@@ -172,7 +172,7 @@ bool CShader::build() {
     printShaderInfoLog(vs);
     free(buffer[0]);
 
-    // Load all fragment files. Concatinate them into one string and give them to OGL.
+	// Load all fragment files. Concatenate them into one string and give them to OGL.
     QList<QString>::iterator fragmentSourceFilesIt = fragmentSourceFiles.begin();
     for (; fragmentSourceFilesIt != fragmentSourceFiles.end(); ++fragmentSourceFilesIt) {
         QString filePath = getWorkingPath().append(*fragmentSourceFilesIt);

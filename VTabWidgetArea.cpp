@@ -14,7 +14,7 @@ bool EventModifiedChangeFilter::eventFilter( QObject *obj , QEvent *event )
 	return QObject::eventFilter( obj , event );
 }
 
-VTabWidgetArea::VTabWidgetArea( void )
+VTabWidgetArea::VTabWidgetArea( void ) : QSplitter( NULL )
 {
 	modifiedChangeFilter = new EventModifiedChangeFilter( this );
 	connect( modifiedChangeFilter , SIGNAL(objModified(QObject*,bool)) , this , SLOT(subWidgetModifiedChange(QObject*,bool)) );
@@ -247,6 +247,9 @@ void VTabWidgetArea::removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget )
 
 	if( tabWidget )
 	{
+		if( tabWidget == activeTabWidget )
+			activeTabWidget = NULL;
+
 		QSplitter *parentSplitter = dynamic_cast< QSplitter* >( tabWidget->parentWidget() );
 
 		// Don't close top splitter
@@ -262,8 +265,10 @@ void VTabWidgetArea::removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget )
 			// If the other thing is a splitter, get the first tab widget of it
 			if( !otherTabWidget && otherSplitter )
 				otherTabWidget = getFirstTabWidget( otherSplitter );
+			activeTabWidget = otherTabWidget; // Otherwise activeTabWidget is hanging
 
 			tabWidget->disconnect(); // Stop indirect recursion
+			int currentWidgetOffset = otherTabWidget->count() + tabWidget->currentIndex();
 
 			// Move remaining tabs from this tab to the next one
 			while( tabWidget->count() )
@@ -271,6 +276,10 @@ void VTabWidgetArea::removeTabWidgetFromLayout( VDraggableTabWidget *tabWidget )
 				tabMap[ tabWidget->widget( 0 ) ] = otherTabWidget;
 				otherTabWidget->addTab( tabWidget->widget( 0 ) , tabWidget->tabText( 0 ) );
 			}
+
+			// Set the current widget of the other tab widget to the select tab
+			// in the widget that got merged into this one
+			otherTabWidget->setCurrentIndex( currentWidgetOffset );
 
 			//std::cout << QString( "parentSplitter->count() == %1" ).arg( parentSplitter->count() ).toLatin1().data() << std::endl;
 
@@ -315,9 +324,7 @@ void VTabWidgetArea::subWidgetTitleChanged( const QString &title )
 		VDraggableTabWidget *tabWidget = tabMap.value( caller , NULL );
 
 		if( tabWidget )
-		{
 			tabWidget->setTabText( tabWidget->indexOf( caller ) , title );
-		}
 	}
 }
 
@@ -332,12 +339,8 @@ void VTabWidgetArea::subWidgetModifiedChange( QObject *obj , bool isModified )
 	{
 		int index = tabWidget->indexOf( obj );
 
+		// Change window title
 		if( index != -1 )
-		{
-			if( isModified )
-				tabWidget->setTabText( index , widget->windowTitle().replace( "[*]" , "*" ) );
-			else
-				tabWidget->setTabText( index , widget->windowTitle().replace( "[*]" , "" ) );
-		}
+			tabWidget->setTabText( index , widget->windowTitle().replace( "[*]" , isModified ? "*" : "" ) );
 	}
 }

@@ -20,15 +20,16 @@ QString QtSE::CProjectTreeItem::getFullPath( const QString &basePath ) const
 
 QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 {
+	QSettings settings( QSettings::IniFormat , QSettings::UserScope , QCoreApplication::organizationName() , QCoreApplication::applicationName() );
+
 	// Make this first so we can start intercepting messages ASAP
-	coutEdit = new VLogger( NULL );
+	logger = new VLogger( NULL );
+	logger->setLogToFile( settings.value( "logger/logToFile" , true ).toBool() );
+	logger->setClearLogFileOnStart( settings.value( "logger/clearLogFileOnStart" , true ).toBool() );
+	logger->setAlwaysScrollToEndOnAppend( settings.value( "logger/alwaysScrollToEndOnAppend" , true ).toBool() );
 	//std::cout << "test cout" << std::endl;
 	//std::cerr << "test cerr" << std::endl;
 	//std::clog << "test clog" << std::endl;
-
-	//g_coutList = new QListWidget( NULL );
-
-	//activeProjectItem = NULL;
 
 	//connect( qApp , SIGNAL(focusChanged(QWidget*,QWidget*)) , this , SLOT(focusChanged(QWidget*,QWidget*)) );
 
@@ -40,25 +41,32 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 		updateRecentProjects();
 		menuFile->addSeparator();
 		actionSave = menuFile->addAction( QIcon( ":/qrc/icons/disk.png" ) , "Save" , this , SLOT(save()) , QKeySequence( Qt::CTRL | Qt::Key_S ) );
+		actionSave->setDisabled( true );
 		actionSaveAll = menuFile->addAction( QIcon( ":/qrc/icons/disk_multiple.png" ) , "Save All" , this , SLOT(saveAll()) , QKeySequence( Qt::CTRL | Qt::SHIFT | Qt::Key_S ) );
+		actionSaveAll->setDisabled( true );
 		menuFile->addSeparator();
 		actionQuit = menuFile->addAction( QIcon( ":/qrc/icons/cross.png" ) , "Quit" , this , SLOT(close()) );
 
 	menuView = this->menuBar()->addMenu( "View" );
 		actionReloadProject = menuView->addAction( QIcon( ":/qrc/icons/arrow_refresh.png" ) , "Reload" , this , SLOT(reloadProject()) , QKeySequence( Qt::CTRL | Qt::Key_R ) );
+		actionReloadProject->setDisabled( true );
 		menuView->addSeparator();
 		actionSplitVertically = menuView->addAction( QIcon( ":/qrc/icons/application_tile_horizontal.png" ) , "Split Vertical" , this , SLOT(splitVertically()) );
+		actionSplitVertically->setDisabled( true );
 		actionSplitHorizontally = menuView->addAction( QIcon( ":/qrc/icons/application_tile_vertical.png" ) , "Split Horizontal" , this , SLOT(splitHorizontally()) );
+		actionSplitHorizontally->setDisabled( true );
 		actionSplitCollapse = menuView->addAction( QIcon( ":/qrc/icons/arrow_join.png" ) , "Collapse" , this , SLOT(splitCollapse()) );
+		actionSplitCollapse->setDisabled( true );
 
 	menuSettings = this->menuBar()->addMenu( "Settings" );
-		actionPreferences = menuSettings->addAction( QIcon( ":/qrc/icons/cog.png" ) , "Preferences..." , this , SLOT(about()) );
+		actionPreferences = menuSettings->addAction( QIcon( ":/qrc/icons/cog.png" ) , "Preferences..." , this , SLOT(preferences()) );
 
 	menuHelp = this->menuBar()->addMenu( "Help" );
-		actionAbout = menuHelp->addAction( QIcon( ":/qrc/icons/question_book.png" ) , "About" , this , SLOT(about()) );
-		actionAboutQt = menuHelp->addAction( QIcon( ":/qrc/icons/qtcreator_logo_16.png" ) , "About Qt" , qApp , SLOT(aboutQt()) );
+		actionAbout = menuHelp->addAction( QIcon( ":/qrc/icons/question_book.png" ) , "About QtSE..." , this , SLOT(about()) );
+		actionAboutQt = menuHelp->addAction( QIcon( ":/qrc/icons/qtcreator_logo_16.png" ) , "About Qt..." , qApp , SLOT(aboutQt()) );
 
 	fsProjectTree = new QTreeView( NULL );
+	fsProjectTree->setDisabled( true );
 	fsProjectTree->header()->setStretchLastSection( true );
 	fsProjectTree->header()->setHidden( true );
 	fsProjectTree->setContextMenuPolicy( Qt::CustomContextMenu );
@@ -72,7 +80,7 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	projectTree->setContextMenuPolicy( Qt::CustomContextMenu );
 	connect( projectTree , SIGNAL(customContextMenuRequested(QPoint)) , this , SLOT(projectTreeContextMenu(QPoint)) );
 
-	//viewWidget = new VGLView( NULL );
+	viewWidget = new VGLView( NULL );
 
 #if 0
 	//CProjectTreeItem *dummyProject = new CProjectTreeItem( CProjectTreeItem::invalid , projectTree , QStringList( "testProject" ) );
@@ -99,10 +107,10 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	connect( itemsTab , SIGNAL(customContextMenuRequested(QPoint)) , this , SLOT(itemsTabTreeContextMenu(QPoint)) );
 
 	viewSplitter = new QSplitter( Qt::Vertical , NULL );
-	//viewSplitter->addWidget( viewWidget );
-	//viewSplitter->setStretchFactor( 0 , 1 );
+	viewSplitter->addWidget( viewWidget );
+	viewSplitter->setStretchFactor( 0 , 1 );
 	viewSplitter->addWidget( itemsTab );
-	//viewSplitter->setStretchFactor( 1 , 4 );
+	viewSplitter->setStretchFactor( 1 , 4 );
 
 	tabArea = new VTabWidgetArea();
 	connect( tabArea , SIGNAL(widgetDeleted(QWidget*)) , this , SLOT(tabWidgetDeleted(QWidget*)) );
@@ -110,7 +118,7 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	editSplitter = new QSplitter( Qt::Vertical , NULL );
 	editSplitter->addWidget( tabArea );
 	editSplitter->setStretchFactor( 0 , 4 );
-	editSplitter->addWidget( coutEdit );
+	editSplitter->addWidget( logger );
 	editSplitter->setStretchFactor( 1 , 1 );
 
 	windowSplitter = new QSplitter( NULL );
@@ -122,13 +130,17 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	this->setCentralWidget( windowSplitter );
 
 	// Restore settings
-	QSettings settings( QSettings::IniFormat , QSettings::UserScope , QCoreApplication::organizationName() , QCoreApplication::applicationName() );
 	windowSplitter->restoreState( settings.value( "gui/mainwindow/windowsplitter" ).toByteArray() );
 	viewSplitter->restoreState( settings.value( "gui/mainwindow/viewsplitter" ).toByteArray() );
 	editSplitter->restoreState( settings.value( "gui/mainwindow/editsplitter" ).toByteArray() );
 
-	// Test
-	open();
+	if( settings.value( "settings/loadLastProjectOnStart" , true ).toBool() )
+	{
+		QList< QAction* > actions = menuRecentProjects->actions();
+
+		if( actions.size() )
+			loadProject( actions.at( 0 )->text() );
+	}
 }
 
 QtSE::~QtSE()
@@ -143,7 +155,7 @@ void QtSE::closeEvent( QCloseEvent *event )
 		switch( QMessageBox::question( this , this->windowTitle() , "Save changes?" , QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel , QMessageBox::Cancel ) )
 		{
 			case QMessageBox::Yes:
-				save();
+				saveAll();
 			case QMessageBox::No:
 				break;
 			default:
@@ -170,7 +182,12 @@ void QtSE::updateRecentProjects( const QString &path /* = QString() */ )
 	{
 		// Remove to move
 		if( recentProjectList.contains( path , Qt::CaseSensitive ) )
-			recentProjectList.removeOne( path );
+		{
+			if( !recentProjectList.at( 0 ).compare( path , Qt::CaseSensitive ) )
+				return; // Already first. Nothing to do
+			else
+				recentProjectList.removeOne( path );
+		}
 
 		// Only store five projects
 		if( recentProjectList.size() == 5 )
@@ -185,7 +202,24 @@ void QtSE::updateRecentProjects( const QString &path /* = QString() */ )
 	menuRecentProjects->setDisabled( !recentProjectList.size() );
 
 	for( int index = 0 ; index < recentProjectList.size() ; index++ )
-		menuRecentProjects->addAction( recentProjectList.at( index ) , this , SLOT(openRecent()) );
+		menuRecentProjects->addAction( QIcon( ":/qrc/icons/world.png" ) , recentProjectList.at( index ) , this , SLOT(openRecent()) );
+}
+
+bool QtSE::makeRelativePath( QString &path )
+{
+	// Trim path using current path
+	QString curPath = QDir::currentPath();
+
+	if( path.startsWith( curPath , Qt::CaseSensitive ) )
+	{
+		// /bin/test = /bin , /test
+		// /test = / , test
+		path = path.mid( curPath.size() == 1 ? 1 : curPath.size() );
+
+		return true;
+	}
+
+	return false;
 }
 
 void QtSE::newProject( void )
@@ -196,16 +230,13 @@ void QtSE::newProject( void )
 
 void QtSE::open( void )
 {
-	//loadProject( QFileDialog::getOpenFileName( this , "Open File" , "." , "JSON Project File (*.project.json)" ) );
-	//return;
-
-	loadProject( QCoreApplication::applicationDirPath() + "/QtSEProjects/experimental/testProject.project.json" );
+	loadProject( QFileDialog::getOpenFileName( this , "Open File" , "." , "JSON Project File (*.project.json)" ) );
 }
 
 void QtSE::openRecent( void )
 {
 	QAction *sender = (QAction*)( QObject::sender() );
-	std::cout << sender->text().toLatin1().data() << std::endl;
+	loadProject( sender->text() );
 }
 
 void QtSE::save( void )
@@ -242,50 +273,64 @@ void QtSE::saveAll( void )
 		reloadProject();
 }
 
+void QtSE::preferences( void )
+{
+	VPreferences *preferenceDialog = new VPreferences( NULL );
+
+	if( QDialog::Accepted == preferenceDialog->exec() )
+	{
+		QSettings settings( QSettings::IniFormat , QSettings::UserScope , QCoreApplication::organizationName() , QCoreApplication::applicationName() );
+
+		logger->setLogToFile( settings.value( "logger/logToFile" , true ).toBool() );
+		logger->setClearLogFileOnStart( settings.value( "logger/clearLogFileOnStart" , true ).toBool() );
+		logger->setAlwaysScrollToEndOnAppend( settings.value( "logger/alwaysScrollToEndOnAppend" , true ).toBool() );
+	}
+}
+
 void QtSE::about( void )
 {
+	printf( "testout\n" );
+	fputs( "testerr\n" , stderr );
+	std::cout << std::endl;
+
 	// Nothing to do yet
 }
 
-void QtSE::openPath( const QString path )
+void QtSE::open( const QString path )
 {
 	QString relPath = path;
-	std::cout << path.toLatin1().data() << std::endl;
 
-	if( path.startsWith( '/' ) )
+	if( makeRelativePath( relPath ) )
 	{
-		relPath = path.mid( QDir::currentPath().size() + 1 );
-	}
-
-	std::cout << relPath.toLatin1().data() << std::endl;
-	relPath.prepend( '/' );
-
-	if( !openFiles.contains( relPath ) )
-	{
-		QWidget *addWidget = NULL;
-		QString filePath = QDir::currentPath().append( relPath );
-
-		if( relPath.endsWith( ".json" , Qt::CaseInsensitive ) )
+		if( !openFiles.contains( relPath ) )
 		{
-			VJsonForm *form = new VJsonForm( NULL );
-			form->load( filePath );
-			addWidget = form;
-		}
-		else if( relPath.endsWith( ".glsl" , Qt::CaseInsensitive ) )
-		{
-			VGLSLEdit *edit = new VGLSLEdit( NULL );
-			edit->load( filePath );
-			addWidget = edit;
-		}
+			QWidget *addWidget = NULL;
+			QString filePath = QDir::currentPath().append( relPath );
 
-		if( addWidget )
-		{
-			openFiles.insert( relPath , addWidget );
-			tabArea->addWidgetToArea( addWidget );
+			if( relPath.endsWith( ".json" , Qt::CaseInsensitive ) )
+			{
+				VJsonForm *form = new VJsonForm( NULL );
+				form->load( filePath );
+				addWidget = form;
+			}
+			else if( relPath.endsWith( ".glsl" , Qt::CaseInsensitive ) )
+			{
+				VGLSLEdit *edit = new VGLSLEdit( NULL );
+				edit->load( filePath );
+				addWidget = edit;
+			}
+
+			if( addWidget )
+			{
+				openFiles.insert( relPath , addWidget );
+				tabArea->addWidgetToArea( addWidget );
+			}
 		}
+		else
+			tabArea->showWidget( openFiles.value( relPath , NULL ) );
 	}
 	else
-		tabArea->showWidget( openFiles.value( relPath , NULL ) );
+		QMessageBox::critical( this , this->windowTitle() , "Unable to open \"%1\": Not relative to current directory." );
 }
 
 void QtSE::reloadProject( void )
@@ -363,57 +408,67 @@ void QtSE::itemsTabTreeContextMenu( QPoint point )
 
 void QtSE::fsProjectTreeContextMenu( QPoint point )
 {
-	fsContextIndex = fsProjectTree->indexAt( point );
+	bool isRoot = false;
+	QModelIndex fsContextIndex = fsProjectTree->indexAt( point );
 
+	// Get file info for model index
 	if( fsContextIndex.isValid() )
+		fsContextInfo = fsModel->fileInfo( fsContextIndex );
+	else
 	{
-		QFileInfo info = fsModel->fileInfo( fsContextIndex );
+		isRoot= true;
+		fsContextInfo = QFileInfo( QDir::currentPath() );
+	}
 
-		QMenu *menu = new QMenu();
-		menu->setAttribute( Qt::WA_DeleteOnClose , true );
+	// Build menu
+	QMenu *menu = new QMenu();
+	menu->setAttribute( Qt::WA_DeleteOnClose , true );
 
-		if( info.isDir() )
+	if( fsContextInfo.isDir() )
+	{
+		menu->addAction( QIcon( ":/qrc/icons/folder_add.png" ) , "Add Folder" , this , SLOT(addFolder()) );
+		if( !isRoot )
+			menu->addAction( QIcon( ":/qrc/icons/textfield_rename.png" ) , "Rename Folder" , this , SLOT(renameItem()) );
+		menu->addSeparator();
+		menu->addAction( QIcon( ":/qrc/icons/plugin_add.png" ) , "Add Stage" , this , SLOT(addStage()) );
+		menu->addAction( QIcon( ":/qrc/icons/film_add.png" ) , "Add Framebuffer" , this , SLOT(addFramebuffer()) );
+		menu->addAction( QIcon( ":/qrc/icons/script_add.png" ) , "Add Shader" , this , SLOT(addShader()) );
+		menu->addAction( QIcon( ":/qrc/icons/vvd_add.png" ) , "Add Model" , this , SLOT(addModel()) );
+		menu->addAction( QIcon( ":/qrc/icons/image_add.png" ) , "Add Texture" , this , SLOT(addTexture()) );
+		if( !isRoot )
 		{
-			menu->addAction( QIcon( ":/qrc/icons/folder_add.png" ) , "Add Folder" , this , SLOT(addFolder()) );
-			menu->addSeparator();
-			menu->addAction( QIcon( ":/qrc/icons/plugin_add.png" ) , "Add Stage" , this , SLOT(addStage()) );
-			menu->addAction( QIcon( ":/qrc/icons/film_add.png" ) , "Add Framebuffer" , this , SLOT(addFramebuffer()) );
-			menu->addAction( QIcon( ":/qrc/icons/script_add.png" ) , "Add Shader" , this , SLOT(addShader()) );
-			menu->addAction( QIcon( ":/qrc/icons/vvd_add.png" ) , "Add Model" , this , SLOT(addModel()) );
-			menu->addAction( QIcon( ":/qrc/icons/image_add.png" ) , "Add Texture" , this , SLOT(addTexture()) );
 			menu->addSeparator();
 			menu->addAction( QIcon( ":/qrc/icons/folder_delete.png" ) , "Delete Folder" , this , SLOT(deleteItem()) );
 		}
-		else if( info.isFile() )
-		{
-			menu->addAction( QIcon( ":/qrc/icons/page_white_delete.png" ) , "Delete File" , this , SLOT(deleteItem()) );
-		}
-
-		menu->popup( QCursor::pos() , NULL );
 	}
+	else if( fsContextInfo.isFile() )
+	{
+		menu->addAction( QIcon( ":/qrc/icons/textfield_rename.png" ) , "Rename File" , this , SLOT(renameItem()) );
+		menu->addSeparator();
+		menu->addAction( QIcon( ":/qrc/icons/page_white_delete.png" ) , "Delete File" , this , SLOT(deleteItem()) );
+	}
+
+	menu->popup( QCursor::pos() , NULL );
 }
 
 void QtSE::fsProjectTreeItemClicked( QModelIndex index )
 {
-	QFileInfo info = fsModel->fileInfo( index );
+	fsContextInfo = fsModel->fileInfo( index );
 
-	if( info.isFile() )
-	{
-		openPath( info.filePath() );
-	}
-	else if( info.isDir() )
+	if( fsContextInfo.isDir() )
 	{
 		if( fsProjectTree->isExpanded( index ) )
 			fsProjectTree->collapse( index );
 		else
 			fsProjectTree->expand( index );
 	}
+	else if( fsContextInfo.isFile() )
+		open( fsContextInfo.filePath() );
 }
 
 void QtSE::tabWidgetDeleted( QWidget *widget )
 {
 	QString key = openFiles.key( widget , "" );
-	std::cout << key.toLatin1().data() << std::endl;
 	openFiles.remove( key );
 }
 
@@ -431,8 +486,8 @@ void QtSE::loadProject( const QString &path /* = QString() */ )
 			jsonProjectName = pathParts.getName( true );
 			QDir::setCurrent( pathParts.getPath( false ) );
 
+			// Set up file system tree
 			fsModel->setRootPath( QDir::currentPath() );
-
 			fsProjectTree->setModel( fsModel );
 			fsProjectTree->setRootIndex( fsModel->index( QDir::currentPath() ) );
 
@@ -444,23 +499,32 @@ void QtSE::loadProject( const QString &path /* = QString() */ )
 			//projectTree->clear();
 
 			updateRecentProjects( path );
+
+			// Enable things
+			actionSave->setEnabled( true );
+			actionSaveAll->setEnabled( true );
+			actionReloadProject->setEnabled( true );
+			actionSplitHorizontally->setEnabled( true );
+			actionSplitVertically->setEnabled( true );
+			actionSplitCollapse->setEnabled( true );
+			fsProjectTree->setEnabled( true );
 		}
+		else
+			QMessageBox::critical( this , this->windowTitle() , "Error: Not a project file." );
 	}
 }
 
 void QtSE::addFolder( void )
 {
-	QFileInfo info = fsModel->fileInfo( fsContextIndex );
-
-	if( info.isDir() )
+	if( fsContextInfo.isDir() )
 	{
 		bool ok = false;
 		QString dirName = QInputDialog::getText( this , this->windowTitle() , "Folder Name:" , QLineEdit::Normal , "" , &ok );
 
 		if( ok )
 		{
-			//std::cout << info.absoluteFilePath().toLatin1().data() << std::endl;
-			QDir dir( info.absoluteFilePath() );
+			//std::cout << fsContextInfo.absoluteFilePath().toLatin1().data() << std::endl;
+			QDir dir( fsContextInfo.absoluteFilePath() );
 
 			if( !dir.exists( dirName ) )
 				dir.mkdir( dirName );
@@ -520,8 +584,9 @@ void QtSE::addProjectFile( QFileInfo &info , const QString &itemName , const QSt
 				obj.insert( "itemType" , typeName );
 				QJsonDocument doc( obj );
 				file.write( doc.toJson() );
+				file.close(); // Flush before opening
 
-				openPath( path );
+				open( path );
 			}
 		}
 	}
@@ -529,61 +594,63 @@ void QtSE::addProjectFile( QFileInfo &info , const QString &itemName , const QSt
 
 void QtSE::addStage( void )
 {
-	QFileInfo info = fsModel->fileInfo( fsContextIndex );
-
-	if( info.isDir() )
-		addProjectFile( info , "Stage" , "stage" );
+	if( fsContextInfo.isDir() )
+		addProjectFile( fsContextInfo , "Stage" , "stage" );
 }
 
 void QtSE::addFramebuffer( void )
 {
-	QFileInfo info = fsModel->fileInfo( fsContextIndex );
-
-	if( info.isDir() )
-		addProjectFile( info , "Framebuffer" , "framebuffer" );
+	if( fsContextInfo.isDir() )
+		addProjectFile( fsContextInfo , "Framebuffer" , "framebuffer" );
 }
 
 void QtSE::addShader( void )
 {
-	QFileInfo info = fsModel->fileInfo( fsContextIndex );
-
-	if( info.isDir() )
-		addProjectFile( info , "Shader" , "shader" );
+	if( fsContextInfo.isDir() )
+		addProjectFile( fsContextInfo , "Shader" , "shader" );
 }
 
 void QtSE::addModel( void )
 {
-	QFileInfo info = fsModel->fileInfo( fsContextIndex );
-
-	if( info.isDir() )
-		addProjectFile( info , "Model" , "model" );
+	if( fsContextInfo.isDir() )
+		addProjectFile( fsContextInfo , "Model" , "model" );
 }
 
 void QtSE::addTexture( void )
 {
-	QFileInfo info = fsModel->fileInfo( fsContextIndex );
+	if( fsContextInfo.isDir() )
+		addProjectFile( fsContextInfo , "Texture" , "texture" );
+}
 
-	if( info.isDir() )
-		addProjectFile( info , "Texture" , "texture" );
+void QtSE::renameItem( void )
+{
+	bool ok = false;
+	QString name = QInputDialog::getText( this , this->windowTitle() , "Rename:" , QLineEdit::Normal , fsContextInfo.fileName() , &ok );
+
+	if( ok )
+	{
+		QDir dir = fsContextInfo.dir();
+
+		if( !dir.rename( fsContextInfo.fileName() , name ) )
+			QMessageBox::critical( this , this->windowTitle() , "Unable to rename item. Does target exist?" );
+	}
 }
 
 void QtSE::deleteItem( void )
 {
-	QFileInfo info = fsModel->fileInfo( fsContextIndex );
-
 	if( QMessageBox::Yes == QMessageBox::question( this , this->windowTitle() , "Are you sure?\nThis action cannot be undone." ) )
 	{
-		if( info.isDir() )
+		if( fsContextInfo.isDir() )
 		{
-			QDir dir( info.absoluteFilePath() );
+			QDir dir( fsContextInfo.absoluteFilePath() );
 			QString rmName = dir.dirName();
 			dir.cdUp();
 			dir.rmdir( rmName );
 		}
 		else
 		{
-			QDir dir( info.absolutePath() );
-			dir.remove( info.fileName() );
+			QDir dir( fsContextInfo.absolutePath() );
+			dir.remove( fsContextInfo.fileName() );
 		}
 	}
 }
