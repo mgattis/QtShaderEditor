@@ -23,7 +23,6 @@ VGLView.cpp__
 assets
 debug
 qrc/allicons
-QtSEProjects
 release
 resources
 tinyobjloader
