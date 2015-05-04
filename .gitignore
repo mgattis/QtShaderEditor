@@ -20,13 +20,6 @@ VGLView.cpp__
 
 # Dirs
 
-assets
-debug
-qrc/allicons
-release
-resources
-tinyobjloader
-
 # Testing
 
 *.moc_frontend
@@ -35,11 +28,6 @@ tinyobjloader
 *.obj_backend
 
 # Other
-
-*.swp
-*.zip
-*.obj
-*.mtl
 
 # C++ objects and libs
 

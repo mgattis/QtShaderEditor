@@ -1,3 +1,5 @@
+// git sucksssssssssssssssssss
+
 #include "CObj.h"
 
 GLint CGLMesh::vertexLocShared;
