@@ -141,7 +141,7 @@ protected:
 	void open( const QString path );
 	bool save( QWidget *widget ); // Returns true if the file was modified, not if it was saved
 
-	void updateRecentProjects( const QString &path = QString() );
+	void updateRecentProjects( const QString &path = QString() , bool remove = false );
 	bool makeRelativePath( QString &path );
 
 protected slots:

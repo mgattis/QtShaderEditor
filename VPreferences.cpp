@@ -36,7 +36,6 @@ VPreferences::VPreferences( QWidget *parent /* = NULL */ ) : QDialog( parent )
 	logBox->setLayout( logLayout );
 
 	buttonBox = new QDialogButtonBox( QDialogButtonBox::Save | QDialogButtonBox::Cancel );
-
 	connect( buttonBox , SIGNAL(accepted()) , this , SLOT(wasAccepted()) );
 	connect( buttonBox , SIGNAL(rejected()) , this , SLOT(reject()) );
 
@@ -52,7 +51,6 @@ VPreferences::VPreferences( QWidget *parent /* = NULL */ ) : QDialog( parent )
 	this->setWindowTitle( "Preferences" );
 	this->setModal( true );
 	this->setAttribute( Qt::WA_DeleteOnClose , true );
-	//this->setFixedSize( this->width() , this->height() );
 	this->setFixedSize( 400 , 500 );
 }
 

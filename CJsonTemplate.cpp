@@ -108,7 +108,7 @@ void CJsonTemplate::parseDefaults( const QString &path /* = QString() */ )
 	QFile file;
 
 	if( path.isNull() )
-		file.setFileName( QCoreApplication::applicationDirPath() + "/QtSEProjects/template.template.json" );
+		file.setFileName( QCoreApplication::applicationDirPath() + "/qrc/template.template.json" );
 	else
 		file.setFileName( path );
 

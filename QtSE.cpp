@@ -132,6 +132,7 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 
 	this->setCentralWidget( windowSplitter );
 	this->setWindowIcon( QIcon( ":/qrc/icons/qtse2.png" ) );
+	this->setWindowTitle( "QtSE" );
 	this->adjustSize();
 
 	// Restore settings
@@ -181,7 +182,7 @@ void QtSE::closeEvent( QCloseEvent *event )
 	event->accept();
 }
 
-void QtSE::updateRecentProjects( const QString &path /* = QString() */ )
+void QtSE::updateRecentProjects( const QString &path /* = QString() */ , bool remove /* = false */ )
 {
 	QSettings settings( QSettings::IniFormat , QSettings::UserScope , QCoreApplication::organizationName() , QCoreApplication::applicationName() );
 	QStringList recentProjectList = settings.value( "settings/recentprojects" ).toStringList();
@@ -189,20 +190,26 @@ void QtSE::updateRecentProjects( const QString &path /* = QString() */ )
 	// Prepend path
 	if( !path.isEmpty() )
 	{
-		// Remove to move
-		if( recentProjectList.contains( path , Qt::CaseSensitive ) )
+		if( !remove )
 		{
-			if( !recentProjectList.at( 0 ).compare( path , Qt::CaseSensitive ) )
-				return; // Already first. Nothing to do
-			else
-				recentProjectList.removeOne( path );
+			// Do we already have it listed?
+			if( recentProjectList.contains( path , Qt::CaseSensitive ) )
+			{
+				if( !recentProjectList.at( 0 ).compare( path , Qt::CaseSensitive ) )
+					return; // Already first. Nothing to do
+				else
+					recentProjectList.removeOne( path ); // Remove to move
+			}
+
+			// Only store five projects
+			if( recentProjectList.size() == 5 )
+				recentProjectList.removeLast();
+
+			recentProjectList.prepend( path );
 		}
+		else
+			recentProjectList.removeAll( path );
 
-		// Only store five projects
-		if( recentProjectList.size() == 5 )
-			recentProjectList.removeLast();
-
-		recentProjectList.prepend( path );
 		settings.setValue( "settings/recentprojects" , recentProjectList );
 	}
 
@@ -237,14 +244,18 @@ void QtSE::newProject( void )
 
 	if( QDialog::Accepted == projectDialog->exec() )
 	{
-		// QDir, cd to QCoreApplication::applicationDirPath() + "/QtSEProjects",
-		// make folder with name, create project json, save, load
+		QString path = projectDialog->getProjectPath();
+
+		QDir::setCurrent( path );
+		// create project json, save, load
 	}
+
+	delete projectDialog;
 }
 
 void QtSE::open( void )
 {
-	loadProject( QFileDialog::getOpenFileName( this , "Open File" , "." , "JSON Project File (*.project.json)" ) );
+	loadProject( QFileDialog::getOpenFileName( this , "Open File" , "." , "JSON Project File (*.json)" ) );
 }
 
 void QtSE::openRecent( void )
@@ -278,6 +289,8 @@ void QtSE::closeProject( void )
 		actionSplitCollapse->setDisabled( true );
 		fsProjectTree->setDisabled( true );
 		tabArea->setDisabled( true );
+
+		this->setWindowTitle( "QtSE" );
 	}
 }
 
@@ -556,10 +569,16 @@ void QtSE::loadProject( const QString &path /* = QString() */ )
 			fsProjectTree->setEnabled( true );
 			tabArea->setEnabled( true );
 
+			this->setWindowTitle( QString( "%1 - QtSE" ).arg( jsonProjectName ) );
+
 			reloadProject();
 		}
 		else
+		{
+			updateRecentProjects( path , true );
+
 			QMessageBox::critical( this , this->windowTitle() , "Error: Not a project file." );
+		}
 	}
 }
 
