@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 
+#define GLM_FORCE_RADIANS
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include "tinyobjloader/tiny_obj_loader.h"

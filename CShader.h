@@ -2,6 +2,7 @@
 #define CSHADER_H
 
 #include "IProjectObject.h"
+#define GLM_FORCE_RADIANS
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 

@@ -1,6 +1,8 @@
 #ifndef CPROJECTIONMATRIX_H
 #define CPROJECTIONMATRIX_H
 
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <QString>
 #include <QJsonObject>

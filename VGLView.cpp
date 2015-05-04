@@ -186,6 +186,7 @@ void VGLView::openProject(QString projectFile) {
     if (project->hasValidProject()) {
         project->setViewPort(this->width(), this->height());
         project->setCamera(&camera);
+        this->speedMultiplier = project->getSpeedMultiplier();
     }
     else {
         closeProject();

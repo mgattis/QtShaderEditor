@@ -534,10 +534,10 @@ void QtSE::loadProject( const QString &path /* = QString() */ )
 {
 	if( !path.isEmpty() )
 	{
-		QString projectValue;
-		QJsonObject obj = CJsonTemplate::get()->loadUserJson( path , projectValue );
+        QString projectValue;
+        QJsonObject obj = CJsonTemplate::get()->loadUserJson( path , projectValue );
 
-		if( !obj.isEmpty() && projectValue == "project" )
+        if( !obj.isEmpty() && projectValue == "project" )
 		{
 			// File is valid
 			CPath pathParts( path , true );
