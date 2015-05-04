@@ -20,6 +20,14 @@ VGLView.cpp__
 
 # Dirs
 
+assets
+debug
+qrc/allicons
+QtSEProjects
+release
+resources
+tinyobjloader
+
 # Testing
 
 *.moc_frontend
@@ -28,6 +36,11 @@ VGLView.cpp__
 *.obj_backend
 
 # Other
+
+*.swp
+*.zip
+*.obj
+*.mtl
 
 # C++ objects and libs
 
