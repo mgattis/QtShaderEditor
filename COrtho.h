@@ -3,7 +3,9 @@
 
 #include "CProjectionMatrix.h"
 
+#ifndef GLM_FORCE_RADIANS
 #define GLM_FORCE_RADIANS
+#endif
 #include <glm/glm.hpp>
 
 class COrtho : public CProjectionMatrix {

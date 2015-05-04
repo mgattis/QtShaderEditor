@@ -31,3 +31,8 @@ glm::mat4 CCamera::getMatrixFromPosition() {
     m = glm::translate(m, glm::vec3(position));
     return m;
 }
+
+void CCamera::resetCamera() {
+    position = glm::vec4(0.0, 0.0, 0.0, 0.0);
+    angle = glm::vec4(0.0, 0.0, 0.0, 0.0);
+}

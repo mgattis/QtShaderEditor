@@ -129,6 +129,7 @@ void printProgramInfoLog(GLuint obj)
     {
         infoLog = (char *)malloc(infologLength);
         glGetProgramInfoLog(obj, infologLength, &charsWritten, infoLog);
+        std::clog << infoLog << std::endl;
         printf("%s\n",infoLog);
         free(infoLog);
     }

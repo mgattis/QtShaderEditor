@@ -1,7 +1,9 @@
 #ifndef CMODELVIEWMATRIX_H
 #define CMODELVIEWMATRIX_H
 
+#ifndef GLM_FORCE_RADIANS
 #define GLM_FORCE_RADIANS
+#endif
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <QJsonArray>

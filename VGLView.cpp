@@ -308,6 +308,9 @@ void VGLView::keyPressEvent( QKeyEvent *event )
         case Qt::Key_Shift:
             keyBits |= KEY_LSHIFT;
             break;
+        case Qt::Key_C:
+            camera.resetCamera();
+            break;
         default:
             event->ignore();
             return;

@@ -7,7 +7,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#ifndef GLM_FORCE_RADIANS
 #define GLM_FORCE_RADIANS
+#endif
 #include <glm/glm.hpp>
 #include <QString>
 #include <QMap>
