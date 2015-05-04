@@ -8,6 +8,7 @@
 #include "VGLView.h"
 #include "VJsonForm.h"
 #include "VLogger.h"
+#include "VNewProjectDialog.h"
 #include "VPreferences.h"
 #include "VTabWidgetArea.h"
 

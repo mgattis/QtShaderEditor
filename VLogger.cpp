@@ -24,6 +24,7 @@ VLogger::VLogger( QWidget *parent ) : QTextEdit( parent )
 	this->setReadOnly( true );
 	this->setWordWrapMode( QTextOption::NoWrap );
 
+#ifdef linux
 	// Override stdout
 	pipe( &outTube[ 0 ] );
 	fflush( stdout );
@@ -37,6 +38,7 @@ VLogger::VLogger( QWidget *parent ) : QTextEdit( parent )
 	fgetpos( stderr , &oldStderrPos );
 	oldStderrFd = dup( fileno( stderr ) );
 	dup2( errTube[ 1 ] , fileno( stderr ) );
+#endif
 
 	// Override C++ streams
 	coutRedirector = new StdRedirector<>( std::cout , coutCallback , this );
@@ -46,6 +48,7 @@ VLogger::VLogger( QWidget *parent ) : QTextEdit( parent )
 
 VLogger::~VLogger()
 {
+#ifdef linux
 	// Restore stdout
 	fflush( stdout );
 	dup2( oldStdoutFd , fileno( stdout ) );
@@ -61,6 +64,7 @@ VLogger::~VLogger()
 	clearerr( stderr );
 	fsetpos( stderr , &oldStderrPos ); /* for C9X */
 	::close( errTube[ 1 ] );
+#endif
 
 	// Restore the streams
 	//delete coutRedirector;
@@ -70,7 +74,8 @@ VLogger::~VLogger()
 
 void VLogger::resizeEvent( QResizeEvent *event )
 {
-	scrollToLatest();
+	if( ( this->verticalScrollBar()->sliderPosition() == this->verticalScrollBar()->maximum() ) || alwaysScrollToEndOnAppend )
+		scrollToEnd();
 
 	QTextEdit::resizeEvent( event );
 }
@@ -127,8 +132,11 @@ void VLogger::stdAppend( const QString &string , stream type )
 			default: {}
 		}
 
+		bool wasAtEnd = this->verticalScrollBar()->sliderPosition() == this->verticalScrollBar()->maximum();
 		this->append( QString( info ) );
-		scrollToLatest();
+
+		if( wasAtEnd || alwaysScrollToEndOnAppend )
+			scrollToEnd();
 
 		if( logToFile && ( logFile.isOpen() || logFile.open( QIODevice::WriteOnly ) ) )
 		{
@@ -142,6 +150,7 @@ void VLogger::stdAppend( const QString &string , stream type )
 	}
 }
 
+#if linux
 void VLogger::flushStandardStreams( void )
 {
 	// Buffer that keeps data until newline
@@ -198,15 +207,13 @@ void VLogger::flushStandardStreams( void )
 		errData = errData.mid( count );
 	}
 }
+#endif
 
-void VLogger::scrollToLatest( void )
+void VLogger::scrollToEnd( void )
 {
-	if( alwaysScrollToEndOnAppend || ( this->verticalScrollBar()->sliderPosition() == this->verticalScrollBar()->maximum() ) )
-	{
-		QScrollBar *bar = this->horizontalScrollBar();
-		bar->setSliderPosition( bar->minimum() );
+	QScrollBar *bar = this->horizontalScrollBar();
+	bar->setSliderPosition( bar->minimum() );
 
-		bar = this->verticalScrollBar();
-		bar->setSliderPosition( bar->maximum() );
-	}
+	bar = this->verticalScrollBar();
+	bar->setSliderPosition( bar->maximum() );
 }

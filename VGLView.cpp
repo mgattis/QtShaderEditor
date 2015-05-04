@@ -1,6 +1,6 @@
 #include "VGLView.h"
 
-VGLView::VGLView( QWidget *parent /* = NULL */ )
+VGLView::VGLView( QWidget *parent /* = NULL */ ) : QGLWidget( parent )
 {
     keyBits = 0;
     mouseSensitivity = 8.0;
@@ -8,7 +8,7 @@ VGLView::VGLView( QWidget *parent /* = NULL */ )
     maxAcceleration = 8.0;
     maxVelocity = 1.0;
     friction = 2.0;
-    speedMultiplier = 256.0;
+	speedMultiplier = 8.0;
 
     project = NULL;
 
@@ -35,17 +35,17 @@ void VGLView::initializeGL( void )
             std::clog << "[WARNING]: " << glewGetErrorString(err) << std::endl;
         }
 
-        if (!GLEW_VERSION_2_1) {
+		if (!GLEW_VERSION_2_1) {
             // check that the machine supports the 2.1 API.
             std::clog << "[WARNING]: GLEW: API 2.1 not supported." << std::endl;
-        }
+		}
 
         connect( &repaintTimer , SIGNAL(timeout()) , this , SLOT(updateGL()) );
         repaintTimer.setInterval( 33 );
 		repaintTimer.start();
 
 		//openProject("./QtSEProjects/testProject/testProject.project.json");
-        openProject( QDir::currentPath() + "/debug/QtSEProjects/testProject/testProject.project.json");
+		//openProject( QDir::currentPath() + "/debug/QtSEProjects/testProject/testProject.project.json");
 
         complete = true;
     }
@@ -221,15 +221,15 @@ void VGLView::resizeGL( int width , int height )
 
 void VGLView::enterEvent( QEvent *event )
 {
-    grabKeyboard();
-    grabMouse();
+	grabKeyboard();
+	//grabMouse();
 }
 
 void VGLView::leaveEvent( QEvent *event )
 {
     keyBits = 0;
-    releaseKeyboard();
-    releaseMouse();
+	releaseKeyboard();
+	//releaseMouse();
 }
 
 void VGLView::mousePressEvent( QMouseEvent *event )

@@ -11,7 +11,7 @@ CPerspective::CPerspective()
     iWidth = 800;
     iHeight = 600;
 
-    float fAspect = aspect.getAspectRatio(800, 600);
+	aspect.getAspectRatio(800, 600);
 
     projectionMatrix = glm::mat4();
     bChanged = true;

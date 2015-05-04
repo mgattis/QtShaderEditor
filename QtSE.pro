@@ -26,6 +26,7 @@ linux {
 }
 
 QMAKE_CXXFLAGS += -msse -msse2 -mfpmath=sse -fpermissive -ggdb
+QMAKE_CXXFLAGS += -DGLM_FORCE_RADIANS
 
 # Warnings
 QMAKE_CXXFLAGS += -Wno-unused-variable -Wno-unused-parameter -Wno-sign-compare
@@ -61,7 +62,8 @@ SOURCES += main.cpp\
     CShader.cpp \
     CModelViewMatrix.cpp \
     CWavefrontObj.cpp \
-    VPreferences.cpp
+    VPreferences.cpp \
+    VNewProjectDialog.cpp
 
 HEADERS  += QtSE.h \
     CResourceManager.h \
@@ -94,7 +96,8 @@ HEADERS  += QtSE.h \
     CShader.h \
     CModelViewMatrix.h \
     CWavefrontObj.h \
-    VPreferences.h
+    VPreferences.h \
+    VNewProjectDialog.h
 
 DISTFILES += \
     .gitignore

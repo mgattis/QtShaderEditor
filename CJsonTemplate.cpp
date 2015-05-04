@@ -77,7 +77,7 @@ void VJsonFormItem::toObject( QJsonObject &obj ) const
 			break;
 		}
 		case CJsonKeyvalueData::boolean:
-			obj.insert( this->text( 0 ) , QJsonValue( (bool)this->text( 2 ).toInt() ) );
+			obj.insert( this->text( 0 ) , QJsonValue( this->text( 2 ) == "true" ) );
 			break;
 		case CJsonKeyvalueData::integer:
 			obj.insert( this->text( 0 ) , QJsonValue( this->text( 2 ).toInt() ) );
@@ -272,7 +272,7 @@ void CJsonTemplate::parseDefaults( const QString &path /* = QString() */ )
 	}
 }
 
-void CJsonTemplate::validate( QJsonArray &cmp, const QJsonArray &ref )
+void CJsonTemplate::validate( QJsonArray &cmp, const QJsonArray &ref ) const
 {
 	QJsonValue cmpValue;
 	QJsonValue refValue;
@@ -320,7 +320,7 @@ void CJsonTemplate::validate( QJsonArray &cmp, const QJsonArray &ref )
 	}
 }
 
-void CJsonTemplate::validate( QJsonObject &cmp , const QJsonObject &ref )
+void CJsonTemplate::validate( QJsonObject &cmp , const QJsonObject &ref ) const
 {
 	QStringList cmpKeys = cmp.keys();
 	QStringList refKeys = ref.keys();

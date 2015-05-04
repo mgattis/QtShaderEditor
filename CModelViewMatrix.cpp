@@ -110,6 +110,7 @@ glm::mat4 CModelViewMatrix::translate(float x, float y, float z) {
 // Scales.
 glm::mat4 CModelViewMatrix::scale(float x, float y, float z) {
     matrix = glm::scale(matrix, glm::vec3(x, y, z));
+	return matrix;
 }
 
 bool CModelViewMatrix::identityFlag() {

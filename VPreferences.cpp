@@ -1,6 +1,6 @@
 #include "VPreferences.h"
 
-VPreferences::VPreferences( QWidget *parent /* = NULL */ )
+VPreferences::VPreferences( QWidget *parent /* = NULL */ ) : QDialog( parent )
 {
 	QSettings settings( QSettings::IniFormat , QSettings::UserScope , QCoreApplication::organizationName() , QCoreApplication::applicationName() );
 
@@ -72,5 +72,6 @@ void VPreferences::wasAccepted( void )
 	settings.setValue( "logger/clearLogFileOnStart" , clearLogFileOnStart->isChecked() );
 	settings.setValue( "logger/alwaysScrollToEndOnAppend" , alwaysScrollToEndOnAppend->isChecked() );
 
+	settings.sync();
 	this->accept();
 }

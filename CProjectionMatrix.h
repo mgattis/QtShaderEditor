@@ -12,6 +12,7 @@ protected:
 
 public:
     CProjectionMatrix();
+	virtual ~CProjectionMatrix();
 
     // Updates the projection matrix for the given view port.
     virtual glm::mat4 getProjectionMatrix(int iWidth, int iHeight) = 0;

@@ -1,9 +1,10 @@
 #ifndef VLOGGER_H
 #define VLOGGER_H
 
+#ifdef linux
 #include <poll.h>
-#include <stdio.h>
 #include <unistd.h>
+#endif
 
 #include "StdRedirector.h"
 #include "qtil.h"
@@ -47,7 +48,9 @@ public:
 
 	void stdAppend( const QString &string , stream type );
 
+#ifdef linux
 	void flushStandardStreams( void ); // stdout, stderr
+#endif
 
 	inline bool getLogToFile( void ) { return logToFile; }
 	inline void setLogToFile( bool log ) { logToFile = log; }
@@ -59,9 +62,11 @@ public:
 	inline void setAlwaysScrollToEndOnAppend( bool scroll ) { alwaysScrollToEndOnAppend = scroll; }
 
 protected:
+#ifdef linux
 	int outTube[ 2 ] , errTube[ 2 ];
 	int oldStdoutFd , oldStderrFd;
 	fpos_t oldStdoutPos , oldStderrPos;
+#endif
 
 	StdRedirector<> *coutRedirector;
 	StdRedirector<> *cerrRedirector;
@@ -75,7 +80,7 @@ protected:
 	bool alwaysScrollToEndOnAppend;
 
 public slots:
-	void scrollToLatest( void );
+	void scrollToEnd( void );
 
 protected:
 	static void callbackHelper( const char* ptr , std::streamsize count , void *target , stream type )
@@ -109,7 +114,10 @@ protected:
 		}
 
 		data->append( ptr , count );
-		logger->flushStandardStreams(); // Piggyback on detectable streams
+#ifdef linux
+		// Piggyback on detectable streams instead of polling
+		logger->flushStandardStreams();
+#endif
 
 		int index = -1;
 		while( ( index = data->lastIndexOf( '\n' ) ) != -1 )

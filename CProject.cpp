@@ -66,8 +66,7 @@ void CProject::_loadEveryoneElse(QString directory) {
 
         QString dirName = directoryIt.fileInfo().fileName();
         QString dirPath = directoryIt.fileInfo().filePath();
-        bool bIsDir = directoryIt.fileInfo().isDir();
-        bool bIsFile = directoryIt.fileInfo().isFile();
+		bool bIsDir = directoryIt.fileInfo().isDir();
 
         if (bIsDir) {
             if (!(dirName.compare(".") == 0 || dirName.compare("..") == 0)) {

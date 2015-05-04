@@ -147,7 +147,7 @@ void CFramebuffer::deleteBuffer() {
 }
 
 bool CFramebuffer::useBuffer(bool bUse) {
-    if (framebufferObject) {
+	if (framebufferObject && bUse) {
         glBindFramebuffer(GL_FRAMEBUFFER, framebufferObject);
 
         GLuint attachments[] = {GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT};

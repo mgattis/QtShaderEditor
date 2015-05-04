@@ -5,6 +5,9 @@ CProjectionMatrix::CProjectionMatrix() {
     bChanged = false;
 }
 
+CProjectionMatrix::~CProjectionMatrix() {
+}
+
 QString CProjectionMatrix::getType() {
     return QString("projectionMatrix");
 }

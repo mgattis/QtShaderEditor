@@ -137,8 +137,6 @@ bool CStage::initialize() {
 
 // Executes all of the stages.
 void CStage::run() {
-    GLint framebuffer = 0;
-
     int iBufferWidth = iViewPortWidth;
     int iBufferHeight = iViewPortHeight;
 
@@ -180,7 +178,7 @@ void CStage::run() {
         glClearColor(0.0, 0.0, 0.0, 0.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
+		glDepthFunc(GL_ALWAYS);
 
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);

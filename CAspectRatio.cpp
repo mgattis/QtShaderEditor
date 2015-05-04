@@ -53,7 +53,7 @@ float CAspectRatio::getAspectRatio(int iSourceWidth, int iSourceHeight) {
 }
 
 float CAspectRatio::getAspectRatio() {
-    getAspectRatio(iSourceWidth, iSourceHeight);
+	return getAspectRatio(iSourceWidth, iSourceHeight);
 }
 
 bool CAspectRatio::isAspectChanged() {

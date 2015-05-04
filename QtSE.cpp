@@ -131,11 +131,16 @@ QtSE::QtSE( QWidget *parent ) : QMainWindow( parent )
 	windowSplitter->setStretchFactor( 1 , 1 );
 
 	this->setCentralWidget( windowSplitter );
+	this->setWindowIcon( QIcon( ":/qrc/icons/qtse2.png" ) );
+	this->adjustSize();
 
 	// Restore settings
 	windowSplitter->restoreState( settings.value( "gui/mainwindow/windowsplitter" ).toByteArray() );
 	viewSplitter->restoreState( settings.value( "gui/mainwindow/viewsplitter" ).toByteArray() );
 	editSplitter->restoreState( settings.value( "gui/mainwindow/editsplitter" ).toByteArray() );
+	this->restoreState( settings.value( "gui/mainwindow" ).toByteArray() );
+
+	return;
 
 	if( settings.value( "settings/loadLastProjectOnStart" , true ).toBool() )
 	{
@@ -171,6 +176,7 @@ void QtSE::closeEvent( QCloseEvent *event )
 	settings.setValue( "gui/mainwindow/windowsplitter" , windowSplitter->saveState() );
 	settings.setValue( "gui/mainwindow/viewsplitter" , viewSplitter->saveState() );
 	settings.setValue( "gui/mainwindow/editsplitter" , editSplitter->saveState() );
+	settings.setValue( "gui/mainwindow" , this->saveState() );
 
 	event->accept();
 }
@@ -227,8 +233,13 @@ bool QtSE::makeRelativePath( QString &path )
 
 void QtSE::newProject( void )
 {
-	// QDir, cd to QCoreApplication::applicationDirPath() + "/QtSEProjects",
-	// make folder with name, create project json, save, load
+	VNewProjectDialog *projectDialog = new VNewProjectDialog( NULL );
+
+	if( QDialog::Accepted == projectDialog->exec() )
+	{
+		// QDir, cd to QCoreApplication::applicationDirPath() + "/QtSEProjects",
+		// make folder with name, create project json, save, load
+	}
 }
 
 void QtSE::open( void )
@@ -248,7 +259,7 @@ void QtSE::closeProject( void )
 	if( tabArea->closeAll() )
 	{
 		// Reset things
-		// TODO: Stop viewWidget
+		viewWidget->closeProject();
 
 		jsonProjectName.clear();
 		QDir::setCurrent( qApp->applicationDirPath() );
@@ -272,7 +283,9 @@ void QtSE::closeProject( void )
 
 void QtSE::save( void )
 {
-	if( save( this->focusWidget() ) )
+	QSettings settings( QSettings::IniFormat , QSettings::UserScope , QCoreApplication::organizationName() , QCoreApplication::applicationName() );
+
+	if( save( this->focusWidget() ) && settings.value( "settings/refreshSceneOnSave" , false ).toBool() )
 		reloadProject();
 }
 
@@ -284,6 +297,8 @@ bool QtSE::save( QWidget *widget )
 			jsonForm->save();
 		else if( VGLSLEdit *glslEdit = dynamic_cast< VGLSLEdit* >( widget ) )
 			glslEdit->save();
+		else
+			return false;
 
 		return true;
 	}
@@ -300,7 +315,9 @@ void QtSE::saveAll( void )
 		if( save( widgets.at( index ) ) )
 			reload = true;
 
-	if( reload )
+	QSettings settings( QSettings::IniFormat , QSettings::UserScope , QCoreApplication::organizationName() , QCoreApplication::applicationName() );
+
+	if( reload && settings.value( "settings/refreshSceneOnSave" , false ).toBool() )
 		reloadProject();
 }
 
@@ -320,11 +337,7 @@ void QtSE::preferences( void )
 
 void QtSE::about( void )
 {
-	printf( "testout\n" );
-	fputs( "testerr\n" , stderr );
-	std::cout << std::endl;
-
-	// Nothing to do yet
+	QMessageBox::about( this , "About QtSE" , QString( "Qt Shader Editor\n\nBuilt on %1 at %2\n\nEnjoy!" ).arg( __DATE__ ).arg( __TIME__ ) );
 }
 
 void QtSE::open( const QString path )
@@ -542,6 +555,8 @@ void QtSE::loadProject( const QString &path /* = QString() */ )
 			actionSplitCollapse->setEnabled( true );
 			fsProjectTree->setEnabled( true );
 			tabArea->setEnabled( true );
+
+			reloadProject();
 		}
 		else
 			QMessageBox::critical( this , this->windowTitle() , "Error: Not a project file." );

@@ -133,14 +133,12 @@ bool CWavefrontObj::generateBuffers() {
         // that attribute is missing.
         int sizePosition = tshapes[shapeIt].mesh.positions.size();
         int sizeTexcoords = tshapes[shapeIt].mesh.texcoords.size();
-        int sizeNormals = tshapes[shapeIt].mesh.normals.size();
-        int actualAttribsPerIndex = 0;
+		int sizeNormals = tshapes[shapeIt].mesh.normals.size();
 
         // Iterate through all triangles.
         int totalTriangles = tshapes[shapeIt].mesh.indices.size() / 3;
         for (int face = 0; face < totalTriangles; face++) {
-            int mat = tshapes[shapeIt].mesh.material_ids[face];
-            int matCount = tshapes[shapeIt].mesh.material_ids.size();
+			int mat = tshapes[shapeIt].mesh.material_ids[face];
 
             std::vector<SBufferData> triangle;
             bool bNeedsNormal = false;
@@ -319,6 +317,7 @@ void CWavefrontObj::drawArrays() {
     glEnable(GL_TEXTURE_2D);
 
     for (int i = 0; i < drawBuffers.size(); i++) {
+		glBindVertexArray(drawBuffers[i].vao);
         drawShader->useProgram(true);
 
         drawShader->uniform3f("MatAmbient", drawBuffers[i].matAmbient);
@@ -346,7 +345,6 @@ void CWavefrontObj::drawArrays() {
         drawShader->uniform1ui("SpecularMap", 2);
         drawShader->uniform1ui("NormalMap", 3);
 
-        glBindVertexArray(drawBuffers[i].vao);
         glDrawArrays(GL_TRIANGLES, 0, drawBuffers[i].count);
     }
 }

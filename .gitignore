@@ -22,11 +22,11 @@ VGLView.cpp__
 
 assets
 debug
-QtSEProjects/experimental
+qrc/allicons
+QtSEProjects
 release
 resources
 tinyobjloader
-qrc/allicons
 
 # Testing
 
@@ -38,6 +38,9 @@ qrc/allicons
 # Other
 
 *.swp
+*.zip
+*.obj
+*.mtl
 
 # C++ objects and libs
 

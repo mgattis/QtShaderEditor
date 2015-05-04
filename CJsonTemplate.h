@@ -126,8 +126,8 @@ protected:
 	void parseDefaults( const QString &path /* = QString() */ );
 
 	//void validate( QJsonArray &cmp, const QJsonValue::Type type );
-	void validate( QJsonArray &arr, const QJsonArray &ref );
-	void validate( QJsonObject &obj , const QJsonObject &ref );
+	void validate( QJsonArray &arr, const QJsonArray &ref ) const;
+	void validate( QJsonObject &obj , const QJsonObject &ref ) const;
 
 public:
 	QJsonObject createTree( const QString &name , bool gui ) const;
